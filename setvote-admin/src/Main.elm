@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Browser
-import Html exposing (Html, text, button, div, input, span)
+import Html exposing (Html, text, button, div, input, span, h1)
 import Html.Attributes exposing (type_, value, for)
 import Html.Events exposing (onInput, onClick)
 
@@ -19,8 +19,10 @@ import Bootstrap.Button as Button
 import Bootstrap.Utilities.Spacing as Spacing
 
 import Json.Encode as E
+import Json.Decode as D
 
 port addSet : E.Value -> Cmd msg
+port allSets : (D.Value -> msg) -> Sub msg
 
 
 -- MAIN
@@ -34,12 +36,12 @@ main =
         }
 
 
-
 -- MODEL
 
 type alias Model =
     { newSet : NewSet
     , sets : List Set
+    , msg : String
     }
 
 type alias NewSet =
@@ -63,7 +65,7 @@ init _ =
 
 initModel : Model
 initModel =
-    Model initNewSet []
+    Model initNewSet [] ""
 
 initNewSet : NewSet
 initNewSet =
@@ -78,11 +80,24 @@ newSetToJson newSet =
         , ("colors", E.list E.string newSet.colors)
         ]
 
+allSetsFromJson : D.Decoder (List Set)
+allSetsFromJson =
+    D.list setFromJson
+
+setFromJson : D.Decoder Set
+setFromJson =
+    D.map4 Set
+        (D.field "name" D.string)
+        (D.field "expires" D.string)
+        (D.field "category" D.string)
+        (D.field "colors" (D.list D.string))
+
 
 -- UPDATE
 
 type Msg
     = UpdateNewSet NewSetMsg
+    | AllSets D.Value
 
 type NewSetMsg
     = Name String
@@ -103,6 +118,16 @@ update msg model =
         UpdateNewSet newSetMsg ->
             ( { model | newSet = updateNewSet newSetMsg model.newSet }
             , Cmd.none )
+
+        AllSets setsValue ->
+            case D.decodeValue allSetsFromJson setsValue of
+                Ok sets ->
+                    ( { model | sets = sets }
+                    , Cmd.none )
+
+                Err e ->
+                    ( { model | msg = "Error in parsing all sets" }
+                    , Cmd.none )
 
 updateNewSet : NewSetMsg -> NewSet -> NewSet
 updateNewSet msg newSet =
@@ -137,19 +162,37 @@ updateNewSet msg newSet =
 view : Model -> Html Msg
 view model =
     Grid.container []
-        [ Html.map UpdateNewSet (viewNewSet model.newSet)
+        [ Grid.row []
+            [ Grid.col [] [ Html.map UpdateNewSet (viewNewSet model.newSet) ]
+            , Grid.colBreak []
+            , Grid.col [] (List.map viewSet model.sets)
+            , Grid.colBreak []
+            , Grid.col [] [ text model.msg ]
+            ]
         ]
+
+viewSet : Set -> Html Msg
+viewSet set =
+    div []
+        [ h1 [] [ text set.name ]
+        , div [] [ text ("expires " ++ set.expires) ]
+        , ListGroup.ul (List.map viewColor set.colors)
+        ]
+
+viewColor : String -> ListGroup.Item Msg
+viewColor color =
+    ListGroup.li [] [ text color ]
 
 viewNewSet : NewSet -> Html NewSetMsg
 viewNewSet newSet =
     div []
         [ newVoteForm newSet
         , div [ Spacing.m2 ] []
-        , ListGroup.ul (List.map viewColor newSet.colors)
+        , ListGroup.ul (List.map viewNewSetColor newSet.colors)
         ]
 
-viewColor : String -> ListGroup.Item NewSetMsg
-viewColor color =
+viewNewSetColor : String -> ListGroup.Item NewSetMsg
+viewNewSetColor color =
     ListGroup.li []
         [ Grid.row []
             [ Grid.col []
@@ -212,4 +255,4 @@ newVoteForm newSet =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    allSets AllSets
