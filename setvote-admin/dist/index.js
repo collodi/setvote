@@ -10,11 +10,14 @@ var app = Elm.Main.init({
 app.ports.addSet.subscribe(data => {
 	// extra string append makes it local time
 	data.expires = Date.parse(data.expires + 'T00:00:00');
+	data.created = Date.now();
+
 	db.collection('sets').add(data);
 });
 
 let sets = {};
 db.collection('sets')
+	.orderBy('created', 'desc')
 	.onSnapshot(snap => {
 		sets = {};
 		for (let i = 0; i < snap.size; i++) {
