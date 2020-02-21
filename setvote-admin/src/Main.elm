@@ -12,6 +12,7 @@ import Bootstrap.Grid.Row as Row
 import Bootstrap.ListGroup as ListGroup
 
 import Bootstrap.Form as Form
+import Bootstrap.Form.Radio as Radio
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 
@@ -40,6 +41,7 @@ type alias Model =
     { name : String
     , expires : String
     , newColor : String
+    , category : String
     , colors : List String
     }
 
@@ -49,13 +51,14 @@ init _ =
 
 newModel : Model
 newModel =
-    Model "" "" "" []
+    Model "" "" "" "boulder" []
 
 toJson : Model -> E.Value
 toJson model =
     E.object
         [ ("name", E.string model.name)
         , ("expires", E.string model.expires)
+        , ("category", E.string model.category)
         , ("colors", E.list E.string model.colors)
         ]
 
@@ -65,6 +68,7 @@ toJson model =
 type Msg
     = Name String
     | CloseDate String
+    | Category String
     | NewColor String
     | AddColor
     | DelColor String
@@ -79,6 +83,10 @@ update msg model =
 
         CloseDate date ->
             ( { model | expires = date }
+            , Cmd.none )
+
+        Category category ->
+            ( { model | category = category }
             , Cmd.none )
 
         NewColor color ->
@@ -143,6 +151,22 @@ newVoteForm model =
         , Grid.col []
             [ Form.label [ for "close-date" ] [ text "Close Date" ]
             , Input.date [ Input.id "close-date", Input.attrs [ value model.expires, onInput CloseDate ] ]
+            ]
+        , Grid.colBreak [ Spacing.m1 ]
+        , Grid.col []
+            [ Form.label [ for "category" ] [ text "Category" ]
+            , Radio.radio
+                [ Radio.id "category"
+                , Radio.checked (model.category == "boulder")
+                , Radio.onClick (Category "boulder")
+                ]
+                "Boulder"
+            , Radio.radio
+                [ Radio.id "category"
+                , Radio.checked (model.category == "rope")
+                , Radio.onClick (Category "rope")
+                ]
+                "Rope"
             ]
         , Grid.colBreak [ Spacing.m1 ]
         , Grid.col []

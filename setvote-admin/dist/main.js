@@ -5144,11 +5144,11 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = F4(
-	function (name, expires, newColor, colors) {
-		return {colors: colors, expires: expires, name: name, newColor: newColor};
+var $author$project$Main$Model = F5(
+	function (name, expires, newColor, category, colors) {
+		return {category: category, colors: colors, expires: expires, name: name, newColor: newColor};
 	});
-var $author$project$Main$newModel = A4($author$project$Main$Model, '', '', '', _List_Nil);
+var $author$project$Main$newModel = A5($author$project$Main$Model, '', '', '', 'boulder', _List_Nil);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
@@ -5210,6 +5210,9 @@ var $author$project$Main$toJson = function (model) {
 				'expires',
 				$elm$json$Json$Encode$string(model.expires)),
 				_Utils_Tuple2(
+				'category',
+				$elm$json$Json$Encode$string(model.category)),
+				_Utils_Tuple2(
 				'colors',
 				A2($elm$json$Json$Encode$list, $elm$json$Json$Encode$string, model.colors))
 			]));
@@ -5230,6 +5233,13 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{expires: date}),
+					$elm$core$Platform$Cmd$none);
+			case 'Category':
+				var category = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{category: category}),
 					$elm$core$Platform$Cmd$none);
 			case 'NewColor':
 				var color = msg.a;
@@ -5291,6 +5301,9 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m2 = $elm$html$Html$Attributes$class('m-2');
 var $author$project$Main$AddColor = {$: 'AddColor'};
 var $author$project$Main$AddSet = {$: 'AddSet'};
+var $author$project$Main$Category = function (a) {
+	return {$: 'Category', a: a};
+};
 var $author$project$Main$CloseDate = function (a) {
 	return {$: 'CloseDate', a: a};
 };
@@ -5478,6 +5491,12 @@ var $rundis$elm_bootstrap$Bootstrap$Button$button = F2(
 			$rundis$elm_bootstrap$Bootstrap$Internal$Button$buttonAttributes(options),
 			children);
 	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Checked = function (a) {
+	return {$: 'Checked', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$checked = function (isCheck) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Checked(isCheck);
+};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Column = function (a) {
 	return {$: 'Column', a: a};
 };
@@ -5769,6 +5788,12 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$Id = function (a) {
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$id = function (id_) {
 	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Id(id_);
 };
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Id = function (a) {
+	return {$: 'Id', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$id = function (theId) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Id(theId);
+};
 var $elm$html$Html$label = _VirtualDom_node('label');
 var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
 	function (attributes, children) {
@@ -5782,6 +5807,12 @@ var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
 	});
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1 = $elm$html$Html$Attributes$class('m-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m3 = $elm$html$Html$Attributes$class('m-3');
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick = function (a) {
+	return {$: 'OnClick', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick = function (toMsg) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick(toMsg);
+};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5801,6 +5832,184 @@ var $elm$html$Html$Events$onClick = function (msg) {
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary = {$: 'Primary'};
 var $rundis$elm_bootstrap$Bootstrap$Button$primary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio = function (a) {
+	return {$: 'Radio', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$createAdvanced = F2(
+	function (options, label_) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio(
+			{label: label_, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Label = function (a) {
+	return {$: 'Label', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$label = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Label(
+			{attributes: attributes, children: children});
+	});
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$create = F2(
+	function (options, label_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Form$Radio$createAdvanced,
+			options,
+			A2(
+				$rundis$elm_bootstrap$Bootstrap$Form$Radio$label,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(label_)
+					])));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Id':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						id: $elm$core$Maybe$Just(val)
+					});
+			case 'Checked':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{checked: val});
+			case 'Name':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						name: $elm$core$Maybe$Just(val)
+					});
+			case 'Inline':
+				return _Utils_update(
+					options,
+					{inline: true});
+			case 'OnClick':
+				var toMsg = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						onClick: $elm$core$Maybe$Just(toMsg)
+					});
+			case 'Custom':
+				return _Utils_update(
+					options,
+					{custom: true});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
+			case 'Validation':
+				var validation = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						validation: $elm$core$Maybe$Just(validation)
+					});
+			default:
+				var attrs_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions = {attributes: _List_Nil, checked: false, custom: false, disabled: false, id: $elm$core$Maybe$Nothing, inline: false, name: $elm$core$Maybe$Nothing, onClick: $elm$core$Maybe$Nothing, validation: $elm$core$Maybe$Nothing};
+var $elm$core$Basics$not = _Basics_not;
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
+var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes = function (options) {
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('form-check-input', !options.custom),
+						_Utils_Tuple2('custom-control-input', options.custom)
+					])),
+				$elm$html$Html$Attributes$type_('radio'),
+				$elm$html$Html$Attributes$disabled(options.disabled),
+				$elm$html$Html$Attributes$checked(options.checked)
+			]),
+		_Utils_ap(
+			A2(
+				$elm$core$List$filterMap,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						A2($elm$core$Maybe$map, $elm$html$Html$Events$onClick, options.onClick),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$name, options.name),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id)
+					])),
+			options.attributes));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$view = function (_v0) {
+	var radio_ = _v0.a;
+	var opts = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions, radio_.options);
+	var _v1 = radio_.label;
+	var label_ = _v1.a;
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('form-check', !opts.custom),
+						_Utils_Tuple2('form-check-inline', (!opts.custom) && opts.inline),
+						_Utils_Tuple2('custom-control', opts.custom),
+						_Utils_Tuple2('custom-radio', opts.custom),
+						_Utils_Tuple2('custom-control-inline', opts.inline && opts.custom)
+					]))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$input,
+				$rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes(opts),
+				_List_Nil),
+				A2(
+				$elm$html$Html$label,
+				_Utils_ap(
+					label_.attributes,
+					_Utils_ap(
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2('form-check-label', !opts.custom),
+										_Utils_Tuple2('custom-control-label', opts.custom)
+									]))
+							]),
+						function () {
+							var _v2 = opts.id;
+							if (_v2.$ === 'Just') {
+								var v = _v2.a;
+								return _List_fromArray(
+									[
+										$elm$html$Html$Attributes$for(v)
+									]);
+							} else {
+								return _List_Nil;
+							}
+						}())),
+				label_.children)
+			]));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$radio = F2(
+	function (options, label_) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$view(
+			A2($rundis$elm_bootstrap$Bootstrap$Form$Radio$create, options, label_));
+	});
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col = {$: 'Col'};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width = F2(
 	function (screenSize, columnCount) {
@@ -6602,8 +6811,6 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$row = F2(
 			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Grid$renderCol, cols));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$newVoteForm = function (model) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$row,
@@ -6666,6 +6873,45 @@ var $author$project$Main$newVoteForm = function (model) {
 										$elm$html$Html$Events$onInput($author$project$Main$CloseDate)
 									]))
 							]))
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('category')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Category')
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(model.category === 'boulder'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
+								$author$project$Main$Category('boulder'))
+							]),
+						'Boulder'),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(model.category === 'rope'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
+								$author$project$Main$Category('rope'))
+							]),
+						'Rope')
 					])),
 				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
 				_List_fromArray(
