@@ -38,6 +38,11 @@ main =
 -- MODEL
 
 type alias Model =
+    { newSet : NewSet
+    , sets : List Set
+    }
+
+type alias NewSet =
     { name : String
     , expires : String
     , newColor : String
@@ -45,27 +50,41 @@ type alias Model =
     , colors : List String
     }
 
+type alias Set =
+    { name : String
+    , expires : String
+    , category : String
+    , colors : List String
+    }
+
 init : () -> (Model, Cmd Msg)
 init _ =
-      (newModel, Cmd.none)
+      (initModel, Cmd.none)
 
-newModel : Model
-newModel =
-    Model "" "" "" "boulder" []
+initModel : Model
+initModel =
+    Model initNewSet []
 
-toJson : Model -> E.Value
-toJson model =
+initNewSet : NewSet
+initNewSet =
+    NewSet "" "" "" "boulder" []
+
+newSetToJson : NewSet -> E.Value
+newSetToJson newSet =
     E.object
-        [ ("name", E.string model.name)
-        , ("expires", E.string model.expires)
-        , ("category", E.string model.category)
-        , ("colors", E.list E.string model.colors)
+        [ ("name", E.string newSet.name)
+        , ("expires", E.string newSet.expires)
+        , ("category", E.string newSet.category)
+        , ("colors", E.list E.string newSet.colors)
         ]
 
 
 -- UPDATE
 
 type Msg
+    = UpdateNewSet NewSetMsg
+
+type NewSetMsg
     = Name String
     | CloseDate String
     | Category String
@@ -77,42 +96,40 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Name name ->
-            ( { model | name = name }
+        UpdateNewSet AddSet ->
+            ( initModel
+            , addSet (newSetToJson model.newSet) )
+
+        UpdateNewSet newSetMsg ->
+            ( { model | newSet = updateNewSet newSetMsg model.newSet }
             , Cmd.none )
+
+updateNewSet : NewSetMsg -> NewSet -> NewSet
+updateNewSet msg newSet =
+    case msg of
+        Name name ->
+            { newSet | name = name }
 
         CloseDate date ->
-            ( { model | expires = date }
-            , Cmd.none )
+            { newSet | expires = date }
 
         Category category ->
-            ( { model | category = category }
-            , Cmd.none )
+            { newSet | category = category }
 
         NewColor color ->
-            ( { model | newColor = color }
-            , Cmd.none )
+            { newSet | newColor = color }
 
         AddColor ->
-            (
-                { model
-                    | colors = List.sort (model.newColor :: model.colors)
-                    , newColor = ""
-                }
-            , Cmd.none )
+            { newSet
+                | colors = List.sort (newSet.newColor :: newSet.colors)
+                , newColor = "" }
 
         DelColor color ->
-            (
-                { model
-                    | colors = List.filter ((/=) color) model.colors
-                }
-            , Cmd.none )
+            { newSet
+                | colors = List.filter ((/=) color) newSet.colors
+            }
 
-        AddSet ->
-            ( newModel
-            , addSet (toJson model) )
-
-
+        _ -> newSet
 
 
 -- VIEW
@@ -120,13 +137,18 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Grid.container []
-        [ newVoteForm model
-        , div [ Spacing.m2 ] []
-        , ListGroup.ul (List.map viewColor model.colors)
+        [ Html.map UpdateNewSet (viewNewSet model.newSet)
         ]
 
+viewNewSet : NewSet -> Html NewSetMsg
+viewNewSet newSet =
+    div []
+        [ newVoteForm newSet
+        , div [ Spacing.m2 ] []
+        , ListGroup.ul (List.map viewColor newSet.colors)
+        ]
 
-viewColor : String -> ListGroup.Item Msg
+viewColor : String -> ListGroup.Item NewSetMsg
 viewColor color =
     ListGroup.li []
         [ Grid.row []
@@ -140,30 +162,30 @@ viewColor color =
             ]
         ]
 
-newVoteForm : Model -> Html Msg
-newVoteForm model =
+newVoteForm : NewSet -> Html NewSetMsg
+newVoteForm newSet =
     Grid.row []
         [ Grid.col []
             [ Form.label [ for "name" ] [ text "Name" ]
-            , Input.text [ Input.id "name", Input.attrs [ value model.name, onInput Name ] ]
+            , Input.text [ Input.id "name", Input.attrs [ value newSet.name, onInput Name ] ]
             ]
         , Grid.colBreak [ Spacing.m1 ]
         , Grid.col []
             [ Form.label [ for "close-date" ] [ text "Close Date" ]
-            , Input.date [ Input.id "close-date", Input.attrs [ value model.expires, onInput CloseDate ] ]
+            , Input.date [ Input.id "close-date", Input.attrs [ value newSet.expires, onInput CloseDate ] ]
             ]
         , Grid.colBreak [ Spacing.m1 ]
         , Grid.col []
             [ Form.label [ for "category" ] [ text "Category" ]
             , Radio.radio
                 [ Radio.id "category"
-                , Radio.checked (model.category == "boulder")
+                , Radio.checked (newSet.category == "boulder")
                 , Radio.onClick (Category "boulder")
                 ]
                 "Boulder"
             , Radio.radio
                 [ Radio.id "category"
-                , Radio.checked (model.category == "rope")
+                , Radio.checked (newSet.category == "rope")
                 , Radio.onClick (Category "rope")
                 ]
                 "Rope"
@@ -171,7 +193,7 @@ newVoteForm model =
         , Grid.colBreak [ Spacing.m1 ]
         , Grid.col []
             [ Form.label [ for "new-color" ] [ text "Add Color" ]
-            , Input.text [ Input.id "new-color", Input.attrs [ value model.newColor, onInput NewColor ] ]
+            , Input.text [ Input.id "new-color", Input.attrs [ value newSet.newColor, onInput NewColor ] ]
             , div [ Spacing.m1 ] []
             , Button.button
                 [ Button.dark, Button.block, Button.attrs [ onClick AddColor ] ]
