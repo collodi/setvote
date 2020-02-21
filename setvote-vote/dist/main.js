@@ -5244,7 +5244,7 @@ var $author$project$Main$voteToJson = function (model) {
 		_List_fromArray(
 			[
 				_Utils_Tuple2(
-				'id',
+				'set_id',
 				$elm$json$Json$Encode$string(model.set.id)),
 				_Utils_Tuple2(
 				'routes',
@@ -6731,6 +6731,24 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Item(
 			A2($elm$html$Html$option, attributes, children));
 	});
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $author$project$Main$gradeChoice = function (grade) {
+	return A2(
+		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$value(grade)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(grade)
+			]));
+};
+var $author$project$Main$gradeChoices = A2(
+	$elm$core$List$map,
+	$author$project$Main$gradeChoice,
+	_List_fromArray(
+		['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']));
 var $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange = function (a) {
 	return {$: 'OnChange', a: a};
 };
@@ -6897,7 +6915,6 @@ var $rundis$elm_bootstrap$Bootstrap$Card$Block$text = F2(
 					attributes),
 				children));
 	});
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier = F2(
 	function (option, options) {
 		switch (option.$) {
@@ -7073,29 +7090,7 @@ var $author$project$Main$viewRoute = function (route) {
 								$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
 								$author$project$Main$SelectGrade(route.color))
 							]),
-						_List_fromArray(
-							[
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$value('V0')
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('V0')
-									])),
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$value('V1')
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('V1')
-									]))
-							])))
+						$author$project$Main$gradeChoices))
 				]),
 			$rundis$elm_bootstrap$Bootstrap$Card$config(_List_Nil)));
 };

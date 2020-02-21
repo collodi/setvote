@@ -84,7 +84,7 @@ setFromJson =
 voteToJson : Model -> E.Value
 voteToJson model =
     E.object
-        [ ("id", E.string model.set.id)
+        [ ("set_id", E.string model.set.id)
         , ("routes", E.list routeToJson model.routes)
         ]
 
@@ -171,13 +171,18 @@ viewRoute route =
         |> Card.block []
             [ Block.text [] [ text route.color ]
             , Block.custom <|
-                Select.select [ Select.onChange (SelectGrade route.color) ]
-                    [ Select.item [ value "V0" ] [ text "V0" ]
-                    , Select.item [ value "V1" ] [ text "V1" ]
-                    ]
+                Select.select [ Select.onChange (SelectGrade route.color) ] gradeChoices
             ]
         |> Card.view
 
+gradeChoices : List (Select.Item Msg)
+gradeChoices =
+    List.map gradeChoice
+        [ "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
+
+gradeChoice : String -> Select.Item Msg
+gradeChoice grade =
+    Select.item [ value grade ] [ text grade ]
 
 
 -- SUBSCRIPTIONS

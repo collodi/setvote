@@ -9,6 +9,8 @@ var app = Elm.Main.init({
 
 app.ports.castVote.subscribe(data => {
 	console.log(data);
+
+	db.collection('votes').add(data);
 });
 
 db.collection('sets')
