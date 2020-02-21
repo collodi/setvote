@@ -29,7 +29,6 @@ db.collection('sets')
 		}
 
 		// gatherVotes();
-		console.log(Object.values(sets));
 		app.ports.allSets.send(Object.values(sets));
 	});
 

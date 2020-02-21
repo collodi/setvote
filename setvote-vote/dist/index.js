@@ -14,6 +14,7 @@ app.ports.castVote.subscribe(data => {
 });
 
 db.collection('sets')
+	.orderBy('created', 'desc')
 	.where('expires', '>', Date.now())
 	.limit(1)
 	.get()
