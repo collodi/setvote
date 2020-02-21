@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Set Vote - Add Set</title>
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+		<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-analytics.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-firestore.js"></script>
+
+		<script src="main.js"></script>
+	</head>
+
+	<body>
+		<div id="elm"></div>
+
+		<script src="firebase_config.js"></script>
+		<script>
+			firebase.initializeApp(firebaseConfig);
+			firebase.analytics();
+
+			var db = firebase.firestore();
+
+			var app = Elm.Main.init({
+				node: document.getElementById('elm')
+			});
+
+			app.ports.addSet.subscribe(data => {
+				// extra string append makes it local time
+				data.expires = Date.parse(data.expires + 'T00:00:00');
+				db.collection('sets').add(data);
+			});
+		</script>
+	</body>
+</html>
