@@ -54,6 +54,7 @@ type alias Set =
     { id : String
     , name : String
     , expires : String
+    , category : String
     , colors : List String
     }
 
@@ -71,14 +72,15 @@ newRoute color =
 
 newSet : Set
 newSet =
-    Set "" "" "" []
+    Set "" "" "" "" []
 
 setFromJson : D.Decoder Set
 setFromJson =
-    D.map4 Set
+    D.map5 Set
         (D.field "id" D.string)
         (D.field "name" D.string)
         (D.field "expires" D.string)
+        (D.field "category" D.string)
         (D.field "colors" (D.list D.string))
 
 voteToJson : Model -> E.Value
@@ -149,7 +151,7 @@ view model =
             [ Grid.row []
                 [ Grid.col [] [ h1 [] [ text model.set.name ] ]
                 ]
-            , div [] (List.map viewRoute model.routes)
+            , div [] (List.map (viewRoute model.set.category) model.routes)
             , Button.button
                 [ Button.primary, Button.block
                 , Button.attrs [ onClick CastVote ]
@@ -165,20 +167,26 @@ view model =
             ]
 
 
-viewRoute : Route -> Html Msg
-viewRoute route =
+viewRoute : String -> Route -> Html Msg
+viewRoute category route =
     Card.config []
         |> Card.block []
             [ Block.text [] [ text route.color ]
             , Block.custom <|
-                Select.select [ Select.onChange (SelectGrade route.color) ] gradeChoices
+                Select.select
+                    [ Select.onChange (SelectGrade route.color) ]
+                    ( gradeChoices category )
             ]
         |> Card.view
 
-gradeChoices : List (Select.Item Msg)
-gradeChoices =
-    List.map gradeChoice
-        [ "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
+gradeChoices : String -> List (Select.Item Msg)
+gradeChoices category =
+    if category == "boulder" then
+        List.map gradeChoice
+            [ "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
+    else
+        List.map gradeChoice
+            [ "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
 
 gradeChoice : String -> Select.Item Msg
 gradeChoice grade =

@@ -5148,11 +5148,11 @@ var $author$project$Main$Model = F3(
 	function (set, routes, msg) {
 		return {msg: msg, routes: routes, set: set};
 	});
-var $author$project$Main$Set = F4(
-	function (id, name, expires, colors) {
-		return {colors: colors, expires: expires, id: id, name: name};
+var $author$project$Main$Set = F5(
+	function (id, name, expires, category, colors) {
+		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
-var $author$project$Main$newSet = A4($author$project$Main$Set, '', '', '', _List_Nil);
+var $author$project$Main$newSet = A5($author$project$Main$Set, '', '', '', '', _List_Nil);
 var $author$project$Main$newModel = A3($author$project$Main$Model, $author$project$Main$newSet, _List_Nil, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5192,14 +5192,15 @@ var $author$project$Main$selectGrade = F3(
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $elm$json$Json$Decode$map4 = _Json_map4;
+var $elm$json$Json$Decode$map5 = _Json_map5;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$setFromJson = A5(
-	$elm$json$Json$Decode$map4,
+var $author$project$Main$setFromJson = A6(
+	$elm$json$Json$Decode$map5,
 	$author$project$Main$Set,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'expires', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'category', $elm$json$Json$Decode$string),
 	A2(
 		$elm$json$Json$Decode$field,
 		'colors',
@@ -6744,11 +6745,17 @@ var $author$project$Main$gradeChoice = function (grade) {
 				$elm$html$Html$text(grade)
 			]));
 };
-var $author$project$Main$gradeChoices = A2(
-	$elm$core$List$map,
-	$author$project$Main$gradeChoice,
-	_List_fromArray(
-		['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']));
+var $author$project$Main$gradeChoices = function (category) {
+	return (category === 'boulder') ? A2(
+		$elm$core$List$map,
+		$author$project$Main$gradeChoice,
+		_List_fromArray(
+			['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])) : A2(
+		$elm$core$List$map,
+		$author$project$Main$gradeChoice,
+		_List_fromArray(
+			['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']));
+};
 var $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange = function (a) {
 	return {$: 'OnChange', a: a};
 };
@@ -7068,32 +7075,33 @@ var $rundis$elm_bootstrap$Bootstrap$Card$view = function (_v0) {
 							conf.imgBottom)
 						])))));
 };
-var $author$project$Main$viewRoute = function (route) {
-	return $rundis$elm_bootstrap$Bootstrap$Card$view(
-		A3(
-			$rundis$elm_bootstrap$Bootstrap$Card$block,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(route.color)
-						])),
-					$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
-					A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+var $author$project$Main$viewRoute = F2(
+	function (category, route) {
+		return $rundis$elm_bootstrap$Bootstrap$Card$view(
+			A3(
+				$rundis$elm_bootstrap$Bootstrap$Card$block,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
+						_List_Nil,
 						_List_fromArray(
 							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
-								$author$project$Main$SelectGrade(route.color))
-							]),
-						$author$project$Main$gradeChoices))
-				]),
-			$rundis$elm_bootstrap$Bootstrap$Card$config(_List_Nil)));
-};
+								$elm$html$Html$text(route.color)
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
+						A2(
+							$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
+									$author$project$Main$SelectGrade(route.color))
+								]),
+							$author$project$Main$gradeChoices(category)))
+					]),
+				$rundis$elm_bootstrap$Bootstrap$Card$config(_List_Nil)));
+	});
 var $author$project$Main$view = function (model) {
 	return $elm$core$String$isEmpty(model.msg) ? A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
@@ -7122,7 +7130,10 @@ var $author$project$Main$view = function (model) {
 				A2(
 				$elm$html$Html$div,
 				_List_Nil,
-				A2($elm$core$List$map, $author$project$Main$viewRoute, model.routes)),
+				A2(
+					$elm$core$List$map,
+					$author$project$Main$viewRoute(model.set.category),
+					model.routes)),
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Button$button,
 				_List_fromArray(
