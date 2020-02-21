@@ -22,6 +22,8 @@ import Json.Encode as E
 import Json.Decode as D
 
 port addSet : E.Value -> Cmd msg
+port deleteSet : E.Value -> Cmd msg
+
 port allSets : (D.Value -> msg) -> Sub msg
 
 
@@ -53,7 +55,8 @@ type alias NewSet =
     }
 
 type alias Set =
-    { name : String
+    { id : String
+    , name : String
     , expires : String
     , category : String
     , colors : List String
@@ -86,7 +89,8 @@ allSetsFromJson =
 
 setFromJson : D.Decoder Set
 setFromJson =
-    D.map4 Set
+    D.map5 Set
+        (D.field "id" D.string)
         (D.field "name" D.string)
         (D.field "expires" D.string)
         (D.field "category" D.string)
@@ -97,6 +101,7 @@ setFromJson =
 
 type Msg
     = UpdateNewSet NewSetMsg
+    | DeleteSet String
     | AllSets D.Value
 
 type NewSetMsg
@@ -118,6 +123,10 @@ update msg model =
         UpdateNewSet newSetMsg ->
             ( { model | newSet = updateNewSet newSetMsg model.newSet }
             , Cmd.none )
+
+        DeleteSet id ->
+            ( model
+            , deleteSet (E.string id) )
 
         AllSets setsValue ->
             case D.decodeValue allSetsFromJson setsValue of
@@ -177,6 +186,9 @@ viewSet set =
         [ h1 [] [ text set.name ]
         , div [] [ text ("expires " ++ set.expires) ]
         , ListGroup.ul (List.map viewColor set.colors)
+        , Button.button
+            [ Button.danger, Button.attrs [ onClick (DeleteSet set.id) ] ]
+            [ text "Delete Set" ]
         ]
 
 viewColor : String -> ListGroup.Item Msg

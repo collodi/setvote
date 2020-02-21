@@ -5169,16 +5169,17 @@ var $author$project$Main$subscriptions = function (model) {
 };
 var $author$project$Main$addSet = _Platform_outgoingPort('addSet', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Main$Set = F4(
-	function (name, expires, category, colors) {
-		return {category: category, colors: colors, expires: expires, name: name};
+var $author$project$Main$Set = F5(
+	function (id, name, expires, category, colors) {
+		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$map4 = _Json_map4;
+var $elm$json$Json$Decode$map5 = _Json_map5;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$setFromJson = A5(
-	$elm$json$Json$Decode$map4,
+var $author$project$Main$setFromJson = A6(
+	$elm$json$Json$Decode$map5,
 	$author$project$Main$Set,
+	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'expires', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'category', $elm$json$Json$Decode$string),
@@ -5188,6 +5189,7 @@ var $author$project$Main$setFromJson = A5(
 		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 var $author$project$Main$allSetsFromJson = $elm$json$Json$Decode$list($author$project$Main$setFromJson);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$Main$deleteSet = _Platform_outgoingPort('deleteSet', $elm$core$Basics$identity);
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -5292,41 +5294,48 @@ var $author$project$Main$updateNewSet = F2(
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'UpdateNewSet') {
-			if (msg.a.$ === 'AddSet') {
-				var _v1 = msg.a;
+		switch (msg.$) {
+			case 'UpdateNewSet':
+				if (msg.a.$ === 'AddSet') {
+					var _v1 = msg.a;
+					return _Utils_Tuple2(
+						$author$project$Main$initModel,
+						$author$project$Main$addSet(
+							$author$project$Main$newSetToJson(model.newSet)));
+				} else {
+					var newSetMsg = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								newSet: A2($author$project$Main$updateNewSet, newSetMsg, model.newSet)
+							}),
+						$elm$core$Platform$Cmd$none);
+				}
+			case 'DeleteSet':
+				var id = msg.a;
 				return _Utils_Tuple2(
-					$author$project$Main$initModel,
-					$author$project$Main$addSet(
-						$author$project$Main$newSetToJson(model.newSet)));
-			} else {
-				var newSetMsg = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							newSet: A2($author$project$Main$updateNewSet, newSetMsg, model.newSet)
-						}),
-					$elm$core$Platform$Cmd$none);
-			}
-		} else {
-			var setsValue = msg.a;
-			var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$allSetsFromJson, setsValue);
-			if (_v2.$ === 'Ok') {
-				var sets = _v2.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{sets: sets}),
-					$elm$core$Platform$Cmd$none);
-			} else {
-				var e = _v2.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{msg: 'Error in parsing all sets'}),
-					$elm$core$Platform$Cmd$none);
-			}
+					model,
+					$author$project$Main$deleteSet(
+						$elm$json$Json$Encode$string(id)));
+			default:
+				var setsValue = msg.a;
+				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$allSetsFromJson, setsValue);
+				if (_v2.$ === 'Ok') {
+					var sets = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{sets: sets}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Error in parsing all sets'}),
+						$elm$core$Platform$Cmd$none);
+				}
 		}
 	});
 var $author$project$Main$UpdateNewSet = function (a) {
@@ -7246,6 +7255,9 @@ var $author$project$Main$viewNewSet = function (newSet) {
 				A2($elm$core$List$map, $author$project$Main$viewNewSetColor, newSet.colors))
 			]));
 };
+var $author$project$Main$DeleteSet = function (a) {
+	return {$: 'DeleteSet', a: a};
+};
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $author$project$Main$viewColor = function (color) {
 	return A2(
@@ -7277,7 +7289,23 @@ var $author$project$Main$viewSet = function (set) {
 						$elm$html$Html$text('expires ' + set.expires)
 					])),
 				$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
-				A2($elm$core$List$map, $author$project$Main$viewColor, set.colors))
+				A2($elm$core$List$map, $author$project$Main$viewColor, set.colors)),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Button$button,
+				_List_fromArray(
+					[
+						$rundis$elm_bootstrap$Bootstrap$Button$danger,
+						$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick(
+								$author$project$Main$DeleteSet(set.id))
+							]))
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Delete Set')
+					]))
 			]));
 };
 var $author$project$Main$view = function (model) {

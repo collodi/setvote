@@ -15,6 +15,10 @@ app.ports.addSet.subscribe(data => {
 	db.collection('sets').add(data);
 });
 
+app.ports.deleteSet.subscribe(set_id => {
+	db.collection('sets').doc(set_id).delete();
+});
+
 let sets = {};
 db.collection('sets')
 	.orderBy('created', 'desc')
@@ -24,6 +28,7 @@ db.collection('sets')
 			const doc = snap.docs[i];
 
 			let data = doc.data();
+			data.id = doc.id;
 			data.expires = new Date(data.expires).toISOString().slice(0, 10);
 			sets[doc.id] = data;
 		}
