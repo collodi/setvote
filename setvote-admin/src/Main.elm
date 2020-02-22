@@ -25,6 +25,7 @@ port addSet : E.Value -> Cmd msg
 port deleteSet : E.Value -> Cmd msg
 
 port allSets : (D.Value -> msg) -> Sub msg
+port allVotes : (D.Value -> msg) -> Sub msg
 
 
 -- MAIN
@@ -43,6 +44,7 @@ main =
 type alias Model =
     { newSet : NewSet
     , sets : List Set
+    , votes : List Vote
     , msg : String
     }
 
@@ -62,13 +64,19 @@ type alias Set =
     , colors : List String
     }
 
+type alias Vote =
+    { set_id : String
+    , color : String
+    , grade : String
+    }
+
 init : () -> (Model, Cmd Msg)
 init _ =
       (initModel, Cmd.none)
 
 initModel : Model
 initModel =
-    Model initNewSet [] ""
+    Model initNewSet [] [] ""
 
 initNewSet : NewSet
 initNewSet =
@@ -96,6 +104,16 @@ setFromJson =
         (D.field "category" D.string)
         (D.field "colors" (D.list D.string))
 
+allVotesFromJson : D.Decoder (List Vote)
+allVotesFromJson =
+    D.list voteFromJson
+
+voteFromJson : D.Decoder Vote
+voteFromJson =
+    D.map3 Vote
+        (D.field "set_id" D.string)
+        (D.field "color" D.string)
+        (D.field "grade" D.string)
 
 -- UPDATE
 
@@ -103,6 +121,7 @@ type Msg
     = UpdateNewSet NewSetMsg
     | DeleteSet String
     | AllSets D.Value
+    | AllVotes D.Value
 
 type NewSetMsg
     = Name String
@@ -136,6 +155,16 @@ update msg model =
 
                 Err e ->
                     ( { model | msg = "Error in parsing all sets" }
+                    , Cmd.none )
+
+        AllVotes votesValue ->
+            case D.decodeValue allVotesFromJson votesValue of
+                Ok votes ->
+                    ( { model | votes = votes }
+                    , Cmd.none )
+
+                Err e ->
+                    ( { model | msg = "Error in parsing all votes" }
                     , Cmd.none )
 
 updateNewSet : NewSetMsg -> NewSet -> NewSet
@@ -172,28 +201,56 @@ view : Model -> Html Msg
 view model =
     Grid.container []
         [ Grid.row []
-            [ Grid.col [] [ Html.map UpdateNewSet (viewNewSet model.newSet) ]
+            [ Grid.col [] [ text model.msg ]
             , Grid.colBreak []
-            , Grid.col [] (List.map viewSet model.sets)
+            , Grid.col [] [ Html.map UpdateNewSet (viewNewSet model.newSet) ]
             , Grid.colBreak []
-            , Grid.col [] [ text model.msg ]
+            , Grid.col [] (List.map (viewSet model.votes) model.sets)
             ]
         ]
 
-viewSet : Set -> Html Msg
-viewSet set =
+viewSet : List Vote -> Set -> Html Msg
+viewSet votes set =
     div []
         [ h1 [] [ text set.name ]
         , div [] [ text ("expires " ++ set.expires) ]
-        , ListGroup.ul (List.map viewColor set.colors)
+        , ListGroup.ul (List.map (viewRoute set.id votes) set.colors)
         , Button.button
             [ Button.danger, Button.attrs [ onClick (DeleteSet set.id) ] ]
             [ text "Delete Set" ]
         ]
 
-viewColor : String -> ListGroup.Item Msg
-viewColor color =
-    ListGroup.li [] [ text color ]
+viewRoute : String -> List Vote -> String -> ListGroup.Item Msg
+viewRoute set_id votes color =
+    ListGroup.li []
+        [ Grid.row []
+            [ Grid.col [] [ text color ]
+            ]
+        , Grid.row []
+            (List.map
+                (viewGrade set_id color votes)
+                ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
+            )
+        ]
+
+viewGrade : String -> String -> List Vote -> String -> Grid.Column Msg
+viewGrade set_id color votes grade =
+    Grid.col []
+        [ div [] [ text grade ]
+        , div []
+            [ text (String.fromInt (countVotes set_id color grade votes)) ]
+        ]
+
+countVotes : String -> String -> String -> List Vote -> Int
+countVotes set_id color grade votes =
+    List.filter (checkVoteMatch set_id color grade) votes
+        |> List.length
+
+checkVoteMatch : String -> String -> String -> Vote -> Bool
+checkVoteMatch set_id color grade vote =
+    vote.set_id == set_id &&
+    vote.color == color &&
+    vote.grade == grade
 
 viewNewSet : NewSet -> Html NewSetMsg
 viewNewSet newSet =
@@ -267,4 +324,7 @@ newVoteForm newSet =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    allSets AllSets
+    Sub.batch
+        [ allSets AllSets
+        , allVotes AllVotes
+        ]

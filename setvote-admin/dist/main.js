@@ -5144,16 +5144,16 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = F3(
-	function (newSet, sets, msg) {
-		return {msg: msg, newSet: newSet, sets: sets};
+var $author$project$Main$Model = F4(
+	function (newSet, sets, votes, msg) {
+		return {msg: msg, newSet: newSet, sets: sets, votes: votes};
 	});
 var $author$project$Main$NewSet = F5(
 	function (name, expires, newColor, category, colors) {
 		return {category: category, colors: colors, expires: expires, name: name, newColor: newColor};
 	});
 var $author$project$Main$initNewSet = A5($author$project$Main$NewSet, '', '', '', 'boulder', _List_Nil);
-var $author$project$Main$initModel = A3($author$project$Main$Model, $author$project$Main$initNewSet, _List_Nil, '');
+var $author$project$Main$initModel = A4($author$project$Main$Model, $author$project$Main$initNewSet, _List_Nil, _List_Nil, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
@@ -5162,10 +5162,20 @@ var $author$project$Main$init = function (_v0) {
 var $author$project$Main$AllSets = function (a) {
 	return {$: 'AllSets', a: a};
 };
+var $author$project$Main$AllVotes = function (a) {
+	return {$: 'AllVotes', a: a};
+};
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$allSets = _Platform_incomingPort('allSets', $elm$json$Json$Decode$value);
+var $author$project$Main$allVotes = _Platform_incomingPort('allVotes', $elm$json$Json$Decode$value);
+var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $author$project$Main$subscriptions = function (model) {
-	return $author$project$Main$allSets($author$project$Main$AllSets);
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				$author$project$Main$allSets($author$project$Main$AllSets),
+				$author$project$Main$allVotes($author$project$Main$AllVotes)
+			]));
 };
 var $author$project$Main$addSet = _Platform_outgoingPort('addSet', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$list = _Json_decodeList;
@@ -5188,6 +5198,18 @@ var $author$project$Main$setFromJson = A6(
 		'colors',
 		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
 var $author$project$Main$allSetsFromJson = $elm$json$Json$Decode$list($author$project$Main$setFromJson);
+var $author$project$Main$Vote = F3(
+	function (set_id, color, grade) {
+		return {color: color, grade: grade, set_id: set_id};
+	});
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $author$project$Main$voteFromJson = A4(
+	$elm$json$Json$Decode$map3,
+	$author$project$Main$Vote,
+	A2($elm$json$Json$Decode$field, 'set_id', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'grade', $elm$json$Json$Decode$string));
+var $author$project$Main$allVotesFromJson = $elm$json$Json$Decode$list($author$project$Main$voteFromJson);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Main$deleteSet = _Platform_outgoingPort('deleteSet', $elm$core$Basics$identity);
 var $elm$json$Json$Encode$list = F2(
@@ -5318,7 +5340,7 @@ var $author$project$Main$update = F2(
 					model,
 					$author$project$Main$deleteSet(
 						$elm$json$Json$Encode$string(id)));
-			default:
+			case 'AllSets':
 				var setsValue = msg.a;
 				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$allSetsFromJson, setsValue);
 				if (_v2.$ === 'Ok') {
@@ -5334,6 +5356,24 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{msg: 'Error in parsing all sets'}),
+						$elm$core$Platform$Cmd$none);
+				}
+			default:
+				var votesValue = msg.a;
+				var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$allVotesFromJson, votesValue);
+				if (_v3.$ === 'Ok') {
+					var votes = _v3.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{votes: votes}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v3.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Error in parsing all votes'}),
 						$elm$core$Platform$Cmd$none);
 				}
 		}
@@ -7259,55 +7299,117 @@ var $author$project$Main$DeleteSet = function (a) {
 	return {$: 'DeleteSet', a: a};
 };
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $author$project$Main$viewColor = function (color) {
-	return A2(
-		$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
-		_List_Nil,
-		_List_fromArray(
-			[
-				$elm$html$Html$text(color)
-			]));
-};
-var $author$project$Main$viewSet = function (set) {
-	return A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$h1,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(set.name)
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('expires ' + set.expires)
-					])),
-				$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
-				A2($elm$core$List$map, $author$project$Main$viewColor, set.colors)),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Button$button,
-				_List_fromArray(
-					[
-						$rundis$elm_bootstrap$Bootstrap$Button$danger,
-						$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+var $author$project$Main$checkVoteMatch = F4(
+	function (set_id, color, grade, vote) {
+		return _Utils_eq(vote.set_id, set_id) && (_Utils_eq(vote.color, color) && _Utils_eq(vote.grade, grade));
+	});
+var $author$project$Main$countVotes = F4(
+	function (set_id, color, grade, votes) {
+		return $elm$core$List$length(
+			A2(
+				$elm$core$List$filter,
+				A3($author$project$Main$checkVoteMatch, set_id, color, grade),
+				votes));
+	});
+var $author$project$Main$viewGrade = F4(
+	function (set_id, color, votes, grade) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Grid$col,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(grade)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							$elm$core$String$fromInt(
+								A4($author$project$Main$countVotes, set_id, color, grade, votes)))
+						]))
+				]));
+	});
+var $author$project$Main$viewRoute = F3(
+	function (set_id, votes, color) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$rundis$elm_bootstrap$Bootstrap$Grid$row,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Grid$col,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(color)
+								]))
+						])),
+					A2(
+					$rundis$elm_bootstrap$Bootstrap$Grid$row,
+					_List_Nil,
+					A2(
+						$elm$core$List$map,
+						A3($author$project$Main$viewGrade, set_id, color, votes),
 						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Main$DeleteSet(set.id))
-							]))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Delete Set')
-					]))
-			]));
-};
+							['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])))
+				]));
+	});
+var $author$project$Main$viewSet = F2(
+	function (votes, set) {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$h1,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(set.name)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('expires ' + set.expires)
+						])),
+					$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+					A2(
+						$elm$core$List$map,
+						A2($author$project$Main$viewRoute, set.id, votes),
+						set.colors)),
+					A2(
+					$rundis$elm_bootstrap$Bootstrap$Button$button,
+					_List_fromArray(
+						[
+							$rundis$elm_bootstrap$Bootstrap$Button$danger,
+							$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick(
+									$author$project$Main$DeleteSet(set.id))
+								]))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Delete Set')
+						]))
+				]));
+	});
 var $author$project$Main$view = function (model) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
@@ -7324,6 +7426,14 @@ var $author$project$Main$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
+								$elm$html$Html$text(model.msg)
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
 								A2(
 								$elm$html$Html$map,
 								$author$project$Main$UpdateNewSet,
@@ -7333,15 +7443,10 @@ var $author$project$Main$view = function (model) {
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
-						A2($elm$core$List$map, $author$project$Main$viewSet, model.sets)),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
 						A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(model.msg)
-							]))
+							$elm$core$List$map,
+							$author$project$Main$viewSet(model.votes),
+							model.sets))
 					]))
 			]));
 };

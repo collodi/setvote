@@ -19,30 +19,31 @@ app.ports.deleteSet.subscribe(set_id => {
 	db.collection('sets').doc(set_id).delete();
 });
 
-let sets = {};
 db.collection('sets')
 	.orderBy('created', 'desc')
 	.onSnapshot(snap => {
-		sets = {};
+		let sets = {};
 		for (let i = 0; i < snap.size; i++) {
 			const doc = snap.docs[i];
 
 			let data = doc.data();
 			data.id = doc.id;
 			data.expires = new Date(data.expires).toISOString().slice(0, 10);
+
 			sets[doc.id] = data;
 		}
 
-		// gatherVotes();
 		app.ports.allSets.send(Object.values(sets));
 	});
 
-function gatherVotes() {
-	db.collection('votes').get()
-		.then(snap => {
-			// group votes by id
-			for (let i = 0; i < snap.size; i++) {
-				const data = snap.docs[i].data();
-			}
-		});
-}
+db.collection('votes')
+	.onSnapshot(snap => {
+		let votes = [];
+		for (let i = 0; i < snap.size; i++) {
+			const data = snap.docs[i].data();
+			for (const vote of data.routes)
+				votes.push({ set_id: data.set_id, ...vote });
+		}
+
+		app.ports.allVotes.send(votes);
+	});
