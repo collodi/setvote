@@ -3,7 +3,7 @@ firebase.analytics();
 
 var db = firebase.firestore();
 
-var app = Elm.Main.init({
+var app = Elm.Admin.init({
 	node: document.getElementById('elm')
 });
 

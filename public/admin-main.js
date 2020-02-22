@@ -1874,19 +1874,19 @@ function _Platform_initialize(flagDecoder, args, init, update, subscriptions, st
 	var result = A2(_Json_run, flagDecoder, _Json_wrap(args ? args['flags'] : undefined));
 	$elm$core$Result$isOk(result) || _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
 	var managers = {};
-	result = init(result.a);
-	var model = result.a;
+	var initPair = init(result.a);
+	var model = initPair.a;
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
 
 	function sendToApp(msg, viewMetadata)
 	{
-		result = A2(update, msg, model);
-		stepper(model = result.a, viewMetadata);
-		_Platform_enqueueEffects(managers, result.b, subscriptions(model));
+		var pair = A2(update, msg, model);
+		stepper(model = pair.a, viewMetadata);
+		_Platform_enqueueEffects(managers, pair.b, subscriptions(model));
 	}
 
-	_Platform_enqueueEffects(managers, result.b, subscriptions(model));
+	_Platform_enqueueEffects(managers, initPair.b, subscriptions(model));
 
 	return ports ? { ports: ports } : {};
 }
@@ -5144,51 +5144,51 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = F4(
-	function (newSet, sets, votes, msg) {
-		return {msg: msg, newSet: newSet, sets: sets, votes: votes};
+var $author$project$Admin$Model = F5(
+	function (newSet, showNewSet, sets, votes, msg) {
+		return {msg: msg, newSet: newSet, sets: sets, showNewSet: showNewSet, votes: votes};
 	});
-var $author$project$Main$NewSet = F5(
+var $author$project$Admin$NewSet = F5(
 	function (name, expires, newColor, category, colors) {
 		return {category: category, colors: colors, expires: expires, name: name, newColor: newColor};
 	});
-var $author$project$Main$initNewSet = A5($author$project$Main$NewSet, '', '', '', 'boulder', _List_Nil);
-var $author$project$Main$initModel = A4($author$project$Main$Model, $author$project$Main$initNewSet, _List_Nil, _List_Nil, '');
+var $author$project$Admin$initNewSet = A5($author$project$Admin$NewSet, '', '', '', 'boulder', _List_Nil);
+var $author$project$Admin$initModel = A5($author$project$Admin$Model, $author$project$Admin$initNewSet, false, _List_Nil, _List_Nil, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2($author$project$Main$initModel, $elm$core$Platform$Cmd$none);
+var $author$project$Admin$init = function (_v0) {
+	return _Utils_Tuple2($author$project$Admin$initModel, $elm$core$Platform$Cmd$none);
 };
-var $author$project$Main$AllSets = function (a) {
+var $author$project$Admin$AllSets = function (a) {
 	return {$: 'AllSets', a: a};
 };
-var $author$project$Main$AllVotes = function (a) {
+var $author$project$Admin$AllVotes = function (a) {
 	return {$: 'AllVotes', a: a};
 };
 var $elm$json$Json$Decode$value = _Json_decodeValue;
-var $author$project$Main$allSets = _Platform_incomingPort('allSets', $elm$json$Json$Decode$value);
-var $author$project$Main$allVotes = _Platform_incomingPort('allVotes', $elm$json$Json$Decode$value);
+var $author$project$Admin$allSets = _Platform_incomingPort('allSets', $elm$json$Json$Decode$value);
+var $author$project$Admin$allVotes = _Platform_incomingPort('allVotes', $elm$json$Json$Decode$value);
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $author$project$Main$subscriptions = function (model) {
+var $author$project$Admin$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				$author$project$Main$allSets($author$project$Main$AllSets),
-				$author$project$Main$allVotes($author$project$Main$AllVotes)
+				$author$project$Admin$allSets($author$project$Admin$AllSets),
+				$author$project$Admin$allVotes($author$project$Admin$AllVotes)
 			]));
 };
-var $author$project$Main$addSet = _Platform_outgoingPort('addSet', $elm$core$Basics$identity);
+var $author$project$Admin$addSet = _Platform_outgoingPort('addSet', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Main$Set = F5(
+var $author$project$Admin$Set = F5(
 	function (id, name, expires, category, colors) {
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$map5 = _Json_map5;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$setFromJson = A6(
+var $author$project$Admin$setFromJson = A6(
 	$elm$json$Json$Decode$map5,
-	$author$project$Main$Set,
+	$author$project$Admin$Set,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'expires', $elm$json$Json$Decode$string),
@@ -5197,21 +5197,21 @@ var $author$project$Main$setFromJson = A6(
 		$elm$json$Json$Decode$field,
 		'colors',
 		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-var $author$project$Main$allSetsFromJson = $elm$json$Json$Decode$list($author$project$Main$setFromJson);
-var $author$project$Main$Vote = F3(
+var $author$project$Admin$allSetsFromJson = $elm$json$Json$Decode$list($author$project$Admin$setFromJson);
+var $author$project$Admin$Vote = F3(
 	function (set_id, color, grade) {
 		return {color: color, grade: grade, set_id: set_id};
 	});
 var $elm$json$Json$Decode$map3 = _Json_map3;
-var $author$project$Main$voteFromJson = A4(
+var $author$project$Admin$voteFromJson = A4(
 	$elm$json$Json$Decode$map3,
-	$author$project$Main$Vote,
+	$author$project$Admin$Vote,
 	A2($elm$json$Json$Decode$field, 'set_id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'grade', $elm$json$Json$Decode$string));
-var $author$project$Main$allVotesFromJson = $elm$json$Json$Decode$list($author$project$Main$voteFromJson);
+var $author$project$Admin$allVotesFromJson = $elm$json$Json$Decode$list($author$project$Admin$voteFromJson);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $author$project$Main$deleteSet = _Platform_outgoingPort('deleteSet', $elm$core$Basics$identity);
+var $author$project$Admin$deleteSet = _Platform_outgoingPort('deleteSet', $elm$core$Basics$identity);
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -5235,7 +5235,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$newSetToJson = function (newSet) {
+var $author$project$Admin$newSetToJson = function (newSet) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
 			[
@@ -5253,6 +5253,7 @@ var $author$project$Main$newSetToJson = function (newSet) {
 				A2($elm$json$Json$Encode$list, $elm$json$Json$Encode$string, newSet.colors))
 			]));
 };
+var $elm$core$Basics$not = _Basics_not;
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5269,7 +5270,7 @@ var $elm$core$List$sortBy = _List_sortBy;
 var $elm$core$List$sort = function (xs) {
 	return A2($elm$core$List$sortBy, $elm$core$Basics$identity, xs);
 };
-var $author$project$Main$updateNewSet = F2(
+var $author$project$Admin$updateNewSet = F2(
 	function (msg, newSet) {
 		switch (msg.$) {
 			case 'Name':
@@ -5314,35 +5315,41 @@ var $author$project$Main$updateNewSet = F2(
 				return newSet;
 		}
 	});
-var $author$project$Main$update = F2(
+var $author$project$Admin$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'UpdateNewSet':
 				if (msg.a.$ === 'AddSet') {
 					var _v1 = msg.a;
 					return _Utils_Tuple2(
-						$author$project$Main$initModel,
-						$author$project$Main$addSet(
-							$author$project$Main$newSetToJson(model.newSet)));
+						$author$project$Admin$initModel,
+						$author$project$Admin$addSet(
+							$author$project$Admin$newSetToJson(model.newSet)));
 				} else {
 					var newSetMsg = msg.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								newSet: A2($author$project$Main$updateNewSet, newSetMsg, model.newSet)
+								newSet: A2($author$project$Admin$updateNewSet, newSetMsg, model.newSet)
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
+			case 'ToggleNewSet':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{showNewSet: !model.showNewSet}),
+					$elm$core$Platform$Cmd$none);
 			case 'DeleteSet':
 				var id = msg.a;
 				return _Utils_Tuple2(
 					model,
-					$author$project$Main$deleteSet(
+					$author$project$Admin$deleteSet(
 						$elm$json$Json$Encode$string(id)));
 			case 'AllSets':
 				var setsValue = msg.a;
-				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$allSetsFromJson, setsValue);
+				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Admin$allSetsFromJson, setsValue);
 				if (_v2.$ === 'Ok') {
 					var sets = _v2.a;
 					return _Utils_Tuple2(
@@ -5360,7 +5367,7 @@ var $author$project$Main$update = F2(
 				}
 			default:
 				var votesValue = msg.a;
-				var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$allVotesFromJson, votesValue);
+				var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Admin$allVotesFromJson, votesValue);
 				if (_v3.$ === 'Ok') {
 					var votes = _v3.a;
 					return _Utils_Tuple2(
@@ -5378,7 +5385,7 @@ var $author$project$Main$update = F2(
 				}
 		}
 	});
-var $author$project$Main$UpdateNewSet = function (a) {
+var $author$project$Admin$UpdateNewSet = function (a) {
 	return {$: 'UpdateNewSet', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Grid$Column = function (a) {
@@ -6272,18 +6279,18 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$row = F2(
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m2 = $elm$html$Html$Attributes$class('m-2');
-var $author$project$Main$AddColor = {$: 'AddColor'};
-var $author$project$Main$AddSet = {$: 'AddSet'};
-var $author$project$Main$Category = function (a) {
+var $author$project$Admin$AddColor = {$: 'AddColor'};
+var $author$project$Admin$AddSet = {$: 'AddSet'};
+var $author$project$Admin$Category = function (a) {
 	return {$: 'Category', a: a};
 };
-var $author$project$Main$CloseDate = function (a) {
+var $author$project$Admin$CloseDate = function (a) {
 	return {$: 'CloseDate', a: a};
 };
-var $author$project$Main$Name = function (a) {
+var $author$project$Admin$Name = function (a) {
 	return {$: 'Name', a: a};
 };
-var $author$project$Main$NewColor = function (a) {
+var $author$project$Admin$NewColor = function (a) {
 	return {$: 'NewColor', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
@@ -6826,7 +6833,6 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier = F2(
 		}
 	});
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions = {attributes: _List_Nil, checked: false, custom: false, disabled: false, id: $elm$core$Maybe$Nothing, inline: false, name: $elm$core$Maybe$Nothing, onClick: $elm$core$Maybe$Nothing, validation: $elm$core$Maybe$Nothing};
-var $elm$core$Basics$not = _Basics_not;
 var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes = function (options) {
@@ -6915,7 +6921,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Radio$radio = F2(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Radio$create, options, label_));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
-var $author$project$Main$newVoteForm = function (newSet) {
+var $author$project$Admin$newVoteForm = function (newSet) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$row,
 		_List_Nil,
@@ -6944,7 +6950,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Attributes$value(newSet.name),
-										$elm$html$Html$Events$onInput($author$project$Main$Name)
+										$elm$html$Html$Events$onInput($author$project$Admin$Name)
 									]))
 							]))
 					])),
@@ -6974,7 +6980,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Attributes$value(newSet.expires),
-										$elm$html$Html$Events$onInput($author$project$Main$CloseDate)
+										$elm$html$Html$Events$onInput($author$project$Admin$CloseDate)
 									]))
 							]))
 					])),
@@ -7003,7 +7009,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
 								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(newSet.category === 'boulder'),
 								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
-								$author$project$Main$Category('boulder'))
+								$author$project$Admin$Category('boulder'))
 							]),
 						'Boulder'),
 						A2(
@@ -7013,7 +7019,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
 								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(newSet.category === 'rope'),
 								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
-								$author$project$Main$Category('rope'))
+								$author$project$Admin$Category('rope'))
 							]),
 						'Rope')
 					])),
@@ -7043,7 +7049,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								_List_fromArray(
 									[
 										$elm$html$Html$Attributes$value(newSet.newColor),
-										$elm$html$Html$Events$onInput($author$project$Main$NewColor)
+										$elm$html$Html$Events$onInput($author$project$Admin$NewColor)
 									]))
 							])),
 						A2(
@@ -7060,7 +7066,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$AddColor)
+										$elm$html$Html$Events$onClick($author$project$Admin$AddColor)
 									]))
 							]),
 						_List_fromArray(
@@ -7085,7 +7091,7 @@ var $author$project$Main$newVoteForm = function (newSet) {
 								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
 								_List_fromArray(
 									[
-										$elm$html$Html$Events$onClick($author$project$Main$AddSet)
+										$elm$html$Html$Events$onClick($author$project$Admin$AddSet)
 									]))
 							]),
 						_List_fromArray(
@@ -7204,7 +7210,7 @@ var $rundis$elm_bootstrap$Bootstrap$ListGroup$ul = function (items) {
 			]),
 		A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem, items));
 };
-var $author$project$Main$DelColor = function (a) {
+var $author$project$Admin$DelColor = function (a) {
 	return {$: 'DelColor', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger = {$: 'Danger'};
@@ -7229,7 +7235,7 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$width = F2(
 			A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width, size, count));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Grid$Col$xsAuto = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$XS, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAuto);
-var $author$project$Main$viewNewSetColor = function (color) {
+var $author$project$Admin$viewNewSetColor = function (color) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
 		_List_Nil,
@@ -7268,7 +7274,7 @@ var $author$project$Main$viewNewSetColor = function (color) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Events$onClick(
-												$author$project$Main$DelColor(color))
+												$author$project$Admin$DelColor(color))
 											]))
 									]),
 								_List_fromArray(
@@ -7279,39 +7285,39 @@ var $author$project$Main$viewNewSetColor = function (color) {
 					]))
 			]));
 };
-var $author$project$Main$viewNewSet = function (newSet) {
+var $author$project$Admin$viewNewSet = function (newSet) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Main$newVoteForm(newSet),
+				$author$project$Admin$newVoteForm(newSet),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m2]),
 				_List_Nil),
 				$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
-				A2($elm$core$List$map, $author$project$Main$viewNewSetColor, newSet.colors))
+				A2($elm$core$List$map, $author$project$Admin$viewNewSetColor, newSet.colors))
 			]));
 };
-var $author$project$Main$DeleteSet = function (a) {
+var $author$project$Admin$DeleteSet = function (a) {
 	return {$: 'DeleteSet', a: a};
 };
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $author$project$Main$checkVoteMatch = F4(
+var $author$project$Admin$checkVoteMatch = F4(
 	function (set_id, color, grade, vote) {
 		return _Utils_eq(vote.set_id, set_id) && (_Utils_eq(vote.color, color) && _Utils_eq(vote.grade, grade));
 	});
-var $author$project$Main$countVotes = F4(
+var $author$project$Admin$countVotes = F4(
 	function (set_id, color, grade, votes) {
 		return $elm$core$List$length(
 			A2(
 				$elm$core$List$filter,
-				A3($author$project$Main$checkVoteMatch, set_id, color, grade),
+				A3($author$project$Admin$checkVoteMatch, set_id, color, grade),
 				votes));
 	});
-var $author$project$Main$viewGrade = F4(
+var $author$project$Admin$viewGrade = F4(
 	function (set_id, color, votes, grade) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -7332,11 +7338,11 @@ var $author$project$Main$viewGrade = F4(
 						[
 							$elm$html$Html$text(
 							$elm$core$String$fromInt(
-								A4($author$project$Main$countVotes, set_id, color, grade, votes)))
+								A4($author$project$Admin$countVotes, set_id, color, grade, votes)))
 						]))
 				]));
 	});
-var $author$project$Main$viewRoute = F3(
+var $author$project$Admin$viewRoute = F3(
 	function (set_id, votes, color) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
@@ -7361,12 +7367,12 @@ var $author$project$Main$viewRoute = F3(
 					_List_Nil,
 					A2(
 						$elm$core$List$map,
-						A3($author$project$Main$viewGrade, set_id, color, votes),
+						A3($author$project$Admin$viewGrade, set_id, color, votes),
 						_List_fromArray(
 							['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])))
 				]));
 	});
-var $author$project$Main$viewSet = F2(
+var $author$project$Admin$viewSet = F2(
 	function (votes, set) {
 		return A2(
 			$elm$html$Html$div,
@@ -7390,7 +7396,7 @@ var $author$project$Main$viewSet = F2(
 					$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
 					A2(
 						$elm$core$List$map,
-						A2($author$project$Main$viewRoute, set.id, votes),
+						A2($author$project$Admin$viewRoute, set.id, votes),
 						set.colors)),
 					A2(
 					$rundis$elm_bootstrap$Bootstrap$Button$button,
@@ -7401,7 +7407,7 @@ var $author$project$Main$viewSet = F2(
 							_List_fromArray(
 								[
 									$elm$html$Html$Events$onClick(
-									$author$project$Main$DeleteSet(set.id))
+									$author$project$Admin$DeleteSet(set.id))
 								]))
 						]),
 					_List_fromArray(
@@ -7410,7 +7416,7 @@ var $author$project$Main$viewSet = F2(
 						]))
 				]));
 	});
-var $author$project$Main$view = function (model) {
+var $author$project$Admin$view = function (model) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
 		_List_Nil,
@@ -7436,8 +7442,8 @@ var $author$project$Main$view = function (model) {
 							[
 								A2(
 								$elm$html$Html$map,
-								$author$project$Main$UpdateNewSet,
-								$author$project$Main$viewNewSet(model.newSet))
+								$author$project$Admin$UpdateNewSet,
+								$author$project$Admin$viewNewSet(model.newSet))
 							])),
 						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
 						A2(
@@ -7445,12 +7451,12 @@ var $author$project$Main$view = function (model) {
 						_List_Nil,
 						A2(
 							$elm$core$List$map,
-							$author$project$Main$viewSet(model.votes),
+							$author$project$Admin$viewSet(model.votes),
 							model.sets))
 					]))
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$element(
-	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
-_Platform_export({'Main':{'init':$author$project$Main$main(
+var $author$project$Admin$main = $elm$browser$Browser$element(
+	{init: $author$project$Admin$init, subscriptions: $author$project$Admin$subscriptions, update: $author$project$Admin$update, view: $author$project$Admin$view});
+_Platform_export({'Admin':{'init':$author$project$Admin$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));

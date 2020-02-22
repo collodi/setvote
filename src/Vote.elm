@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module Vote exposing (..)
 
 import Browser
 import Html exposing (Html, text, button, div, input, span, h1)

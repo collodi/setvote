@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module Admin exposing (..)
 
 import Browser
 import Html exposing (Html, text, button, div, input, span, h1)
@@ -43,6 +43,7 @@ main =
 
 type alias Model =
     { newSet : NewSet
+    , showNewSet : Bool
     , sets : List Set
     , votes : List Vote
     , msg : String
@@ -76,7 +77,7 @@ init _ =
 
 initModel : Model
 initModel =
-    Model initNewSet [] [] ""
+    Model initNewSet False [] [] ""
 
 initNewSet : NewSet
 initNewSet =
@@ -119,6 +120,7 @@ voteFromJson =
 
 type Msg
     = UpdateNewSet NewSetMsg
+    | ToggleNewSet
     | DeleteSet String
     | AllSets D.Value
     | AllVotes D.Value
@@ -141,6 +143,10 @@ update msg model =
 
         UpdateNewSet newSetMsg ->
             ( { model | newSet = updateNewSet newSetMsg model.newSet }
+            , Cmd.none )
+
+        ToggleNewSet ->
+            ( { model | showNewSet = not model.showNewSet }
             , Cmd.none )
 
         DeleteSet id ->
