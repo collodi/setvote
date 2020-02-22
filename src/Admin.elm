@@ -146,7 +146,10 @@ update msg model =
             , Cmd.none )
 
         ToggleNewSet ->
-            ( { model | showNewSet = not model.showNewSet }
+            (
+                { model
+                    | showNewSet = not model.showNewSet
+                    , newSet = initNewSet }
             , Cmd.none )
 
         DeleteSet id ->
@@ -209,7 +212,20 @@ view model =
         [ Grid.row []
             [ Grid.col [] [ text model.msg ]
             , Grid.colBreak []
-            , Grid.col [] [ Html.map UpdateNewSet (viewNewSet model.newSet) ]
+            ,
+                if model.showNewSet then
+                    Grid.col []
+                        [ Html.map UpdateNewSet (viewNewSet model.newSet)
+                        , Button.button
+                            [ Button.attrs [ onClick ToggleNewSet ] ]
+                            [ text "Cancel" ]
+                        ]
+                else
+                    Grid.col []
+                        [ Button.button
+                            [ Button.attrs [ onClick ToggleNewSet ] ]
+                            [ text "Add A Set" ]
+                        ]
             , Grid.colBreak []
             , Grid.col [] (List.map (viewSet model.votes) model.sets)
             ]
