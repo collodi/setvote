@@ -17,6 +17,16 @@ app.ports.addSet.subscribe(data => {
 
 app.ports.deleteSet.subscribe(set_id => {
 	db.collection('sets').doc(set_id).delete();
+
+	db.collection('votes')
+		.where('set_id', '==', set_id)
+		.get().then(snap => {
+			let batch = db.batch();
+			snap.forEach(doc => {
+				batch.delete(doc.ref);
+			});
+			batch.commit();
+		});
 });
 
 db.collection('sets')
