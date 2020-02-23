@@ -236,22 +236,27 @@ viewSet votes set =
     div []
         [ h1 [] [ text set.name ]
         , div [] [ text ("expires " ++ set.expires) ]
-        , ListGroup.ul (List.map (viewRoute set.id votes) set.colors)
+        , ListGroup.ul (List.map (viewRoute set votes) set.colors)
         , Button.button
             [ Button.danger, Button.attrs [ onClick (DeleteSet set.id) ] ]
             [ text "Delete Set" ]
         ]
 
-viewRoute : String -> List Vote -> String -> ListGroup.Item Msg
-viewRoute set_id votes color =
+viewRoute : Set -> List Vote -> String -> ListGroup.Item Msg
+viewRoute set votes color =
     ListGroup.li []
         [ Grid.row []
             [ Grid.col [] [ text color ]
             ]
         , Grid.row []
             (List.map
-                (viewGrade set_id color votes)
-                ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
+                (viewGrade set.id color votes)
+                (
+                    if set.category == "boulder" then
+                        ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
+                    else
+                        [ "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
+                )
             )
         ]
 

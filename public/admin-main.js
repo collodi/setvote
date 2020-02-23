@@ -7344,7 +7344,7 @@ var $author$project$Admin$viewGrade = F4(
 				]));
 	});
 var $author$project$Admin$viewRoute = F3(
-	function (set_id, votes, color) {
+	function (set, votes, color) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
 			_List_Nil,
@@ -7368,9 +7368,10 @@ var $author$project$Admin$viewRoute = F3(
 					_List_Nil,
 					A2(
 						$elm$core$List$map,
-						A3($author$project$Admin$viewGrade, set_id, color, votes),
-						_List_fromArray(
-							['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])))
+						A3($author$project$Admin$viewGrade, set.id, color, votes),
+						(set.category === 'boulder') ? _List_fromArray(
+							['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']) : _List_fromArray(
+							['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13'])))
 				]));
 	});
 var $author$project$Admin$viewSet = F2(
@@ -7397,7 +7398,7 @@ var $author$project$Admin$viewSet = F2(
 					$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
 					A2(
 						$elm$core$List$map,
-						A2($author$project$Admin$viewRoute, set.id, votes),
+						A2($author$project$Admin$viewRoute, set, votes),
 						set.colors)),
 					A2(
 					$rundis$elm_bootstrap$Bootstrap$Button$button,
