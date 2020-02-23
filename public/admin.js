@@ -38,6 +38,7 @@ db.collection('sets')
 
 			let data = doc.data();
 			data.id = doc.id;
+			data.showDelete = false;
 			data.expires = new Date(data.expires).toISOString().slice(0, 10);
 
 			sets[doc.id] = data;

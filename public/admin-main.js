@@ -5179,15 +5179,16 @@ var $author$project$Admin$subscriptions = function (model) {
 };
 var $author$project$Admin$addSet = _Platform_outgoingPort('addSet', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Admin$Set = F5(
-	function (id, name, expires, category, colors) {
-		return {category: category, colors: colors, expires: expires, id: id, name: name};
+var $author$project$Admin$Set = F6(
+	function (id, name, expires, category, colors, showDelete) {
+		return {category: category, colors: colors, expires: expires, id: id, name: name, showDelete: showDelete};
 	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$map5 = _Json_map5;
+var $elm$json$Json$Decode$map6 = _Json_map6;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Admin$setFromJson = A6(
-	$elm$json$Json$Decode$map5,
+var $author$project$Admin$setFromJson = A7(
+	$elm$json$Json$Decode$map6,
 	$author$project$Admin$Set,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
@@ -5196,7 +5197,8 @@ var $author$project$Admin$setFromJson = A6(
 	A2(
 		$elm$json$Json$Decode$field,
 		'colors',
-		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)),
+	A2($elm$json$Json$Decode$field, 'showDelete', $elm$json$Json$Decode$bool));
 var $author$project$Admin$allSetsFromJson = $elm$json$Json$Decode$list($author$project$Admin$setFromJson);
 var $author$project$Admin$Vote = F3(
 	function (set_id, color, grade) {
@@ -5254,6 +5256,12 @@ var $author$project$Admin$newSetToJson = function (newSet) {
 			]));
 };
 var $elm$core$Basics$not = _Basics_not;
+var $author$project$Admin$toggleDeleteIfMatch = F2(
+	function (setToChange, set) {
+		return _Utils_eq(setToChange, set) ? _Utils_update(
+			set,
+			{showDelete: !set.showDelete}) : set;
+	});
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5340,6 +5348,18 @@ var $author$project$Admin$update = F2(
 					_Utils_update(
 						model,
 						{newSet: $author$project$Admin$initNewSet, showNewSet: !model.showNewSet}),
+					$elm$core$Platform$Cmd$none);
+			case 'ToggleDelete':
+				var set = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							sets: A2(
+								$elm$core$List$map,
+								$author$project$Admin$toggleDeleteIfMatch(set),
+								model.sets)
+						}),
 					$elm$core$Platform$Cmd$none);
 			case 'DeleteSet':
 				var id = msg.a;
@@ -7305,7 +7325,13 @@ var $author$project$Admin$viewNewSet = function (newSet) {
 var $author$project$Admin$DeleteSet = function (a) {
 	return {$: 'DeleteSet', a: a};
 };
+var $author$project$Admin$ToggleDelete = function (a) {
+	return {$: 'ToggleDelete', a: a};
+};
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary = {$: 'Secondary'};
+var $rundis$elm_bootstrap$Bootstrap$Button$secondary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary));
 var $author$project$Admin$checkVoteMatch = F4(
 	function (set_id, color, grade, vote) {
 		return _Utils_eq(vote.set_id, set_id) && (_Utils_eq(vote.color, color) && _Utils_eq(vote.grade, grade));
@@ -7400,7 +7426,51 @@ var $author$project$Admin$viewSet = F2(
 						$elm$core$List$map,
 						A2($author$project$Admin$viewRoute, set, votes),
 						set.colors)),
-					A2(
+					set.showDelete ? A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Really delete?')
+								])),
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Button$danger,
+									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick(
+											$author$project$Admin$DeleteSet(set.id))
+										]))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Delete')
+								])),
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Button$secondary,
+									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick(
+											$author$project$Admin$ToggleDelete(set))
+										]))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Nevermind')
+								]))
+						])) : A2(
 					$rundis$elm_bootstrap$Bootstrap$Button$button,
 					_List_fromArray(
 						[
@@ -7409,7 +7479,7 @@ var $author$project$Admin$viewSet = F2(
 							_List_fromArray(
 								[
 									$elm$html$Html$Events$onClick(
-									$author$project$Admin$DeleteSet(set.id))
+									$author$project$Admin$ToggleDelete(set))
 								]))
 						]),
 					_List_fromArray(

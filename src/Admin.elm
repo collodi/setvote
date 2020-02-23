@@ -63,6 +63,7 @@ type alias Set =
     , expires : String
     , category : String
     , colors : List String
+    , showDelete : Bool
     }
 
 type alias Vote =
@@ -98,12 +99,13 @@ allSetsFromJson =
 
 setFromJson : D.Decoder Set
 setFromJson =
-    D.map5 Set
+    D.map6 Set
         (D.field "id" D.string)
         (D.field "name" D.string)
         (D.field "expires" D.string)
         (D.field "category" D.string)
         (D.field "colors" (D.list D.string))
+        (D.field "showDelete" D.bool)
 
 allVotesFromJson : D.Decoder (List Vote)
 allVotesFromJson =
@@ -121,6 +123,7 @@ voteFromJson =
 type Msg
     = UpdateNewSet NewSetMsg
     | ToggleNewSet
+    | ToggleDelete Set
     | DeleteSet String
     | AllSets D.Value
     | AllVotes D.Value
@@ -152,6 +155,10 @@ update msg model =
                     , newSet = initNewSet }
             , Cmd.none )
 
+        ToggleDelete set ->
+            ( { model | sets = List.map (toggleDeleteIfMatch set) model.sets }
+            , Cmd.none )
+
         DeleteSet id ->
             ( model
             , deleteSet (E.string id) )
@@ -175,6 +182,13 @@ update msg model =
                 Err e ->
                     ( { model | msg = "Error in parsing all votes" }
                     , Cmd.none )
+
+toggleDeleteIfMatch : Set -> Set -> Set
+toggleDeleteIfMatch setToChange set =
+    if setToChange == set then
+        { set | showDelete = not set.showDelete }
+    else
+        set
 
 updateNewSet : NewSetMsg -> NewSet -> NewSet
 updateNewSet msg newSet =
@@ -237,9 +251,21 @@ viewSet votes set =
         [ h1 [] [ text set.name ]
         , div [] [ text ("expires " ++ set.expires) ]
         , ListGroup.ul (List.map (viewRoute set votes) set.colors)
-        , Button.button
-            [ Button.danger, Button.attrs [ onClick (DeleteSet set.id) ] ]
-            [ text "Delete Set" ]
+        ,
+            if set.showDelete then
+                div []
+                    [ div [] [ text "Really delete?" ]
+                    , Button.button
+                        [ Button.danger, Button.attrs [ onClick (DeleteSet set.id) ] ]
+                        [ text "Delete" ]
+                    , Button.button
+                        [ Button.secondary, Button.attrs [ onClick (ToggleDelete set) ] ]
+                        [ text "Nevermind" ]
+                    ]
+            else
+                Button.button
+                    [ Button.danger, Button.attrs [ onClick (ToggleDelete set) ] ]
+                    [ text "Delete Set" ]
         ]
 
 viewRoute : Set -> List Vote -> String -> ListGroup.Item Msg
