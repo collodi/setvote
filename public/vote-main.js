@@ -5144,59 +5144,64 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = F3(
+var $author$project$Vote$Model = F3(
 	function (set, routes, msg) {
 		return {msg: msg, routes: routes, set: set};
 	});
-var $author$project$Main$Set = F5(
+var $author$project$Vote$Set = F5(
 	function (id, name, expires, category, colors) {
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
-var $author$project$Main$newSet = A5($author$project$Main$Set, '', '', '', '', _List_Nil);
-var $author$project$Main$newModel = A3($author$project$Main$Model, $author$project$Main$newSet, _List_Nil, '');
+var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
+var $author$project$Vote$newModel = A3($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2($author$project$Main$newModel, $elm$core$Platform$Cmd$none);
+var $author$project$Vote$init = function (_v0) {
+	return _Utils_Tuple2($author$project$Vote$newModel, $elm$core$Platform$Cmd$none);
 };
-var $author$project$Main$ShowSet = function (a) {
+var $author$project$Vote$ShowSet = function (a) {
 	return {$: 'ShowSet', a: a};
 };
 var $elm$json$Json$Decode$value = _Json_decodeValue;
-var $author$project$Main$openSet = _Platform_incomingPort('openSet', $elm$json$Json$Decode$value);
-var $author$project$Main$subscriptions = function (model) {
-	return $author$project$Main$openSet($author$project$Main$ShowSet);
+var $author$project$Vote$openSet = _Platform_incomingPort('openSet', $elm$json$Json$Decode$value);
+var $author$project$Vote$subscriptions = function (model) {
+	return $author$project$Vote$openSet($author$project$Vote$ShowSet);
 };
-var $author$project$Main$castVote = _Platform_outgoingPort('castVote', $elm$core$Basics$identity);
+var $author$project$Vote$castVote = _Platform_outgoingPort('castVote', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $author$project$Main$Route = F2(
+var $author$project$Vote$Route = F2(
 	function (color, grade) {
 		return {color: color, grade: grade};
 	});
-var $author$project$Main$newRoute = function (color) {
-	return A2($author$project$Main$Route, color, 'V0');
-};
-var $author$project$Main$routesFromColors = function (colors) {
-	return A2($elm$core$List$map, $author$project$Main$newRoute, colors);
-};
-var $author$project$Main$replaceGradeIfMatch = F3(
-	function (color, grade, route) {
-		return _Utils_eq(route.color, color) ? A2($author$project$Main$Route, route.color, grade) : route;
+var $author$project$Vote$newRoute = F2(
+	function (category, color) {
+		return (category === 'boulder') ? A2($author$project$Vote$Route, color, 'V0') : A2($author$project$Vote$Route, color, '5.6');
 	});
-var $author$project$Main$selectGrade = F3(
+var $author$project$Vote$routesFromColors = F2(
+	function (category, colors) {
+		return A2(
+			$elm$core$List$map,
+			$author$project$Vote$newRoute(category),
+			colors);
+	});
+var $author$project$Vote$replaceGradeIfMatch = F3(
+	function (color, grade, route) {
+		return _Utils_eq(route.color, color) ? A2($author$project$Vote$Route, route.color, grade) : route;
+	});
+var $author$project$Vote$selectGrade = F3(
 	function (routes, color, grade) {
 		return A2(
 			$elm$core$List$map,
-			A2($author$project$Main$replaceGradeIfMatch, color, grade),
+			A2($author$project$Vote$replaceGradeIfMatch, color, grade),
 			routes);
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$map5 = _Json_map5;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$setFromJson = A6(
+var $author$project$Vote$setFromJson = A6(
 	$elm$json$Json$Decode$map5,
-	$author$project$Main$Set,
+	$author$project$Vote$Set,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'expires', $elm$json$Json$Decode$string),
@@ -5228,7 +5233,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$routeToJson = function (route) {
+var $author$project$Vote$routeToJson = function (route) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
 			[
@@ -5240,7 +5245,7 @@ var $author$project$Main$routeToJson = function (route) {
 				$elm$json$Json$Encode$string(route.grade))
 			]));
 };
-var $author$project$Main$voteToJson = function (model) {
+var $author$project$Vote$voteToJson = function (model) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
 			[
@@ -5249,22 +5254,22 @@ var $author$project$Main$voteToJson = function (model) {
 				$elm$json$Json$Encode$string(model.set.id)),
 				_Utils_Tuple2(
 				'routes',
-				A2($elm$json$Json$Encode$list, $author$project$Main$routeToJson, model.routes))
+				A2($elm$json$Json$Encode$list, $author$project$Vote$routeToJson, model.routes))
 			]));
 };
-var $author$project$Main$update = F2(
+var $author$project$Vote$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'ShowSet':
 				var maybeSet = msg.a;
-				var _v1 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$setFromJson, maybeSet);
+				var _v1 = A2($elm$json$Json$Decode$decodeValue, $author$project$Vote$setFromJson, maybeSet);
 				if (_v1.$ === 'Ok') {
 					var set = _v1.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								routes: $author$project$Main$routesFromColors(set.colors),
+								routes: A2($author$project$Vote$routesFromColors, set.category, set.colors),
 								set: set
 							}),
 						$elm$core$Platform$Cmd$none);
@@ -5283,19 +5288,19 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							routes: A3($author$project$Main$selectGrade, model.routes, color, grade)
+							routes: A3($author$project$Vote$selectGrade, model.routes, color, grade)
 						}),
 					$elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(
 					_Utils_update(
-						$author$project$Main$newModel,
+						$author$project$Vote$newModel,
 						{msg: 'Thanks for your vote!'}),
-					$author$project$Main$castVote(
-						$author$project$Main$voteToJson(model)));
+					$author$project$Vote$castVote(
+						$author$project$Vote$voteToJson(model)));
 		}
 	});
-var $author$project$Main$CastVote = {$: 'CastVote'};
+var $author$project$Vote$CastVote = {$: 'CastVote'};
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
 	return {$: 'Attrs', a: a};
 };
@@ -6584,7 +6589,7 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$simple = F3(
 					A2($rundis$elm_bootstrap$Bootstrap$Alert$role, role_, $rundis$elm_bootstrap$Bootstrap$Alert$config))));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary);
-var $author$project$Main$SelectGrade = F2(
+var $author$project$Vote$SelectGrade = F2(
 	function (a, b) {
 		return {$: 'SelectGrade', a: a, b: b};
 	});
@@ -6733,7 +6738,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
 			A2($elm$html$Html$option, attributes, children));
 	});
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Main$gradeChoice = function (grade) {
+var $author$project$Vote$gradeChoice = function (grade) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
 		_List_fromArray(
@@ -6745,14 +6750,14 @@ var $author$project$Main$gradeChoice = function (grade) {
 				$elm$html$Html$text(grade)
 			]));
 };
-var $author$project$Main$gradeChoices = function (category) {
+var $author$project$Vote$gradeChoices = function (category) {
 	return (category === 'boulder') ? A2(
 		$elm$core$List$map,
-		$author$project$Main$gradeChoice,
+		$author$project$Vote$gradeChoice,
 		_List_fromArray(
 			['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])) : A2(
 		$elm$core$List$map,
-		$author$project$Main$gradeChoice,
+		$author$project$Vote$gradeChoice,
 		_List_fromArray(
 			['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']));
 };
@@ -7075,7 +7080,7 @@ var $rundis$elm_bootstrap$Bootstrap$Card$view = function (_v0) {
 							conf.imgBottom)
 						])))));
 };
-var $author$project$Main$viewRoute = F2(
+var $author$project$Vote$viewRoute = F2(
 	function (category, route) {
 		return $rundis$elm_bootstrap$Bootstrap$Card$view(
 			A3(
@@ -7096,13 +7101,13 @@ var $author$project$Main$viewRoute = F2(
 							_List_fromArray(
 								[
 									$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
-									$author$project$Main$SelectGrade(route.color))
+									$author$project$Vote$SelectGrade(route.color))
 								]),
-							$author$project$Main$gradeChoices(category)))
+							$author$project$Vote$gradeChoices(category)))
 					]),
 				$rundis$elm_bootstrap$Bootstrap$Card$config(_List_Nil)));
 	});
-var $author$project$Main$view = function (model) {
+var $author$project$Vote$view = function (model) {
 	return $elm$core$String$isEmpty(model.msg) ? A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
 		_List_Nil,
@@ -7132,7 +7137,7 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				A2(
 					$elm$core$List$map,
-					$author$project$Main$viewRoute(model.set.category),
+					$author$project$Vote$viewRoute(model.set.category),
 					model.routes)),
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Button$button,
@@ -7143,7 +7148,7 @@ var $author$project$Main$view = function (model) {
 						$rundis$elm_bootstrap$Bootstrap$Button$attrs(
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick($author$project$Main$CastVote)
+								$elm$html$Html$Events$onClick($author$project$Vote$CastVote)
 							]))
 					]),
 				_List_fromArray(
@@ -7176,7 +7181,7 @@ var $author$project$Main$view = function (model) {
 					]))
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$element(
-	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
-_Platform_export({'Main':{'init':$author$project$Main$main(
+var $author$project$Vote$main = $elm$browser$Browser$element(
+	{init: $author$project$Vote$init, subscriptions: $author$project$Vote$subscriptions, update: $author$project$Vote$update, view: $author$project$Vote$view});
+_Platform_export({'Vote':{'init':$author$project$Vote$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));

@@ -66,9 +66,12 @@ newModel : Model
 newModel =
     Model newSet [] ""
 
-newRoute : String -> Route
-newRoute color =
-    Route color "V0"
+newRoute : String -> String -> Route
+newRoute category color =
+    if category == "boulder" then
+        Route color "V0"
+    else
+        Route color "5.6"
 
 newSet : Set
 newSet =
@@ -110,7 +113,10 @@ update msg model =
         ShowSet maybeSet ->
             case D.decodeValue setFromJson maybeSet of
                 Ok set ->
-                    ( { model | set = set, routes = routesFromColors set.colors }
+                    (
+                        { model
+                            | set = set
+                            , routes = routesFromColors set.category set.colors }
                     , Cmd.none )
 
                 Err e ->
@@ -127,9 +133,9 @@ update msg model =
             )
 
 
-routesFromColors : List String -> List Route
-routesFromColors colors =
-    List.map newRoute colors
+routesFromColors : String -> List String -> List Route
+routesFromColors category colors =
+    List.map (newRoute category) colors
 
 selectGrade : List Route -> String -> String -> List Route
 selectGrade routes color grade =
