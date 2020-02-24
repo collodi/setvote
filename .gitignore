@@ -1,4 +1,6 @@
 /elm-stuff
 
 /public/firebase_config.js
+
 /firebase-debug.log
+/.firebase

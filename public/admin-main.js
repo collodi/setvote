@@ -5148,11 +5148,11 @@ var $author$project$Admin$Model = F5(
 	function (newSet, showNewSet, sets, votes, msg) {
 		return {msg: msg, newSet: newSet, sets: sets, showNewSet: showNewSet, votes: votes};
 	});
-var $author$project$Admin$NewSet = F5(
-	function (name, expires, newColor, category, colors) {
-		return {category: category, colors: colors, expires: expires, name: name, newColor: newColor};
+var $author$project$Admin$NewSet = F6(
+	function (name, expires, newColor, category, colors, msg) {
+		return {category: category, colors: colors, expires: expires, msg: msg, name: name, newColor: newColor};
 	});
-var $author$project$Admin$initNewSet = A5($author$project$Admin$NewSet, '', '', '', 'boulder', _List_Nil);
+var $author$project$Admin$initNewSet = A6($author$project$Admin$NewSet, '', '', '', 'boulder', _List_Nil, '');
 var $author$project$Admin$initModel = A5($author$project$Admin$Model, $author$project$Admin$initNewSet, false, _List_Nil, _List_Nil, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5214,6 +5214,13 @@ var $author$project$Admin$voteFromJson = A4(
 var $author$project$Admin$allVotesFromJson = $elm$json$Json$Decode$list($author$project$Admin$voteFromJson);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Admin$deleteSet = _Platform_outgoingPort('deleteSet', $elm$core$Basics$identity);
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -5256,6 +5263,12 @@ var $author$project$Admin$newSetToJson = function (newSet) {
 			]));
 };
 var $elm$core$Basics$not = _Basics_not;
+var $author$project$Admin$showMsgInNewSet = F2(
+	function (msg, newSet) {
+		return _Utils_update(
+			newSet,
+			{msg: msg});
+	});
 var $author$project$Admin$toggleDeleteIfMatch = F2(
 	function (setToChange, set) {
 		return _Utils_eq(setToChange, set) ? _Utils_update(
@@ -5302,7 +5315,7 @@ var $author$project$Admin$updateNewSet = F2(
 					newSet,
 					{newColor: color});
 			case 'AddColor':
-				return _Utils_update(
+				return $elm$core$String$isEmpty(newSet.newColor) ? newSet : _Utils_update(
 					newSet,
 					{
 						colors: $elm$core$List$sort(
@@ -5329,10 +5342,30 @@ var $author$project$Admin$update = F2(
 			case 'UpdateNewSet':
 				if (msg.a.$ === 'AddSet') {
 					var _v1 = msg.a;
-					return _Utils_Tuple2(
-						$author$project$Admin$initModel,
+					return $elm$core$String$isEmpty(model.newSet.name) ? _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								newSet: A2($author$project$Admin$showMsgInNewSet, 'What\'s the name of this set?', model.newSet)
+							}),
+						$elm$core$Platform$Cmd$none) : ($elm$core$String$isEmpty(model.newSet.expires) ? _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								newSet: A2($author$project$Admin$showMsgInNewSet, 'When does this set expire?', model.newSet)
+							}),
+						$elm$core$Platform$Cmd$none) : ($elm$core$List$isEmpty(model.newSet.colors) ? _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								newSet: A2($author$project$Admin$showMsgInNewSet, 'What color are the routes?', model.newSet)
+							}),
+						$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{newSet: $author$project$Admin$initNewSet, showNewSet: false}),
 						$author$project$Admin$addSet(
-							$author$project$Admin$newSetToJson(model.newSet)));
+							$author$project$Admin$newSetToJson(model.newSet)))));
 				} else {
 					var newSetMsg = msg.a;
 					return _Utils_Tuple2(
@@ -5415,6 +5448,8 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
 var $rundis$elm_bootstrap$Bootstrap$Button$attrs = function (attrs_) {
 	return $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs(attrs_);
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block = {$: 'Block'};
+var $rundis$elm_bootstrap$Bootstrap$Button$block = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block;
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
@@ -5625,6 +5660,8 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 	});
 var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var $elm$html$Html$map = $elm$virtual_dom$VirtualDom$map;
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2 = $elm$html$Html$Attributes$class('my-2');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3 = $elm$html$Html$Attributes$class('my-3');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5642,6 +5679,15 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
+	return {$: 'Coloring', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary = {$: 'Primary'};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
+	return {$: 'Roled', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$primary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col = {$: 'Col'};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width = F2(
 	function (screenSize, columnCount) {
@@ -6470,9 +6516,11 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$row = F2(
 			$rundis$elm_bootstrap$Bootstrap$Grid$Internal$rowAttributes(options),
 			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Grid$renderCol, cols));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary = {$: 'Secondary'};
+var $rundis$elm_bootstrap$Bootstrap$Button$secondary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary));
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m2 = $elm$html$Html$Attributes$class('m-2');
 var $author$project$Admin$AddColor = {$: 'AddColor'};
 var $author$project$Admin$AddSet = {$: 'AddSet'};
 var $author$project$Admin$Category = function (a) {
@@ -6493,23 +6541,12 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs = function (a) {
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$attrs = function (attrs_) {
 	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs(attrs_);
 };
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block = {$: 'Block'};
-var $rundis$elm_bootstrap$Bootstrap$Button$block = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block;
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Checked = function (a) {
 	return {$: 'Checked', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$checked = function (isCheck) {
 	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Checked(isCheck);
 };
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
-	return {$: 'Coloring', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Dark = {$: 'Dark'};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
-	return {$: 'Roled', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Button$dark = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
-	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Dark));
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$Date = {$: 'Date'};
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$Input = function (a) {
 	return {$: 'Input', a: a};
@@ -6732,6 +6769,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$input = F2(
 	});
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$date = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Date);
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$Id = function (a) {
 	return {$: 'Id', a: a};
 };
@@ -6756,16 +6794,13 @@ var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
 			children);
 	});
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1 = $elm$html$Html$Attributes$class('m-1');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m3 = $elm$html$Html$Attributes$class('m-3');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick = function (a) {
 	return {$: 'OnClick', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick = function (toMsg) {
 	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick(toMsg);
 };
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary = {$: 'Primary'};
-var $rundis$elm_bootstrap$Bootstrap$Button$primary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
-	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio = function (a) {
 	return {$: 'Radio', a: a};
 };
@@ -6941,187 +6976,225 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Radio$radio = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$view(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Radio$create, options, label_));
 	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
-var $author$project$Admin$newVoteForm = function (newSet) {
-	return A2(
-		$rundis$elm_bootstrap$Bootstrap$Grid$row,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Grid$col,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('name')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Name')
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('name'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$value(newSet.name),
-										$elm$html$Html$Events$onInput($author$project$Admin$Name)
-									]))
-							]))
-					])),
-				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
-				_List_fromArray(
-					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1])),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Grid$col,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('close-date')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Close Date')
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Form$Input$date(
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('close-date'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$value(newSet.expires),
-										$elm$html$Html$Events$onInput($author$project$Admin$CloseDate)
-									]))
-							]))
-					])),
-				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
-				_List_fromArray(
-					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1])),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Grid$col,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('category')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Category')
-							])),
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(newSet.category === 'boulder'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
-								$author$project$Admin$Category('boulder'))
-							]),
-						'Boulder'),
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(newSet.category === 'rope'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
-								$author$project$Admin$Category('rope'))
-							]),
-						'Rope')
-					])),
-				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
-				_List_fromArray(
-					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1])),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Grid$col,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('new-color')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Add Color')
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('new-color'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$value(newSet.newColor),
-										$elm$html$Html$Events$onInput($author$project$Admin$NewColor)
-									]))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1]),
-						_List_Nil),
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Button$button,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Button$dark,
-								$rundis$elm_bootstrap$Bootstrap$Button$block,
-								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick($author$project$Admin$AddColor)
-									]))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Add Color')
-							]))
-					])),
-				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
-				_List_fromArray(
-					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m3])),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Grid$col,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Button$button,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Button$primary,
-								$rundis$elm_bootstrap$Bootstrap$Button$block,
-								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick($author$project$Admin$AddSet)
-									]))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Add Set')
-							]))
-					]))
-			]));
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger = {$: 'Danger'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$Shown = {$: 'Shown'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$Config = function (a) {
+	return {$: 'Config', a: a};
 };
+var $rundis$elm_bootstrap$Bootstrap$Alert$attrs = F2(
+	function (attributes, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{attributes: attributes}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$children = F2(
+	function (children_, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{children: children_}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Secondary = {$: 'Secondary'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$config = $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+	{attributes: _List_Nil, children: _List_Nil, dismissable: $elm$core$Maybe$Nothing, role: $rundis$elm_bootstrap$Bootstrap$Internal$Role$Secondary, visibility: $rundis$elm_bootstrap$Bootstrap$Alert$Shown, withAnimation: false});
+var $rundis$elm_bootstrap$Bootstrap$Alert$role = F2(
+	function (role_, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{role: role_}));
+	});
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $rundis$elm_bootstrap$Bootstrap$Alert$Closed = {$: 'Closed'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$StartClose = {$: 'StartClose'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$clickHandler = F2(
+	function (visibility, configRec) {
+		var handleClick = F2(
+			function (viz, toMsg) {
+				return $elm$html$Html$Events$onClick(
+					toMsg(viz));
+			});
+		var _v0 = configRec.dismissable;
+		if (_v0.$ === 'Just') {
+			var dismissMsg = _v0.a;
+			return _List_fromArray(
+				[
+					configRec.withAnimation ? A2(handleClick, $rundis$elm_bootstrap$Bootstrap$Alert$StartClose, dismissMsg) : A2(handleClick, $rundis$elm_bootstrap$Bootstrap$Alert$Closed, dismissMsg)
+				]);
+		} else {
+			return _List_Nil;
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$injectButton = F2(
+	function (btn, children_) {
+		if (children_.b) {
+			var head = children_.a;
+			var tail = children_.b;
+			return A2(
+				$elm$core$List$cons,
+				head,
+				A2($elm$core$List$cons, btn, tail));
+		} else {
+			return _List_fromArray(
+				[btn]);
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$isDismissable = function (configRec) {
+	var _v0 = configRec.dismissable;
+	if (_v0.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton = F3(
+	function (visibilty, configRec, children_) {
+		return $rundis$elm_bootstrap$Bootstrap$Alert$isDismissable(configRec) ? A2(
+			$rundis$elm_bootstrap$Bootstrap$Alert$injectButton,
+			A2(
+				$elm$html$Html$button,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$type_('button'),
+							$elm$html$Html$Attributes$class('close'),
+							A2($elm$html$Html$Attributes$attribute, 'aria-label', 'close')
+						]),
+					A2($rundis$elm_bootstrap$Bootstrap$Alert$clickHandler, visibilty, configRec)),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$span,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$attribute, 'aria-hidden', 'true')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('×')
+							]))
+					])),
+			children_) : children_;
+	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass = F2(
+	function (prefix, role) {
+		return $elm$html$Html$Attributes$class(
+			prefix + ('-' + function () {
+				switch (role.$) {
+					case 'Primary':
+						return 'primary';
+					case 'Secondary':
+						return 'secondary';
+					case 'Success':
+						return 'success';
+					case 'Info':
+						return 'info';
+					case 'Warning':
+						return 'warning';
+					case 'Danger':
+						return 'danger';
+					case 'Light':
+						return 'light';
+					default:
+						return 'dark';
+				}
+			}()));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$viewAttributes = F2(
+	function (visibility, configRec) {
+		var visibiltyAttributes = _Utils_eq(visibility, $rundis$elm_bootstrap$Bootstrap$Alert$Closed) ? _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'display', 'none')
+			]) : _List_Nil;
+		var animationAttributes = function () {
+			if (configRec.withAnimation) {
+				var _v0 = configRec.dismissable;
+				if (_v0.$ === 'Just') {
+					var dismissMsg = _v0.a;
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$Events$on,
+							'transitionend',
+							$elm$json$Json$Decode$succeed(
+								dismissMsg($rundis$elm_bootstrap$Bootstrap$Alert$Closed)))
+						]);
+				} else {
+					return _List_Nil;
+				}
+			} else {
+				return _List_Nil;
+			}
+		}();
+		var alertAttributes = _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$attribute, 'role', 'alert'),
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('alert', true),
+						_Utils_Tuple2(
+						'alert-dismissible',
+						$rundis$elm_bootstrap$Bootstrap$Alert$isDismissable(configRec)),
+						_Utils_Tuple2('fade', configRec.withAnimation),
+						_Utils_Tuple2(
+						'show',
+						_Utils_eq(visibility, $rundis$elm_bootstrap$Bootstrap$Alert$Shown))
+					])),
+				A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'alert', configRec.role)
+			]);
+		return $elm$core$List$concat(
+			_List_fromArray(
+				[configRec.attributes, alertAttributes, visibiltyAttributes, animationAttributes]));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$view = F2(
+	function (visibility, _v0) {
+		var configRec = _v0.a;
+		return A2(
+			$elm$html$Html$div,
+			A2($rundis$elm_bootstrap$Bootstrap$Alert$viewAttributes, visibility, configRec),
+			A3($rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton, visibility, configRec, configRec.children));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$simple = F3(
+	function (role_, attributes, children_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Alert$view,
+			$rundis$elm_bootstrap$Bootstrap$Alert$Shown,
+			A2(
+				$rundis$elm_bootstrap$Bootstrap$Alert$children,
+				children_,
+				A2(
+					$rundis$elm_bootstrap$Bootstrap$Alert$attrs,
+					attributes,
+					A2($rundis$elm_bootstrap$Bootstrap$Alert$role, role_, $rundis$elm_bootstrap$Bootstrap$Alert$config))));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$simpleDanger = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger);
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
 var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier = F2(
 	function (modifier, options) {
 		switch (modifier.$) {
@@ -7154,30 +7227,6 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier = F2(
 		}
 	});
 var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions = {action: false, active: false, attributes: _List_Nil, disabled: false, role: $elm$core$Maybe$Nothing};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass = F2(
-	function (prefix, role) {
-		return $elm$html$Html$Attributes$class(
-			prefix + ('-' + function () {
-				switch (role.$) {
-					case 'Primary':
-						return 'primary';
-					case 'Secondary':
-						return 'secondary';
-					case 'Success':
-						return 'success';
-					case 'Info':
-						return 'info';
-					case 'Warning':
-						return 'warning';
-					case 'Danger':
-						return 'danger';
-					case 'Light':
-						return 'light';
-					default:
-						return 'dark';
-				}
-			}()));
-	});
 var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes = function (options) {
 	return _Utils_ap(
 		_List_fromArray(
@@ -7237,6 +7286,7 @@ var $author$project$Admin$DelColor = function (a) {
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger = {$: 'Danger'};
 var $rundis$elm_bootstrap$Bootstrap$Button$danger = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger));
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Size$h100 = $elm$html$Html$Attributes$class('h-100');
 var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item = function (a) {
 	return {$: 'Item', a: a};
 };
@@ -7246,6 +7296,7 @@ var $rundis$elm_bootstrap$Bootstrap$ListGroup$li = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item(
 			{children: children, itemFn: $elm$html$Html$li, options: options});
 	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$py2 = $elm$html$Html$Attributes$class('py-2');
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAuto = {$: 'ColAuto'};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColWidth = function (a) {
 	return {$: 'ColWidth', a: a};
@@ -7274,7 +7325,8 @@ var $author$project$Admin$viewNewSetColor = function (color) {
 							[
 								A2(
 								$elm$html$Html$div,
-								_List_Nil,
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Size$h100, $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$py2]),
 								_List_fromArray(
 									[
 										$elm$html$Html$text(color)
@@ -7306,20 +7358,220 @@ var $author$project$Admin$viewNewSetColor = function (color) {
 					]))
 			]));
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Warning = {$: 'Warning'};
+var $rundis$elm_bootstrap$Bootstrap$Button$warning = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Warning));
 var $author$project$Admin$viewNewSet = function (newSet) {
 	return A2(
-		$elm$html$Html$div,
+		$rundis$elm_bootstrap$Bootstrap$Grid$row,
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Admin$newVoteForm(newSet),
 				A2(
-				$elm$html$Html$div,
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
 				_List_fromArray(
-					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m2]),
-				_List_Nil),
-				$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
-				A2($elm$core$List$map, $author$project$Admin$viewNewSetColor, newSet.colors))
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('name')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Name')
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('name'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value(newSet.name),
+										$elm$html$Html$Events$onInput($author$project$Admin$Name)
+									]))
+							]))
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('close-date')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Voting expires on')
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Form$Input$date(
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('close-date'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value(newSet.expires),
+										$elm$html$Html$Events$onInput($author$project$Admin$CloseDate)
+									]))
+							]))
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(newSet.category === 'boulder'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
+								$author$project$Admin$Category('boulder'))
+							]),
+						'Boulder')
+					])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$id('category'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$checked(newSet.category === 'rope'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick(
+								$author$project$Admin$Category('rope'))
+							]),
+						'Rope')
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('new-color')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Add Color')
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('new-color'),
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value(newSet.newColor),
+										$elm$html$Html$Events$onInput($author$project$Admin$NewColor)
+									]))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1]),
+						_List_Nil),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Button$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Button$warning,
+								$rundis$elm_bootstrap$Bootstrap$Button$block,
+								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Admin$AddColor)
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Add Color')
+							]))
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+						A2($elm$core$List$map, $author$project$Admin$viewNewSetColor, newSet.colors))
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$hr, _List_Nil, _List_Nil)
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				$elm$core$String$isEmpty(newSet.msg) ? _List_Nil : _List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Alert$simpleDanger,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(newSet.msg)
+							]))
+					])),
+				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+				_List_fromArray(
+					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$col,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Button$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Button$primary,
+								$rundis$elm_bootstrap$Bootstrap$Button$block,
+								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick($author$project$Admin$AddSet)
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Add Set')
+							]))
+					]))
 			]));
 };
 var $author$project$Admin$DeleteSet = function (a) {
@@ -7328,10 +7580,367 @@ var $author$project$Admin$DeleteSet = function (a) {
 var $author$project$Admin$ToggleDelete = function (a) {
 	return {$: 'ToggleDelete', a: a};
 };
-var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary = {$: 'Secondary'};
-var $rundis$elm_bootstrap$Bootstrap$Button$secondary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
-	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary));
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Card$Internal$Attrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock = function (a) {
+	return {$: 'CardBlock', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier = F2(
+	function (option, options) {
+		switch (option.$) {
+			case 'AlignedBlock':
+				var align = option.a;
+				return _Utils_update(
+					options,
+					{
+						aligned: $elm$core$Maybe$Just(align)
+					});
+			case 'BlockColoring':
+				var role = option.a;
+				return _Utils_update(
+					options,
+					{
+						coloring: $elm$core$Maybe$Just(role)
+					});
+			case 'BlockTextColoring':
+				var color = option.a;
+				return _Utils_update(
+					options,
+					{
+						textColoring: $elm$core$Maybe$Just(color)
+					});
+			default:
+				var attrs = option.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultBlockOptions = {aligned: $elm$core$Maybe$Nothing, attributes: _List_Nil, coloring: $elm$core$Maybe$Nothing, textColoring: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass = function (color) {
+	if (color.$ === 'White') {
+		return $elm$html$Html$Attributes$class('text-white');
+	} else {
+		var role = color.a;
+		return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'text', role);
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$blockAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier, $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultBlockOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('card-body')
+			]),
+		_Utils_ap(
+			function () {
+				var _v0 = options.aligned;
+				if (_v0.$ === 'Just') {
+					var align = _v0.a;
+					return _List_fromArray(
+						[
+							$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(align)
+						]);
+				} else {
+					return _List_Nil;
+				}
+			}(),
+			_Utils_ap(
+				function () {
+					var _v1 = options.coloring;
+					if (_v1.$ === 'Just') {
+						var role = _v1.a;
+						return _List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role)
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				_Utils_ap(
+					function () {
+						var _v2 = options.textColoring;
+						if (_v2.$ === 'Just') {
+							var color = _v2.a;
+							return _List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass(color)
+								]);
+						} else {
+							return _List_Nil;
+						}
+					}(),
+					options.attributes))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$block = F2(
+	function (options, items) {
+		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock(
+			A2(
+				$elm$html$Html$div,
+				$rundis$elm_bootstrap$Bootstrap$Card$Internal$blockAttributes(options),
+				A2(
+					$elm$core$List$map,
+					function (_v0) {
+						var e = _v0.a;
+						return e;
+					},
+					items)));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$block = F3(
+	function (options, items, _v0) {
+		var conf = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Card$Config(
+			_Utils_update(
+				conf,
+				{
+					blocks: _Utils_ap(
+						conf.blocks,
+						_List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Card$Internal$block, options, items)
+							]))
+				}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$config = function (options) {
+	return $rundis$elm_bootstrap$Bootstrap$Card$Config(
+		{blocks: _List_Nil, footer: $elm$core$Maybe$Nothing, header: $elm$core$Maybe$Nothing, imgBottom: $elm$core$Maybe$Nothing, imgTop: $elm$core$Maybe$Nothing, options: options});
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem = function (a) {
+	return {$: 'BlockItem', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Block$custom = function (element) {
+	return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(element);
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Footer = function (a) {
+	return {$: 'Footer', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$footer = F3(
+	function (attributes, children, _v0) {
+		var conf = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Card$Config(
+			_Utils_update(
+				conf,
+				{
+					footer: $elm$core$Maybe$Just(
+						$rundis$elm_bootstrap$Bootstrap$Card$Footer(
+							A2(
+								$elm$html$Html$div,
+								A2(
+									$elm$core$List$cons,
+									$elm$html$Html$Attributes$class('card-footer'),
+									attributes),
+								children)))
+				}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb1 = $elm$html$Html$Attributes$class('mb-1');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1 = $elm$html$Html$Attributes$class('mr-1');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2 = $elm$html$Html$Attributes$class('mr-2');
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $rundis$elm_bootstrap$Bootstrap$Card$Block$text = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(
+			A2(
+				$elm$html$Html$p,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('card-text')
+						]),
+					attributes),
+				children));
+	});
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
+var $rundis$elm_bootstrap$Bootstrap$Card$Block$title = F3(
+	function (elemFn, attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(
+			A2(
+				elemFn,
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class('card-title'),
+					attributes),
+				children));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$Block$titleH3 = $rundis$elm_bootstrap$Bootstrap$Card$Block$title($elm$html$Html$h3);
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier = F2(
+	function (option, options) {
+		switch (option.$) {
+			case 'Aligned':
+				var align = option.a;
+				return _Utils_update(
+					options,
+					{
+						aligned: $elm$core$Maybe$Just(align)
+					});
+			case 'Coloring':
+				var coloring = option.a;
+				return _Utils_update(
+					options,
+					{
+						coloring: $elm$core$Maybe$Just(coloring)
+					});
+			case 'TextColoring':
+				var coloring = option.a;
+				return _Utils_update(
+					options,
+					{
+						textColoring: $elm$core$Maybe$Just(coloring)
+					});
+			default:
+				var attrs = option.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultOptions = {aligned: $elm$core$Maybe$Nothing, attributes: _List_Nil, coloring: $elm$core$Maybe$Nothing, textColoring: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$cardAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier, $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('card')
+			]),
+		_Utils_ap(
+			function () {
+				var _v0 = options.coloring;
+				if (_v0.$ === 'Just') {
+					if (_v0.a.$ === 'Roled') {
+						var role = _v0.a.a;
+						return _List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role)
+							]);
+					} else {
+						var role = _v0.a.a;
+						return _List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'border', role)
+							]);
+					}
+				} else {
+					return _List_Nil;
+				}
+			}(),
+			_Utils_ap(
+				function () {
+					var _v1 = options.textColoring;
+					if (_v1.$ === 'Just') {
+						var color = _v1.a;
+						return _List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass(color)
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				_Utils_ap(
+					function () {
+						var _v2 = options.aligned;
+						if (_v2.$ === 'Just') {
+							var align = _v2.a;
+							return _List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(align)
+								]);
+						} else {
+							return _List_Nil;
+						}
+					}(),
+					options.attributes))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$renderBlocks = function (blocks) {
+	return A2(
+		$elm$core$List$map,
+		function (block_) {
+			if (block_.$ === 'CardBlock') {
+				var e = block_.a;
+				return e;
+			} else {
+				var e = block_.a;
+				return e;
+			}
+		},
+		blocks);
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$view = function (_v0) {
+	var conf = _v0.a;
+	return A2(
+		$elm$html$Html$div,
+		$rundis$elm_bootstrap$Bootstrap$Card$Internal$cardAttributes(conf.options),
+		_Utils_ap(
+			A2(
+				$elm$core$List$filterMap,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						A2(
+						$elm$core$Maybe$map,
+						function (_v1) {
+							var e = _v1.a;
+							return e;
+						},
+						conf.header),
+						A2(
+						$elm$core$Maybe$map,
+						function (_v2) {
+							var e = _v2.a;
+							return e;
+						},
+						conf.imgTop)
+					])),
+			_Utils_ap(
+				$rundis$elm_bootstrap$Bootstrap$Card$Internal$renderBlocks(conf.blocks),
+				A2(
+					$elm$core$List$filterMap,
+					$elm$core$Basics$identity,
+					_List_fromArray(
+						[
+							A2(
+							$elm$core$Maybe$map,
+							function (_v3) {
+								var e = _v3.a;
+								return e;
+							},
+							conf.footer),
+							A2(
+							$elm$core$Maybe$map,
+							function (_v4) {
+								var e = _v4.a;
+								return e;
+							},
+							conf.imgBottom)
+						])))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs(attrs_);
+};
+var $elm$html$Html$h5 = _VirtualDom_node('h5');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs = function (a) {
+	return {$: 'ColAttrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs(attrs_);
+};
 var $author$project$Admin$checkVoteMatch = F4(
 	function (set_id, color, grade, vote) {
 		return _Utils_eq(vote.set_id, set_id) && (_Utils_eq(vote.color, color) && _Utils_eq(vote.grade, grade));
@@ -7344,11 +7953,17 @@ var $author$project$Admin$countVotes = F4(
 				A3($author$project$Admin$checkVoteMatch, set_id, color, grade),
 				votes));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$left = $elm$html$Html$Attributes$class('border-left');
 var $author$project$Admin$viewGrade = F4(
 	function (set_id, color, votes, grade) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$Grid$col,
-			_List_Nil,
+			_List_fromArray(
+				[
+					$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$left]))
+				]),
 			_List_fromArray(
 				[
 					A2(
@@ -7373,7 +7988,12 @@ var $author$project$Admin$viewRoute = F3(
 	function (set, votes, color) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
-			_List_Nil,
+			_List_fromArray(
+				[
+					$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$none]))
+				]),
 			_List_fromArray(
 				[
 					A2(
@@ -7386,7 +8006,13 @@ var $author$project$Admin$viewRoute = F3(
 							_List_Nil,
 							_List_fromArray(
 								[
-									$elm$html$Html$text(color)
+									A2(
+									$elm$html$Html$h5,
+									_List_Nil,
+									_List_fromArray(
+										[
+											$elm$html$Html$text(color)
+										]))
 								]))
 						])),
 					A2(
@@ -7402,97 +8028,156 @@ var $author$project$Admin$viewRoute = F3(
 	});
 var $author$project$Admin$viewSet = F2(
 	function (votes, set) {
-		return A2(
-			$elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$h1,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(set.name)
-						])),
-					A2(
-					$elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('expires ' + set.expires)
-						])),
-					$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
-					A2(
-						$elm$core$List$map,
-						A2($author$project$Admin$viewRoute, set, votes),
-						set.colors)),
-					set.showDelete ? A2(
-					$elm$html$Html$div,
+		return $rundis$elm_bootstrap$Bootstrap$Card$view(
+			A3(
+				$rundis$elm_bootstrap$Bootstrap$Card$footer,
+				_List_Nil,
+				_List_fromArray(
+					[
+						set.showDelete ? A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Really delete?')
+									])),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$danger,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1,
+												$elm$html$Html$Events$onClick(
+												$author$project$Admin$DeleteSet(set.id))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Delete')
+									])),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$secondary,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Admin$ToggleDelete(set))
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Nevermind')
+									]))
+							])) : A2(
+						$rundis$elm_bootstrap$Bootstrap$Button$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Button$danger,
+								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Admin$ToggleDelete(set))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Delete Set')
+							]))
+					]),
+				A3(
+					$rundis$elm_bootstrap$Bootstrap$Card$block,
 					_List_Nil,
 					_List_fromArray(
 						[
 							A2(
-							$elm$html$Html$div,
-							_List_Nil,
+							$rundis$elm_bootstrap$Bootstrap$Card$Block$titleH3,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb1]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('Really delete?')
+									$elm$html$Html$text(set.name)
 								])),
 							A2(
-							$rundis$elm_bootstrap$Bootstrap$Button$button,
+							$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3, $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]),
 							_List_fromArray(
 								[
-									$rundis$elm_bootstrap$Bootstrap$Button$danger,
-									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-									_List_fromArray(
-										[
-											$elm$html$Html$Events$onClick(
-											$author$project$Admin$DeleteSet(set.id))
-										]))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Delete')
+									$elm$html$Html$text('expires ' + set.expires)
 								])),
-							A2(
-							$rundis$elm_bootstrap$Bootstrap$Button$button,
-							_List_fromArray(
-								[
-									$rundis$elm_bootstrap$Bootstrap$Button$secondary,
-									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-									_List_fromArray(
-										[
-											$elm$html$Html$Events$onClick(
-											$author$project$Admin$ToggleDelete(set))
-										]))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Nevermind')
-								]))
-						])) : A2(
-					$rundis$elm_bootstrap$Bootstrap$Button$button,
-					_List_fromArray(
-						[
-							$rundis$elm_bootstrap$Bootstrap$Button$danger,
-							$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-							_List_fromArray(
-								[
-									$elm$html$Html$Events$onClick(
-									$author$project$Admin$ToggleDelete(set))
-								]))
+							$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
+							$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+								A2(
+									$elm$core$List$map,
+									A2($author$project$Admin$viewRoute, set, votes),
+									set.colors)))
 						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Delete Set')
-						]))
-				]));
+					$rundis$elm_bootstrap$Bootstrap$Card$config(
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Card$attrs(
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3]))
+							])))));
 	});
 var $author$project$Admin$view = function (model) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
-		_List_Nil,
 		_List_fromArray(
+			[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3]),
+		model.showNewSet ? _List_fromArray(
+			[
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$row,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$map,
+								$author$project$Admin$UpdateNewSet,
+								$author$project$Admin$viewNewSet(model.newSet)),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2]),
+								_List_Nil),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$block,
+										$rundis$elm_bootstrap$Bootstrap$Button$secondary,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Admin$ToggleNewSet)
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Cancel')
+									]))
+							]))
+					]))
+			]) : _List_fromArray(
 			[
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
@@ -7507,30 +8192,7 @@ var $author$project$Admin$view = function (model) {
 								$elm$html$Html$text(model.msg)
 							])),
 						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
-						model.showNewSet ? A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$map,
-								$author$project$Admin$UpdateNewSet,
-								$author$project$Admin$viewNewSet(model.newSet)),
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Button$button,
-								_List_fromArray(
-									[
-										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Admin$ToggleNewSet)
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Cancel')
-									]))
-							])) : A2(
+						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
 						_List_fromArray(
@@ -7539,6 +8201,8 @@ var $author$project$Admin$view = function (model) {
 								$rundis$elm_bootstrap$Bootstrap$Button$button,
 								_List_fromArray(
 									[
+										$rundis$elm_bootstrap$Bootstrap$Button$primary,
+										$rundis$elm_bootstrap$Bootstrap$Button$block,
 										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
 										_List_fromArray(
 											[

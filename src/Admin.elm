@@ -1,13 +1,18 @@
 port module Admin exposing (..)
 
 import Browser
-import Html exposing (Html, text, button, div, input, span, h1)
-import Html.Attributes exposing (type_, value, for)
+import Html exposing (Html, text, div, span, h5, hr)
+import Html.Attributes exposing (value, for)
 import Html.Events exposing (onInput, onClick)
+
+import Bootstrap.Alert as Alert
 
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
+
+import Bootstrap.Card as Card
+import Bootstrap.Card.Block as Block
 
 import Bootstrap.ListGroup as ListGroup
 
@@ -16,6 +21,8 @@ import Bootstrap.Form.Radio as Radio
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 
+import Bootstrap.Utilities.Size as Size
+import Bootstrap.Utilities.Border as Border
 import Bootstrap.Utilities.Spacing as Spacing
 
 import Json.Encode as E
@@ -55,6 +62,7 @@ type alias NewSet =
     , newColor : String
     , category : String
     , colors : List String
+    , msg : String
     }
 
 type alias Set =
@@ -82,7 +90,7 @@ initModel =
 
 initNewSet : NewSet
 initNewSet =
-    NewSet "" "" "" "boulder" []
+    NewSet "" "" "" "boulder" [] ""
 
 newSetToJson : NewSet -> E.Value
 newSetToJson newSet =
@@ -141,18 +149,38 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         UpdateNewSet AddSet ->
-            ( initModel
-            , addSet (newSetToJson model.newSet) )
+            if String.isEmpty model.newSet.name then
+                (
+                    { model
+                        | newSet = showMsgInNewSet "What's the name of this set?" model.newSet
+                    }
+                , Cmd.none )
+            else if String.isEmpty model.newSet.expires then
+                (
+                    { model
+                        | newSet = showMsgInNewSet "When does this set expire?" model.newSet
+                    }
+                , Cmd.none )
+            else if List.isEmpty model.newSet.colors then
+                (
+                    { model
+                        | newSet = showMsgInNewSet "What color are the routes?" model.newSet
+                    }
+                , Cmd.none )
+            else
+                ( { model
+                    | newSet = initNewSet
+                    , showNewSet = False }
+                , addSet (newSetToJson model.newSet) )
 
         UpdateNewSet newSetMsg ->
             ( { model | newSet = updateNewSet newSetMsg model.newSet }
             , Cmd.none )
 
         ToggleNewSet ->
-            (
-                { model
-                    | showNewSet = not model.showNewSet
-                    , newSet = initNewSet }
+            ( { model
+                | showNewSet = not model.showNewSet
+                , newSet = initNewSet }
             , Cmd.none )
 
         ToggleDelete set ->
@@ -183,6 +211,10 @@ update msg model =
                     ( { model | msg = "Error in parsing all votes" }
                     , Cmd.none )
 
+showMsgInNewSet : String -> NewSet -> NewSet
+showMsgInNewSet msg newSet =
+    { newSet | msg = msg }
+
 toggleDeleteIfMatch : Set -> Set -> Set
 toggleDeleteIfMatch setToChange set =
     if setToChange == set then
@@ -206,9 +238,12 @@ updateNewSet msg newSet =
             { newSet | newColor = color }
 
         AddColor ->
-            { newSet
-                | colors = List.sort (newSet.newColor :: newSet.colors)
-                , newColor = "" }
+            if String.isEmpty newSet.newColor then
+                newSet
+            else
+                { newSet
+                    | colors = List.sort (newSet.newColor :: newSet.colors)
+                    , newColor = "" }
 
         DelColor color ->
             { newSet
@@ -222,57 +257,78 @@ updateNewSet msg newSet =
 
 view : Model -> Html Msg
 view model =
-    Grid.container []
-        [ Grid.row []
-            [ Grid.col [] [ text model.msg ]
-            , Grid.colBreak []
-            ,
-                if model.showNewSet then
-                    Grid.col []
-                        [ Html.map UpdateNewSet (viewNewSet model.newSet)
-                        , Button.button
-                            [ Button.attrs [ onClick ToggleNewSet ] ]
-                            [ text "Cancel" ]
-                        ]
-                else
-                    Grid.col []
-                        [ Button.button
-                            [ Button.attrs [ onClick ToggleNewSet ] ]
-                            [ text "Add A Set" ]
-                        ]
-            , Grid.colBreak []
-            , Grid.col [] (List.map (viewSet model.votes) model.sets)
+    Grid.container [ Spacing.my3 ] (
+        if model.showNewSet then
+            [ Grid.row []
+                [ Grid.col []
+                    [ Html.map UpdateNewSet (viewNewSet model.newSet)
+                    , div [ Spacing.my2 ] []
+                    , Button.button
+                        [ Button.block, Button.secondary, Button.attrs [ onClick ToggleNewSet ] ]
+                        [ text "Cancel" ]
+                    ]
+                ]
             ]
-        ]
+        else
+            [ Grid.row []
+                [ Grid.col [] [ text model.msg ]
+                , Grid.colBreak []
+                , Grid.col []
+                    [ Button.button
+                        [ Button.primary, Button.block, Button.attrs [ onClick ToggleNewSet ] ]
+                        [ text "Add A Set" ]
+                    ]
+                , Grid.colBreak []
+                , Grid.col [] (List.map (viewSet model.votes) model.sets)
+                ]
+            ]
+        )
+
 
 viewSet : List Vote -> Set -> Html Msg
 viewSet votes set =
-    div []
-        [ h1 [] [ text set.name ]
-        , div [] [ text ("expires " ++ set.expires) ]
-        , ListGroup.ul (List.map (viewRoute set votes) set.colors)
-        ,
-            if set.showDelete then
-                div []
-                    [ div [] [ text "Really delete?" ]
-                    , Button.button
-                        [ Button.danger, Button.attrs [ onClick (DeleteSet set.id) ] ]
-                        [ text "Delete" ]
-                    , Button.button
-                        [ Button.secondary, Button.attrs [ onClick (ToggleDelete set) ] ]
-                        [ text "Nevermind" ]
-                    ]
-            else
-                Button.button
-                    [ Button.danger, Button.attrs [ onClick (ToggleDelete set) ] ]
-                    [ text "Delete Set" ]
-        ]
+    Card.config [ Card.attrs [ Spacing.my3 ] ]
+        |> Card.block []
+            [ Block.titleH3 [ Spacing.mb1 ]
+                [ text set.name ]
+            , Block.text [ Spacing.mb3, Spacing.ml1 ]
+                [ text ("expires " ++ set.expires) ]
+            , Block.custom <|
+                ListGroup.ul (List.map (viewRoute set votes) set.colors)
+            ]
+        |> Card.footer []
+            [
+                if set.showDelete then
+                    div []
+                        [ span [ Spacing.mr2 ] [ text "Really delete?" ]
+                        , Button.button
+                            [ Button.danger
+                            , Button.attrs
+                                [ Spacing.mr1, onClick (DeleteSet set.id) ]
+                            ]
+                            [ text "Delete" ]
+                        , Button.button
+                            [ Button.secondary
+                            , Button.attrs [ onClick (ToggleDelete set) ]
+                            ]
+                            [ text "Nevermind" ]
+                        ]
+                else
+                    Button.button
+                        [ Button.danger
+                        , Button.attrs [ onClick (ToggleDelete set) ]
+                        ]
+                        [ text "Delete Set" ]
+            ]
+        |> Card.view
+
 
 viewRoute : Set -> List Vote -> String -> ListGroup.Item Msg
 viewRoute set votes color =
-    ListGroup.li []
+    ListGroup.li [ ListGroup.attrs [ Border.none ] ]
         [ Grid.row []
-            [ Grid.col [] [ text color ]
+            [ Grid.col []
+                [ h5 [] [ text color ] ]
             ]
         , Grid.row []
             (List.map
@@ -288,7 +344,8 @@ viewRoute set votes color =
 
 viewGrade : String -> String -> List Vote -> String -> Grid.Column Msg
 viewGrade set_id color votes grade =
-    Grid.col []
+    Grid.col
+        [ Col.attrs [ Border.left ] ]
         [ div [] [ text grade ]
         , div []
             [ text (String.fromInt (countVotes set_id color grade votes)) ]
@@ -305,20 +362,12 @@ checkVoteMatch set_id color grade vote =
     vote.color == color &&
     vote.grade == grade
 
-viewNewSet : NewSet -> Html NewSetMsg
-viewNewSet newSet =
-    div []
-        [ newVoteForm newSet
-        , div [ Spacing.m2 ] []
-        , ListGroup.ul (List.map viewNewSetColor newSet.colors)
-        ]
-
 viewNewSetColor : String -> ListGroup.Item NewSetMsg
 viewNewSetColor color =
     ListGroup.li []
         [ Grid.row []
             [ Grid.col []
-                [ div [] [ text color ] ]
+                [ div [ Size.h100, Spacing.py2 ] [ text color ] ]
             , Grid.col [ Col.xsAuto ]
                 [ Button.button
                     [ Button.danger, Button.attrs [ onClick (DelColor color) ] ]
@@ -327,44 +376,57 @@ viewNewSetColor color =
             ]
         ]
 
-newVoteForm : NewSet -> Html NewSetMsg
-newVoteForm newSet =
+viewNewSet : NewSet -> Html NewSetMsg
+viewNewSet newSet =
     Grid.row []
         [ Grid.col []
             [ Form.label [ for "name" ] [ text "Name" ]
             , Input.text [ Input.id "name", Input.attrs [ value newSet.name, onInput Name ] ]
             ]
-        , Grid.colBreak [ Spacing.m1 ]
+        , Grid.colBreak [ Spacing.my1 ]
         , Grid.col []
-            [ Form.label [ for "close-date" ] [ text "Close Date" ]
+            [ Form.label [ for "close-date" ] [ text "Voting expires on" ]
             , Input.date [ Input.id "close-date", Input.attrs [ value newSet.expires, onInput CloseDate ] ]
             ]
-        , Grid.colBreak [ Spacing.m1 ]
+        , Grid.colBreak [ Spacing.my2 ]
         , Grid.col []
-            [ Form.label [ for "category" ] [ text "Category" ]
-            , Radio.radio
+            [ Radio.radio
                 [ Radio.id "category"
                 , Radio.checked (newSet.category == "boulder")
                 , Radio.onClick (Category "boulder")
                 ]
                 "Boulder"
-            , Radio.radio
+            ]
+        , Grid.col []
+            [ Radio.radio
                 [ Radio.id "category"
                 , Radio.checked (newSet.category == "rope")
                 , Radio.onClick (Category "rope")
                 ]
                 "Rope"
             ]
-        , Grid.colBreak [ Spacing.m1 ]
+        , Grid.colBreak [ Spacing.my2 ]
         , Grid.col []
             [ Form.label [ for "new-color" ] [ text "Add Color" ]
             , Input.text [ Input.id "new-color", Input.attrs [ value newSet.newColor, onInput NewColor ] ]
             , div [ Spacing.m1 ] []
             , Button.button
-                [ Button.dark, Button.block, Button.attrs [ onClick AddColor ] ]
+                [ Button.warning, Button.block, Button.attrs [ onClick AddColor ] ]
                 [ text "Add Color" ]
             ]
-        , Grid.colBreak [ Spacing.m3 ]
+        , Grid.colBreak [ Spacing.my1 ]
+        , Grid.col []
+            [ ListGroup.ul (List.map viewNewSetColor newSet.colors) ]
+        , Grid.colBreak [ Spacing.my1 ]
+        , Grid.col [] [ hr [] [] ]
+        , Grid.colBreak [ Spacing.my1 ]
+        , Grid.col [] (
+            if String.isEmpty newSet.msg then
+                []
+            else
+                [ Alert.simpleDanger [] [ text newSet.msg ] ]
+            )
+        , Grid.colBreak [ Spacing.my1 ]
         , Grid.col []
             [ Button.button
                 [ Button.primary, Button.block, Button.attrs [ onClick AddSet ] ]
