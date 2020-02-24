@@ -1,7 +1,7 @@
 port module Vote exposing (..)
 
 import Browser
-import Html exposing (Html, text, button, div, input, span, h1)
+import Html exposing (Html, text, div, h3, h5, hr)
 import Html.Attributes exposing (type_, value, for)
 import Html.Events exposing (onInput, onClick)
 
@@ -14,7 +14,12 @@ import Bootstrap.Alert as Alert
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 
+import Bootstrap.ListGroup as ListGroup
+
 import Bootstrap.Form.Select as Select
+
+import Bootstrap.Utilities.Spacing as Spacing
+import Bootstrap.Utilities.Border as Border
 
 import Bootstrap.Button as Button
 
@@ -120,7 +125,7 @@ update msg model =
                     , Cmd.none )
 
                 Err e ->
-                    ( { model | msg = "All voting closed" }
+                    ( { model | msg = "All voting closed." }
                     , Cmd.none )
 
         SelectGrade color grade ->
@@ -128,7 +133,7 @@ update msg model =
             , Cmd.none )
 
         CastVote ->
-            ( { newModel | msg = "Thanks for your vote!" }
+            ( { model | msg = "Thanks for your vote!" }
             , castVote (voteToJson model)
             )
 
@@ -152,38 +157,51 @@ replaceGradeIfMatch color grade route =
 
 view : Model -> Html Msg
 view model =
-    if String.isEmpty model.msg then
-        Grid.container []
-            [ Grid.row []
-                [ Grid.col [] [ h1 [] [ text model.set.name ] ]
-                ]
-            , div [] (List.map (viewRoute model.set.category) model.routes)
-            , Button.button
-                [ Button.primary, Button.block
-                , Button.attrs [ onClick CastVote ]
-                ]
-                [ text "Cast vote" ]
-            ]
-    else
-        Grid.container []
-            [ Grid.row []
+    Grid.container []
+        [ Grid.row
+            [ Row.attrs [ Spacing.mt3 ] ]
+            (
+                if String.isEmpty model.set.name then
+                    []
+                else
+                    [ Grid.col []
+                        [ h3 [] [ text model.set.name ] ]
+                    , Grid.colBreak []
+                    , Grid.col [ Col.attrs [ Spacing.mb3, Spacing.ml1 ] ]
+                        [ text ("expires " ++ model.set.expires) ]
+                    , Grid.colBreak []
+                    , Grid.col [] [ hr [ Spacing.my1 ] [] ]
+                    ]
+            )
+        , Grid.row [] (
+            if String.isEmpty model.msg then
                 [ Grid.col []
+                    [ ListGroup.ul
+                        (List.map (viewRoute model.set.category) model.routes)
+                    , Button.button
+                        [ Button.primary, Button.block
+                        , Button.attrs [ Spacing.mt4, onClick CastVote ]
+                        ]
+                        [ text "Cast vote" ]
+                    ]
+                ]
+            else
+                [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
                     [ Alert.simplePrimary [] [ text model.msg ] ]
                 ]
-            ]
+            )
+        ]
 
 
-viewRoute : String -> Route -> Html Msg
+viewRoute : String -> Route -> ListGroup.Item Msg
 viewRoute category route =
-    Card.config []
-        |> Card.block []
-            [ Block.text [] [ text route.color ]
-            , Block.custom <|
-                Select.select
-                    [ Select.onChange (SelectGrade route.color) ]
-                    ( gradeChoices category )
-            ]
-        |> Card.view
+    ListGroup.li
+        [ ListGroup.attrs [ Border.none ] ]
+        [ h5 [ Spacing.mb2 ] [ text route.color ]
+        , Select.select
+            [ Select.onChange (SelectGrade route.color) ]
+            ( gradeChoices category )
+        ]
 
 gradeChoices : String -> List (Select.Item Msg)
 gradeChoices category =

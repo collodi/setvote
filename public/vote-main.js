@@ -5278,7 +5278,7 @@ var $author$project$Vote$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{msg: 'All voting closed'}),
+							{msg: 'All voting closed.'}),
 						$elm$core$Platform$Cmd$none);
 				}
 			case 'SelectGrade':
@@ -5294,7 +5294,7 @@ var $author$project$Vote$update = F2(
 			default:
 				return _Utils_Tuple2(
 					_Utils_update(
-						$author$project$Vote$newModel,
+						model,
 						{msg: 'Thanks for your vote!'}),
 					$author$project$Vote$castVote(
 						$author$project$Vote$voteToJson(model)));
@@ -5306,6 +5306,18 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
 };
 var $rundis$elm_bootstrap$Bootstrap$Button$attrs = function (attrs_) {
 	return $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs = function (a) {
+	return {$: 'ColAttrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$RowAttrs = function (a) {
+	return {$: 'RowAttrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Row$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$RowAttrs(attrs_);
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block = {$: 'Block'};
 var $rundis$elm_bootstrap$Bootstrap$Button$block = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block;
@@ -5500,7 +5512,22 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$col = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Grid$Column(
 			{children: children, options: options});
 	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$ColBreak = function (a) {
+	return {$: 'ColBreak', a: a};
+};
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $rundis$elm_bootstrap$Bootstrap$Grid$colBreak = function (attributes) {
+	return $rundis$elm_bootstrap$Bootstrap$Grid$ColBreak(
+		A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('w-100')
+					]),
+				attributes),
+			_List_Nil));
+};
 var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 	function (attributes, children) {
 		return A2(
@@ -5513,7 +5540,13 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 				attributes),
 			children);
 	});
-var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
+var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = $elm$html$Html$Attributes$class('mt-4');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6589,42 +6622,30 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$simple = F3(
 					A2($rundis$elm_bootstrap$Bootstrap$Alert$role, role_, $rundis$elm_bootstrap$Bootstrap$Alert$config))));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary);
-var $author$project$Vote$SelectGrade = F2(
-	function (a, b) {
-		return {$: 'SelectGrade', a: a, b: b};
-	});
-var $rundis$elm_bootstrap$Bootstrap$Card$Config = function (a) {
-	return {$: 'Config', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock = function (a) {
-	return {$: 'CardBlock', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier = F2(
-	function (option, options) {
-		switch (option.$) {
-			case 'AlignedBlock':
-				var align = option.a;
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Roled':
+				var role = modifier.a;
 				return _Utils_update(
 					options,
 					{
-						aligned: $elm$core$Maybe$Just(align)
+						role: $elm$core$Maybe$Just(role)
 					});
-			case 'BlockColoring':
-				var role = option.a;
+			case 'Action':
 				return _Utils_update(
 					options,
-					{
-						coloring: $elm$core$Maybe$Just(role)
-					});
-			case 'BlockTextColoring':
-				var color = option.a;
+					{action: true});
+			case 'Disabled':
 				return _Utils_update(
 					options,
-					{
-						textColoring: $elm$core$Maybe$Just(color)
-					});
+					{disabled: true});
+			case 'Active':
+				return _Utils_update(
+					options,
+					{active: true});
 			default:
-				var attrs = option.a;
+				var attrs = modifier.a;
 				return _Utils_update(
 					options,
 					{
@@ -6632,101 +6653,69 @@ var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier = F2(
 					});
 		}
 	});
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultBlockOptions = {aligned: $elm$core$Maybe$Nothing, attributes: _List_Nil, coloring: $elm$core$Maybe$Nothing, textColoring: $elm$core$Maybe$Nothing};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass = function (color) {
-	if (color.$ === 'White') {
-		return $elm$html$Html$Attributes$class('text-white');
-	} else {
-		var role = color.a;
-		return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'text', role);
-	}
-};
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$blockAttributes = function (modifiers) {
-	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier, $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultBlockOptions, modifiers);
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions = {action: false, active: false, attributes: _List_Nil, disabled: false, role: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes = function (options) {
 	return _Utils_ap(
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('card-body')
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('list-group-item', true),
+						_Utils_Tuple2('disabled', options.disabled),
+						_Utils_Tuple2('active', options.active),
+						_Utils_Tuple2('list-group-item-action', options.action)
+					]))
 			]),
 		_Utils_ap(
-			function () {
-				var _v0 = options.aligned;
-				if (_v0.$ === 'Just') {
-					var align = _v0.a;
-					return _List_fromArray(
-						[
-							$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(align)
-						]);
-				} else {
-					return _List_Nil;
-				}
-			}(),
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$disabled(options.disabled)
+				]),
 			_Utils_ap(
-				function () {
-					var _v1 = options.coloring;
-					if (_v1.$ === 'Just') {
-						var role = _v1.a;
-						return _List_fromArray(
-							[
-								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role)
-							]);
-					} else {
-						return _List_Nil;
-					}
-				}(),
-				_Utils_ap(
-					function () {
-						var _v2 = options.textColoring;
-						if (_v2.$ === 'Just') {
-							var color = _v2.a;
+				A2(
+					$elm$core$Maybe$withDefault,
+					_List_Nil,
+					A2(
+						$elm$core$Maybe$map,
+						function (r) {
 							return _List_fromArray(
 								[
-									$rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass(color)
+									A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'list-group-item', r)
 								]);
-						} else {
-							return _List_Nil;
-						}
-					}(),
-					options.attributes))));
+						},
+						options.role)),
+				options.attributes)));
 };
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$block = F2(
-	function (options, items) {
-		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock(
-			A2(
-				$elm$html$Html$div,
-				$rundis$elm_bootstrap$Bootstrap$Card$Internal$blockAttributes(options),
-				A2(
-					$elm$core$List$map,
-					function (_v0) {
-						var e = _v0.a;
-						return e;
-					},
-					items)));
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem = function (_v0) {
+	var itemFn = _v0.a.itemFn;
+	var options = _v0.a.options;
+	var children = _v0.a.children;
+	return A2(
+		itemFn,
+		$rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes(
+			A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions, options)),
+		children);
+};
+var $elm$html$Html$ul = _VirtualDom_node('ul');
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$ul = function (items) {
+	return A2(
+		$elm$html$Html$ul,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('list-group')
+			]),
+		A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem, items));
+};
+var $author$project$Vote$SelectGrade = F2(
+	function (a, b) {
+		return {$: 'SelectGrade', a: a, b: b};
 	});
-var $rundis$elm_bootstrap$Bootstrap$Card$block = F3(
-	function (options, items, _v0) {
-		var conf = _v0.a;
-		return $rundis$elm_bootstrap$Bootstrap$Card$Config(
-			_Utils_update(
-				conf,
-				{
-					blocks: _Utils_ap(
-						conf.blocks,
-						_List_fromArray(
-							[
-								A2($rundis$elm_bootstrap$Bootstrap$Card$Internal$block, options, items)
-							]))
-				}));
-	});
-var $rundis$elm_bootstrap$Bootstrap$Card$config = function (options) {
-	return $rundis$elm_bootstrap$Bootstrap$Card$Config(
-		{blocks: _List_Nil, footer: $elm$core$Maybe$Nothing, header: $elm$core$Maybe$Nothing, imgBottom: $elm$core$Maybe$Nothing, imgTop: $elm$core$Maybe$Nothing, options: options});
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
 };
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem = function (a) {
-	return {$: 'BlockItem', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Card$Block$custom = function (element) {
-	return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(element);
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs(attrs_);
 };
 var $rundis$elm_bootstrap$Bootstrap$Form$Select$Item = function (a) {
 	return {$: 'Item', a: a};
@@ -6761,6 +6750,18 @@ var $author$project$Vote$gradeChoices = function (category) {
 		_List_fromArray(
 			['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']));
 };
+var $elm$html$Html$h5 = _VirtualDom_node('h5');
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item = function (a) {
+	return {$: 'Item', a: a};
+};
+var $elm$html$Html$li = _VirtualDom_node('li');
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$li = F2(
+	function (options, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item(
+			{children: children, itemFn: $elm$html$Html$li, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb2 = $elm$html$Html$Attributes$class('mb-2');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
 var $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange = function (a) {
 	return {$: 'OnChange', a: a};
 };
@@ -6913,210 +6914,51 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Select$select = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Select$view(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Select$create, options, items));
 	});
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $rundis$elm_bootstrap$Bootstrap$Card$Block$text = F2(
-	function (attributes, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(
-			A2(
-				$elm$html$Html$p,
-				_Utils_ap(
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('card-text')
-						]),
-					attributes),
-				children));
-	});
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier = F2(
-	function (option, options) {
-		switch (option.$) {
-			case 'Aligned':
-				var align = option.a;
-				return _Utils_update(
-					options,
-					{
-						aligned: $elm$core$Maybe$Just(align)
-					});
-			case 'Coloring':
-				var coloring = option.a;
-				return _Utils_update(
-					options,
-					{
-						coloring: $elm$core$Maybe$Just(coloring)
-					});
-			case 'TextColoring':
-				var coloring = option.a;
-				return _Utils_update(
-					options,
-					{
-						textColoring: $elm$core$Maybe$Just(coloring)
-					});
-			default:
-				var attrs = option.a;
-				return _Utils_update(
-					options,
-					{
-						attributes: _Utils_ap(options.attributes, attrs)
-					});
-		}
-	});
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultOptions = {aligned: $elm$core$Maybe$Nothing, attributes: _List_Nil, coloring: $elm$core$Maybe$Nothing, textColoring: $elm$core$Maybe$Nothing};
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$cardAttributes = function (modifiers) {
-	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier, $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultOptions, modifiers);
-	return _Utils_ap(
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('card')
-			]),
-		_Utils_ap(
-			function () {
-				var _v0 = options.coloring;
-				if (_v0.$ === 'Just') {
-					if (_v0.a.$ === 'Roled') {
-						var role = _v0.a.a;
-						return _List_fromArray(
-							[
-								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role)
-							]);
-					} else {
-						var role = _v0.a.a;
-						return _List_fromArray(
-							[
-								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'border', role)
-							]);
-					}
-				} else {
-					return _List_Nil;
-				}
-			}(),
-			_Utils_ap(
-				function () {
-					var _v1 = options.textColoring;
-					if (_v1.$ === 'Just') {
-						var color = _v1.a;
-						return _List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass(color)
-							]);
-					} else {
-						return _List_Nil;
-					}
-				}(),
-				_Utils_ap(
-					function () {
-						var _v2 = options.aligned;
-						if (_v2.$ === 'Just') {
-							var align = _v2.a;
-							return _List_fromArray(
-								[
-									$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(align)
-								]);
-						} else {
-							return _List_Nil;
-						}
-					}(),
-					options.attributes))));
-};
-var $rundis$elm_bootstrap$Bootstrap$Card$Internal$renderBlocks = function (blocks) {
-	return A2(
-		$elm$core$List$map,
-		function (block_) {
-			if (block_.$ === 'CardBlock') {
-				var e = block_.a;
-				return e;
-			} else {
-				var e = block_.a;
-				return e;
-			}
-		},
-		blocks);
-};
-var $rundis$elm_bootstrap$Bootstrap$Card$view = function (_v0) {
-	var conf = _v0.a;
-	return A2(
-		$elm$html$Html$div,
-		$rundis$elm_bootstrap$Bootstrap$Card$Internal$cardAttributes(conf.options),
-		_Utils_ap(
-			A2(
-				$elm$core$List$filterMap,
-				$elm$core$Basics$identity,
-				_List_fromArray(
-					[
-						A2(
-						$elm$core$Maybe$map,
-						function (_v1) {
-							var e = _v1.a;
-							return e;
-						},
-						conf.header),
-						A2(
-						$elm$core$Maybe$map,
-						function (_v2) {
-							var e = _v2.a;
-							return e;
-						},
-						conf.imgTop)
-					])),
-			_Utils_ap(
-				$rundis$elm_bootstrap$Bootstrap$Card$Internal$renderBlocks(conf.blocks),
-				A2(
-					$elm$core$List$filterMap,
-					$elm$core$Basics$identity,
-					_List_fromArray(
-						[
-							A2(
-							$elm$core$Maybe$map,
-							function (_v3) {
-								var e = _v3.a;
-								return e;
-							},
-							conf.footer),
-							A2(
-							$elm$core$Maybe$map,
-							function (_v4) {
-								var e = _v4.a;
-								return e;
-							},
-							conf.imgBottom)
-						])))));
-};
 var $author$project$Vote$viewRoute = F2(
 	function (category, route) {
-		return $rundis$elm_bootstrap$Bootstrap$Card$view(
-			A3(
-				$rundis$elm_bootstrap$Bootstrap$Card$block,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(route.color)
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
-						A2(
-							$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
-							_List_fromArray(
-								[
-									$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
-									$author$project$Vote$SelectGrade(route.color))
-								]),
-							$author$project$Vote$gradeChoices(category)))
-					]),
-				$rundis$elm_bootstrap$Bootstrap$Card$config(_List_Nil)));
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+			_List_fromArray(
+				[
+					$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$none]))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$h5,
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb2]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(route.color)
+						])),
+					A2(
+					$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+					_List_fromArray(
+						[
+							$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
+							$author$project$Vote$SelectGrade(route.color))
+						]),
+					$author$project$Vote$gradeChoices(category))
+				]));
 	});
 var $author$project$Vote$view = function (model) {
-	return $elm$core$String$isEmpty(model.msg) ? A2(
+	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
 		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
-				_List_Nil,
 				_List_fromArray(
+					[
+						$rundis$elm_bootstrap$Bootstrap$Grid$Row$attrs(
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+					]),
+				$elm$core$String$isEmpty(model.set.name) ? _List_Nil : _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -7124,50 +6966,82 @@ var $author$project$Vote$view = function (model) {
 						_List_fromArray(
 							[
 								A2(
-								$elm$html$Html$h1,
+								$elm$html$Html$h3,
 								_List_Nil,
 								_List_fromArray(
 									[
 										$elm$html$Html$text(model.set.name)
 									]))
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3, $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('expires ' + model.set.expires)
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$hr,
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1]),
+								_List_Nil)
 							]))
 					])),
 				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				A2(
-					$elm$core$List$map,
-					$author$project$Vote$viewRoute(model.set.category),
-					model.routes)),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Button$button,
-				_List_fromArray(
-					[
-						$rundis$elm_bootstrap$Bootstrap$Button$primary,
-						$rundis$elm_bootstrap$Bootstrap$Button$block,
-						$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Vote$CastVote)
-							]))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Cast vote')
-					]))
-			])) : A2(
-		$rundis$elm_bootstrap$Bootstrap$Grid$container,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
 				_List_Nil,
-				_List_fromArray(
+				$elm$core$String$isEmpty(model.msg) ? _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+								A2(
+									$elm$core$List$map,
+									$author$project$Vote$viewRoute(model.set.category),
+									model.routes)),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$primary,
+										$rundis$elm_bootstrap$Bootstrap$Button$block,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4,
+												$elm$html$Html$Events$onClick($author$project$Vote$CastVote)
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Cast vote')
+									]))
+							]))
+					]) : _List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+							]),
 						_List_fromArray(
 							[
 								A2(
