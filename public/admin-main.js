@@ -7935,12 +7935,61 @@ var $rundis$elm_bootstrap$Bootstrap$ListGroup$attrs = function (attrs_) {
 };
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
-var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs = function (a) {
-	return {$: 'ColAttrs', a: a};
+var $rundis$elm_bootstrap$Bootstrap$Badge$Dark = {$: 'Dark'};
+var $rundis$elm_bootstrap$Bootstrap$Badge$Roled = function (a) {
+	return {$: 'Roled', a: a};
 };
-var $rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs = function (attrs_) {
-	return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs(attrs_);
+var $rundis$elm_bootstrap$Bootstrap$Badge$roleOption = function (role) {
+	switch (role.$) {
+		case 'Primary':
+			return 'badge-primary';
+		case 'Secondary':
+			return 'badge-secondary';
+		case 'Success':
+			return 'badge-success';
+		case 'Info':
+			return 'badge-info';
+		case 'Warning':
+			return 'badge-warning';
+		case 'Danger':
+			return 'badge-danger';
+		case 'Light':
+			return 'badge-light';
+		default:
+			return 'badge-dark';
+	}
 };
+var $rundis$elm_bootstrap$Bootstrap$Badge$badgeClass = function (option) {
+	return $elm$html$Html$Attributes$class(
+		function () {
+			if (option.$ === 'Pill') {
+				return 'badge-pill';
+			} else {
+				var role = option.a;
+				return $rundis$elm_bootstrap$Bootstrap$Badge$roleOption(role);
+			}
+		}());
+};
+var $rundis$elm_bootstrap$Bootstrap$Badge$badgeAttributes = function (options) {
+	return A2(
+		$elm$core$List$cons,
+		$elm$html$Html$Attributes$class('badge'),
+		A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Badge$badgeClass, options));
+};
+var $rundis$elm_bootstrap$Bootstrap$Badge$badgeInternal = F3(
+	function (options, attributes, children) {
+		return A2(
+			$elm$html$Html$span,
+			_Utils_ap(
+				$rundis$elm_bootstrap$Bootstrap$Badge$badgeAttributes(options),
+				attributes),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Badge$badgeDark = $rundis$elm_bootstrap$Bootstrap$Badge$badgeInternal(
+	_List_fromArray(
+		[
+			$rundis$elm_bootstrap$Bootstrap$Badge$Roled($rundis$elm_bootstrap$Bootstrap$Badge$Dark)
+		]));
 var $author$project$Admin$checkVoteMatch = F4(
 	function (set_id, color, grade, vote) {
 		return _Utils_eq(vote.set_id, set_id) && (_Utils_eq(vote.color, color) && _Utils_eq(vote.grade, grade));
@@ -7953,29 +8002,33 @@ var $author$project$Admin$countVotes = F4(
 				A3($author$project$Admin$checkVoteMatch, set_id, color, grade),
 				votes));
 	});
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$left = $elm$html$Html$Attributes$class('border-left');
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$md = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
 var $author$project$Admin$viewGrade = F4(
 	function (set_id, color, votes, grade) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$Grid$col,
 			_List_fromArray(
-				[
-					$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
-					_List_fromArray(
-						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$left]))
-				]),
+				[$rundis$elm_bootstrap$Bootstrap$Grid$Col$xsAuto, $rundis$elm_bootstrap$Bootstrap$Grid$Col$md]),
 			_List_fromArray(
 				[
 					A2(
-					$elm$html$Html$div,
+					$elm$html$Html$h5,
 					_List_Nil,
 					_List_fromArray(
 						[
-							$elm$html$Html$text(grade)
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Badge$badgeDark,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(grade)
+								]))
 						])),
 					A2(
 					$elm$html$Html$div,
-					_List_Nil,
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]),
 					_List_fromArray(
 						[
 							$elm$html$Html$text(

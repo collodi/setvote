@@ -2,10 +2,11 @@ port module Admin exposing (..)
 
 import Browser
 import Html exposing (Html, text, div, span, h5, hr)
-import Html.Attributes exposing (value, for)
+import Html.Attributes exposing (value, for, style)
 import Html.Events exposing (onInput, onClick)
 
 import Bootstrap.Alert as Alert
+import Bootstrap.Badge as Badge
 
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
@@ -345,9 +346,9 @@ viewRoute set votes color =
 viewGrade : String -> String -> List Vote -> String -> Grid.Column Msg
 viewGrade set_id color votes grade =
     Grid.col
-        [ Col.attrs [ Border.left ] ]
-        [ div [] [ text grade ]
-        , div []
+        [ Col.xsAuto, Col.md ]
+        [ h5 [] [ Badge.badgeDark [] [ text grade ] ]
+        , div [ Spacing.ml1 ]
             [ text (String.fromInt (countVotes set_id color grade votes)) ]
         ]
 
