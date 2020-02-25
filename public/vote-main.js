@@ -5144,16 +5144,16 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Vote$Model = F3(
-	function (set, routes, msg) {
-		return {msg: msg, routes: routes, set: set};
+var $author$project$Vote$Model = F4(
+	function (set, voted, routes, msg) {
+		return {msg: msg, routes: routes, set: set, voted: voted};
 	});
 var $author$project$Vote$Set = F5(
 	function (id, name, expires, category, colors) {
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
-var $author$project$Vote$newModel = A3($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, '');
+var $author$project$Vote$newModel = A4($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, _List_Nil, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Vote$init = function (_v0) {
@@ -5162,10 +5162,20 @@ var $author$project$Vote$init = function (_v0) {
 var $author$project$Vote$ShowSet = function (a) {
 	return {$: 'ShowSet', a: a};
 };
+var $author$project$Vote$VotedSets = function (a) {
+	return {$: 'VotedSets', a: a};
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Vote$openSet = _Platform_incomingPort('openSet', $elm$json$Json$Decode$value);
+var $author$project$Vote$votedSets = _Platform_incomingPort('votedSets', $elm$json$Json$Decode$value);
 var $author$project$Vote$subscriptions = function (model) {
-	return $author$project$Vote$openSet($author$project$Vote$ShowSet);
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				$author$project$Vote$openSet($author$project$Vote$ShowSet),
+				$author$project$Vote$votedSets($author$project$Vote$VotedSets)
+			]));
 };
 var $author$project$Vote$castVote = _Platform_outgoingPort('castVote', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
@@ -5257,6 +5267,7 @@ var $author$project$Vote$voteToJson = function (model) {
 				A2($elm$json$Json$Encode$list, $author$project$Vote$routeToJson, model.routes))
 			]));
 };
+var $author$project$Vote$votedSetsFromJson = $elm$json$Json$Decode$list($elm$json$Json$Decode$string);
 var $author$project$Vote$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5279,6 +5290,24 @@ var $author$project$Vote$update = F2(
 						_Utils_update(
 							model,
 							{msg: 'All voting closed.'}),
+						$elm$core$Platform$Cmd$none);
+				}
+			case 'VotedSets':
+				var maybeVotedSets = msg.a;
+				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Vote$votedSetsFromJson, maybeVotedSets);
+				if (_v2.$ === 'Ok') {
+					var voted = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{voted: voted}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Error parsing voted sets.'}),
 						$elm$core$Platform$Cmd$none);
 				}
 			case 'SelectGrade':
@@ -5543,6 +5572,36 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = $elm$html$Html$Attributes$class('mt-4');
@@ -7002,7 +7061,27 @@ var $author$project$Vote$view = function (model) {
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
 				_List_Nil,
-				$elm$core$String$isEmpty(model.msg) ? _List_fromArray(
+				A2($elm$core$List$member, model.set.id, model.voted) ? _List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Thanks for your vote!')
+									]))
+							]))
+					]) : ($elm$core$String$isEmpty(model.msg) ? _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -7052,7 +7131,7 @@ var $author$project$Vote$view = function (model) {
 										$elm$html$Html$text(model.msg)
 									]))
 							]))
-					]))
+					])))
 			]));
 };
 var $author$project$Vote$main = $elm$browser$Browser$element(

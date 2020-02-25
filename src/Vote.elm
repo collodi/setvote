@@ -29,6 +29,7 @@ import Json.Decode as D
 port openSet : (D.Value -> msg) -> Sub msg
 port castVote : E.Value -> Cmd msg
 
+port votedSets : (D.Value -> msg) -> Sub msg
 
 -- MAIN
 
@@ -46,6 +47,7 @@ main =
 
 type alias Model =
     { set : Set
+    , voted: List String
     , routes : List Route
     , msg : String
     }
@@ -69,7 +71,7 @@ init _ =
 
 newModel : Model
 newModel =
-    Model newSet [] ""
+    Model newSet [] [] ""
 
 newRoute : String -> String -> Route
 newRoute category color =
@@ -105,10 +107,16 @@ routeToJson route =
         , ("grade", E.string route.grade)
         ]
 
+votedSetsFromJson : D.Decoder (List String)
+votedSetsFromJson =
+    D.list D.string
+
+
 -- UPDATE
 
 type Msg
     = ShowSet D.Value
+    | VotedSets D.Value
     | SelectGrade String String
     | CastVote
 
@@ -126,6 +134,16 @@ update msg model =
 
                 Err e ->
                     ( { model | msg = "All voting closed." }
+                    , Cmd.none )
+
+        VotedSets maybeVotedSets ->
+            case D.decodeValue votedSetsFromJson maybeVotedSets of
+                Ok voted ->
+                    ( { model | voted = voted }
+                    , Cmd.none )
+
+                Err e ->
+                    ( { model | msg = "Error parsing voted sets." }
                     , Cmd.none )
 
         SelectGrade color grade ->
@@ -174,7 +192,11 @@ view model =
                     ]
             )
         , Grid.row [] (
-            if String.isEmpty model.msg then
+            if List.member model.set.id model.voted then
+                [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
+                    [ Alert.simplePrimary [] [ text "Thanks for your vote!" ] ]
+                ]
+            else if String.isEmpty model.msg then
                 [ Grid.col []
                     [ ListGroup.ul
                         (List.map (viewRoute model.set.category) model.routes)
@@ -221,4 +243,7 @@ gradeChoice grade =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    openSet ShowSet
+    Sub.batch
+        [ openSet ShowSet
+        , votedSets VotedSets
+        ]

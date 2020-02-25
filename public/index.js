@@ -1,3 +1,20 @@
+function customUUID() {
+	const r1 = Math.random() * 1000 + 1;
+	const r2 = Math.random() * 1000 + 1;
+
+	return r1.toString(36) + r2.toString(36)
+		+ Date.now().toString(36);
+}
+
+function getUserKey() {
+	if (localStorage.getItem("USER_KEY") === null)
+		localStorage.setItem("USER_KEY", customUUID());
+
+	return localStorage.getItem("USER_KEY");
+}
+
+const user_key = getUserKey();
+
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
@@ -8,10 +25,19 @@ var app = Elm.Vote.init({
 });
 
 app.ports.castVote.subscribe(data => {
-	console.log(data);
-
+	data.user_key = user_key;
 	db.collection('votes').add(data);
 });
+
+db.collection('votes')
+	.where('user_key', '==', user_key)
+	.onSnapshot(snap => {
+		let arr = [];
+		for (let i = 0; i < snap.size; i++)
+			arr.push(snap.docs[i].data().set_id);
+
+		app.ports.votedSets.send(arr);
+	});
 
 db.collection('sets')
 	.orderBy('expires')
