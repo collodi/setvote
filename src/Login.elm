@@ -182,7 +182,7 @@ viewLogin model =
             , Grid.colBreak [ Spacing.my1 ]
             , Grid.col []
                 [ Form.label [ for "password" ] [ text "Password" ]
-                , Input.text
+                , Input.password
                     [ Input.id "password", Input.attrs [ value model.password, onInput Password ] ]
                 ]
             , Grid.colBreak [ Spacing.my3 ]
