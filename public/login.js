@@ -18,8 +18,14 @@ function login(email, pwd) {
 function signup(email, pwd) {
 	firebase.auth()
 		.createUserWithEmailAndPassword(email, pwd)
-		.then(user => {
-			// TODO add to db
+		.then(userCred => {
+			const user = userCred.user;
+			db.collection('users')
+				.doc(user.uid)
+				.set({ uid: user.uid })
+				.catch(err => {
+					app.ports.message.send(err.message);
+				});
 		})
 		.catch(err => {
 			app.ports.message.send(err.message);
