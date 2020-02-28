@@ -5144,22 +5144,37 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Login$Model = F2(
-	function (email, password) {
-		return {email: email, password: password};
+var $author$project$Login$Model = F4(
+	function (email, password, msg, authd) {
+		return {authd: authd, email: email, msg: msg, password: password};
 	});
-var $author$project$Login$initModel = A2($author$project$Login$Model, '', '');
+var $author$project$Login$initModel = A4($author$project$Login$Model, '', '', '', false);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Login$init = function (_v0) {
 	return _Utils_Tuple2($author$project$Login$initModel, $elm$core$Platform$Cmd$none);
 };
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Login$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$none;
+var $author$project$Login$Authd = function (a) {
+	return {$: 'Authd', a: a};
 };
+var $author$project$Login$ShowMsg = function (a) {
+	return {$: 'ShowMsg', a: a};
+};
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Login$authd = _Platform_incomingPort('authd', $elm$json$Json$Decode$value);
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $author$project$Login$message = _Platform_incomingPort('message', $elm$json$Json$Decode$value);
+var $author$project$Login$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				$author$project$Login$message($author$project$Login$ShowMsg),
+				$author$project$Login$authd($author$project$Login$Authd)
+			]));
+};
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$Login$cmd = _Platform_outgoingPort('cmd', $elm$core$Basics$identity);
+var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -5189,6 +5204,13 @@ var $author$project$Login$logInToJson = function (model) {
 				$elm$json$Json$Encode$string(model.password))
 			]));
 };
+var $author$project$Login$signOutToJson = $elm$json$Json$Encode$object(
+	_List_fromArray(
+		[
+			_Utils_Tuple2(
+			'action',
+			$elm$json$Json$Encode$string('signout'))
+		]));
 var $author$project$Login$signUpToJson = function (model) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -5204,6 +5226,7 @@ var $author$project$Login$signUpToJson = function (model) {
 				$elm$json$Json$Encode$string(model.password))
 			]));
 };
+var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Login$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5222,36 +5245,81 @@ var $author$project$Login$update = F2(
 						{password: password}),
 					$elm$core$Platform$Cmd$none);
 			case 'LogIn':
-				return _Utils_Tuple2(
+				return $elm$core$String$isEmpty(model.email) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{msg: 'What\'s your email address?'}),
+					$elm$core$Platform$Cmd$none) : ($elm$core$String$isEmpty(model.password) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{msg: 'What\'s your password?'}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
 					model,
 					$author$project$Login$cmd(
-						$author$project$Login$logInToJson(model)));
+						$author$project$Login$logInToJson(model))));
+			case 'SignUp':
+				return $elm$core$String$isEmpty(model.email) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{msg: 'What\'s your email address?'}),
+					$elm$core$Platform$Cmd$none) : ($elm$core$String$isEmpty(model.password) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{msg: 'What\'s your password?'}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+					model,
+					$author$project$Login$cmd(
+						$author$project$Login$signUpToJson(model))));
+			case 'ShowMsg':
+				var value = msg.a;
+				var _v1 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$string, value);
+				if (_v1.$ === 'Ok') {
+					var msg_ = _v1.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: msg_}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v1.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Error decoding message.'}),
+						$elm$core$Platform$Cmd$none);
+				}
+			case 'Authd':
+				var value = msg.a;
+				var _v2 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$bool, value);
+				if (_v2.$ === 'Ok') {
+					var authd_ = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{authd: authd_}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v2.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Error decoding authd.'}),
+						$elm$core$Platform$Cmd$none);
+				}
 			default:
 				return _Utils_Tuple2(
-					model,
-					$author$project$Login$cmd(
-						$author$project$Login$signUpToJson(model)));
+					_Utils_update(
+						model,
+						{email: '', password: ''}),
+					$author$project$Login$cmd($author$project$Login$signOutToJson));
 		}
 	});
-var $author$project$Login$Email = function (a) {
-	return {$: 'Email', a: a};
-};
-var $author$project$Login$LogIn = {$: 'LogIn'};
-var $author$project$Login$Password = function (a) {
-	return {$: 'Password', a: a};
-};
-var $author$project$Login$SignUp = {$: 'SignUp'};
+var $author$project$Login$SignOut = {$: 'SignOut'};
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
 	return {$: 'Attrs', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Button$attrs = function (attrs_) {
 	return $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs(attrs_);
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs = function (a) {
-	return {$: 'Attrs', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$attrs = function (attrs_) {
-	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs(attrs_);
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block = {$: 'Block'};
 var $rundis$elm_bootstrap$Bootstrap$Button$block = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block;
@@ -5474,24 +5542,32 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 				attributes),
 			children);
 	});
-var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$Id = function (a) {
-	return {$: 'Id', a: a};
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
 };
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$id = function (id_) {
-	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Id(id_);
-};
-var $elm$html$Html$label = _VirtualDom_node('label');
-var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
-	function (attributes, children) {
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
 		return A2(
-			$elm$html$Html$label,
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $rundis$elm_bootstrap$Bootstrap$Button$linkButton = F2(
+	function (options, children) {
+		return A2(
+			$elm$html$Html$a,
 			A2(
 				$elm$core$List$cons,
-				$elm$html$Html$Attributes$class('form-control-label'),
-				attributes),
+				A2($elm$html$Html$Attributes$attribute, 'role', 'button'),
+				$rundis$elm_bootstrap$Bootstrap$Internal$Button$buttonAttributes(options)),
 			children);
 	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2 = $elm$html$Html$Attributes$class('my-2');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3 = $elm$html$Html$Attributes$class('my-3');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -5509,39 +5585,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$html$Html$Events$on,
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var $elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $elm$html$Html$Events$onInput = function (tagger) {
-	return A2(
-		$elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			$elm$json$Json$Decode$map,
-			$elm$html$Html$Events$alwaysStop,
-			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
 	return {$: 'Coloring', a: a};
@@ -6383,6 +6426,346 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$row = F2(
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary = {$: 'Secondary'};
 var $rundis$elm_bootstrap$Bootstrap$Button$secondary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary));
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Login$viewLoggedIn = function (model) {
+	return A2(
+		$rundis$elm_bootstrap$Bootstrap$Grid$container,
+		_List_fromArray(
+			[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3]),
+		_List_fromArray(
+			[
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$row,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$linkButton,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$primary,
+										$rundis$elm_bootstrap$Bootstrap$Button$block,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$href('/admin.html')
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Go To Admin Page')
+									]))
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$secondary,
+										$rundis$elm_bootstrap$Bootstrap$Button$block,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Login$SignOut)
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Log Out')
+									]))
+							]))
+					]))
+			]));
+};
+var $author$project$Login$Email = function (a) {
+	return {$: 'Email', a: a};
+};
+var $author$project$Login$LogIn = {$: 'LogIn'};
+var $author$project$Login$Password = function (a) {
+	return {$: 'Password', a: a};
+};
+var $author$project$Login$SignUp = {$: 'SignUp'};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs(attrs_);
+};
+var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Id = function (a) {
+	return {$: 'Id', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$id = function (id_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Id(id_);
+};
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
+	function (attributes, children) {
+		return A2(
+			$elm$html$Html$label,
+			A2(
+				$elm$core$List$cons,
+				$elm$html$Html$Attributes$class('form-control-label'),
+				attributes),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger = {$: 'Danger'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$Shown = {$: 'Shown'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Alert$attrs = F2(
+	function (attributes, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{attributes: attributes}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$children = F2(
+	function (children_, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{children: children_}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Secondary = {$: 'Secondary'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$config = $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+	{attributes: _List_Nil, children: _List_Nil, dismissable: $elm$core$Maybe$Nothing, role: $rundis$elm_bootstrap$Bootstrap$Internal$Role$Secondary, visibility: $rundis$elm_bootstrap$Bootstrap$Alert$Shown, withAnimation: false});
+var $rundis$elm_bootstrap$Bootstrap$Alert$role = F2(
+	function (role_, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{role: role_}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$Closed = {$: 'Closed'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$StartClose = {$: 'StartClose'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$clickHandler = F2(
+	function (visibility, configRec) {
+		var handleClick = F2(
+			function (viz, toMsg) {
+				return $elm$html$Html$Events$onClick(
+					toMsg(viz));
+			});
+		var _v0 = configRec.dismissable;
+		if (_v0.$ === 'Just') {
+			var dismissMsg = _v0.a;
+			return _List_fromArray(
+				[
+					configRec.withAnimation ? A2(handleClick, $rundis$elm_bootstrap$Bootstrap$Alert$StartClose, dismissMsg) : A2(handleClick, $rundis$elm_bootstrap$Bootstrap$Alert$Closed, dismissMsg)
+				]);
+		} else {
+			return _List_Nil;
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$injectButton = F2(
+	function (btn, children_) {
+		if (children_.b) {
+			var head = children_.a;
+			var tail = children_.b;
+			return A2(
+				$elm$core$List$cons,
+				head,
+				A2($elm$core$List$cons, btn, tail));
+		} else {
+			return _List_fromArray(
+				[btn]);
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$isDismissable = function (configRec) {
+	var _v0 = configRec.dismissable;
+	if (_v0.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton = F3(
+	function (visibilty, configRec, children_) {
+		return $rundis$elm_bootstrap$Bootstrap$Alert$isDismissable(configRec) ? A2(
+			$rundis$elm_bootstrap$Bootstrap$Alert$injectButton,
+			A2(
+				$elm$html$Html$button,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$type_('button'),
+							$elm$html$Html$Attributes$class('close'),
+							A2($elm$html$Html$Attributes$attribute, 'aria-label', 'close')
+						]),
+					A2($rundis$elm_bootstrap$Bootstrap$Alert$clickHandler, visibilty, configRec)),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$span,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$attribute, 'aria-hidden', 'true')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('×')
+							]))
+					])),
+			children_) : children_;
+	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass = F2(
+	function (prefix, role) {
+		return $elm$html$Html$Attributes$class(
+			prefix + ('-' + function () {
+				switch (role.$) {
+					case 'Primary':
+						return 'primary';
+					case 'Secondary':
+						return 'secondary';
+					case 'Success':
+						return 'success';
+					case 'Info':
+						return 'info';
+					case 'Warning':
+						return 'warning';
+					case 'Danger':
+						return 'danger';
+					case 'Light':
+						return 'light';
+					default:
+						return 'dark';
+				}
+			}()));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$viewAttributes = F2(
+	function (visibility, configRec) {
+		var visibiltyAttributes = _Utils_eq(visibility, $rundis$elm_bootstrap$Bootstrap$Alert$Closed) ? _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'display', 'none')
+			]) : _List_Nil;
+		var animationAttributes = function () {
+			if (configRec.withAnimation) {
+				var _v0 = configRec.dismissable;
+				if (_v0.$ === 'Just') {
+					var dismissMsg = _v0.a;
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$Events$on,
+							'transitionend',
+							$elm$json$Json$Decode$succeed(
+								dismissMsg($rundis$elm_bootstrap$Bootstrap$Alert$Closed)))
+						]);
+				} else {
+					return _List_Nil;
+				}
+			} else {
+				return _List_Nil;
+			}
+		}();
+		var alertAttributes = _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$attribute, 'role', 'alert'),
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('alert', true),
+						_Utils_Tuple2(
+						'alert-dismissible',
+						$rundis$elm_bootstrap$Bootstrap$Alert$isDismissable(configRec)),
+						_Utils_Tuple2('fade', configRec.withAnimation),
+						_Utils_Tuple2(
+						'show',
+						_Utils_eq(visibility, $rundis$elm_bootstrap$Bootstrap$Alert$Shown))
+					])),
+				A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'alert', configRec.role)
+			]);
+		return $elm$core$List$concat(
+			_List_fromArray(
+				[configRec.attributes, alertAttributes, visibiltyAttributes, animationAttributes]));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$view = F2(
+	function (visibility, _v0) {
+		var configRec = _v0.a;
+		return A2(
+			$elm$html$Html$div,
+			A2($rundis$elm_bootstrap$Bootstrap$Alert$viewAttributes, visibility, configRec),
+			A3($rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton, visibility, configRec, configRec.children));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$simple = F3(
+	function (role_, attributes, children_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Alert$view,
+			$rundis$elm_bootstrap$Bootstrap$Alert$Shown,
+			A2(
+				$rundis$elm_bootstrap$Bootstrap$Alert$children,
+				children_,
+				A2(
+					$rundis$elm_bootstrap$Bootstrap$Alert$attrs,
+					attributes,
+					A2($rundis$elm_bootstrap$Bootstrap$Alert$role, role_, $rundis$elm_bootstrap$Bootstrap$Alert$config))));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$simpleDanger = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger);
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$Text = {$: 'Text'};
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$Input = function (a) {
 	return {$: 'Input', a: a};
@@ -6487,7 +6870,6 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$sizeAttribute = function (size) {
 		},
 		$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size));
 };
-var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$typeAttribute = function (inputType) {
 	return $elm$html$Html$Attributes$type_(
 		function () {
@@ -6572,9 +6954,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$input = F2(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Input$create, tipe, options));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Login$view = function (model) {
+var $author$project$Login$viewLogin = function (model) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
 		_List_fromArray(
@@ -6613,7 +6993,9 @@ var $author$project$Login$view = function (model) {
 											]))
 									]))
 							])),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1])),
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
@@ -6641,7 +7023,9 @@ var $author$project$Login$view = function (model) {
 											]))
 									]))
 							])),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3])),
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
@@ -6664,7 +7048,9 @@ var $author$project$Login$view = function (model) {
 										$elm$html$Html$text('Log In')
 									]))
 							])),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2])),
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
@@ -6686,9 +7072,28 @@ var $author$project$Login$view = function (model) {
 									[
 										$elm$html$Html$text('Sign Up')
 									]))
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my3])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						$elm$core$String$isEmpty(model.msg) ? _List_Nil : _List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Alert$simpleDanger,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text(model.msg)
+									]))
 							]))
 					]))
 			]));
+};
+var $author$project$Login$view = function (model) {
+	return model.authd ? $author$project$Login$viewLoggedIn(model) : $author$project$Login$viewLogin(model);
 };
 var $author$project$Login$main = $elm$browser$Browser$element(
 	{init: $author$project$Login$init, subscriptions: $author$project$Login$subscriptions, update: $author$project$Login$update, view: $author$project$Login$view});

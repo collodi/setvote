@@ -10,11 +10,8 @@ var app = Elm.Login.init({
 function login(email, pwd) {
 	firebase.auth()
 		.signInWithEmailAndPassword(email, pwd)
-		.then(user => {
-
-		})
 		.catch(err => {
-			// TODO
+			app.ports.message.send(err.message);
 		});
 }
 
@@ -22,11 +19,10 @@ function signup(email, pwd) {
 	firebase.auth()
 		.createUserWithEmailAndPassword(email, pwd)
 		.then(user => {
-
+			// TODO add to db
 		})
 		.catch(err => {
-			// TODO
-			console.log(err);
+			app.ports.message.send(err.message);
 		});
 }
 
@@ -35,4 +31,10 @@ app.ports.cmd.subscribe(data => {
 		login(data.email, data.password);
 	else if (data.action === 'signup')
 		signup(data.email, data.password);
+	else if (data.action === 'signout')
+		firebase.auth().signOut();
+});
+
+firebase.auth().onAuthStateChanged(user => {
+	app.ports.authd.send(!!user);
 });
