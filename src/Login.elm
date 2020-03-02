@@ -147,65 +147,65 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    if model.authd then
-        viewLoggedIn model
-    else
-        viewLogin model
-
-viewLoggedIn : Model -> Html Msg
-viewLoggedIn model =
     Grid.container [ Spacing.my3 ]
         [ Grid.row []
-            [ Grid.col []
-                [ Button.linkButton
-                    [ Button.primary, Button.block, Button.attrs [ href "/admin.html" ] ]
-                    [ text "Go To Admin Page" ]
-                ]
-            , Grid.colBreak [ Spacing.my2 ]
-            , Grid.col []
-                [ Button.button
-                    [ Button.secondary, Button.block, Button.attrs [ onClick SignOut ] ]
-                    [ text "Log Out" ]
-                ]
-            ]
-        ]
-
-viewLogin : Model -> Html Msg
-viewLogin model =
-    Grid.container [ Spacing.my3 ]
-        [ Grid.row []
-            [ Grid.col []
-                [ Form.label [ for "email" ] [ text "Email" ]
-                , Input.text
-                    [ Input.id "email", Input.attrs [ value model.email, onInput Email ] ]
-                ]
-            , Grid.colBreak [ Spacing.my1 ]
-            , Grid.col []
-                [ Form.label [ for "password" ] [ text "Password" ]
-                , Input.password
-                    [ Input.id "password", Input.attrs [ value model.password, onInput Password ] ]
-                ]
-            , Grid.colBreak [ Spacing.my3 ]
-            , Grid.col []
-                [ Button.button
-                    [ Button.primary, Button.block, Button.attrs [ onClick LogIn ] ]
-                    [ text "Log In" ]
-                ]
-            , Grid.colBreak [ Spacing.my2 ]
-            , Grid.col []
-                [ Button.button
-                    [ Button.secondary, Button.block, Button.attrs [ onClick SignUp ] ]
-                    [ text "Sign Up" ]
-                ]
-            , Grid.colBreak [ Spacing.my3 ]
-            , Grid.col [] (
+            [ Grid.col [] (
                 if String.isEmpty model.msg then
                     []
                 else
                     [ Alert.simpleDanger [] [ text model.msg ] ]
                 )
             ]
+        , Grid.row [] (
+            if model.authd then
+                viewLoggedIn model
+            else
+                viewLogin model
+            )
         ]
+
+viewLoggedIn : Model -> List (Grid.Column Msg)
+viewLoggedIn model =
+    [ Grid.col []
+        [ Button.linkButton
+            [ Button.primary, Button.block, Button.attrs [ href "/admin.html" ] ]
+            [ text "Go To Admin Page" ]
+        ]
+    , Grid.colBreak [ Spacing.my2 ]
+    , Grid.col []
+        [ Button.button
+            [ Button.secondary, Button.block, Button.attrs [ onClick SignOut ] ]
+            [ text "Log Out" ]
+        ]
+    ]
+
+viewLogin : Model -> List (Grid.Column Msg)
+viewLogin model =
+    [ Grid.col []
+        [ Form.label [ for "email" ] [ text "Email" ]
+        , Input.text
+            [ Input.id "email", Input.attrs [ value model.email, onInput Email ] ]
+        ]
+    , Grid.colBreak [ Spacing.my1 ]
+    , Grid.col []
+        [ Form.label [ for "password" ] [ text "Password" ]
+        , Input.password
+            [ Input.id "password", Input.attrs [ value model.password, onInput Password ] ]
+        ]
+    , Grid.colBreak [ Spacing.my3 ]
+    , Grid.col []
+        [ Button.button
+            [ Button.primary, Button.block, Button.attrs [ onClick LogIn ] ]
+            [ text "Log In" ]
+        ]
+    , Grid.colBreak [ Spacing.my2 ]
+    , Grid.col []
+        [ Button.button
+            [ Button.secondary, Button.block, Button.attrs [ onClick SignUp ] ]
+            [ text "Sign Up" ]
+        ]
+    , Grid.colBreak [ Spacing.my3 ]
+    ]
 
 
 -- SUBSCRIPTIONS
