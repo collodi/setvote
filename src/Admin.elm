@@ -2,7 +2,7 @@ port module Admin exposing (..)
 
 import Browser
 import Html exposing (Html, text, div, span, h5, hr)
-import Html.Attributes exposing (value, for, style)
+import Html.Attributes exposing (value, for, style, href)
 import Html.Events exposing (onInput, onClick)
 
 import Bootstrap.Alert as Alert
@@ -34,6 +34,7 @@ port deleteSet : E.Value -> Cmd msg
 
 port allSets : (D.Value -> msg) -> Sub msg
 port allVotes : (D.Value -> msg) -> Sub msg
+port authd : (D.Value -> msg) -> Sub msg
 
 
 -- MAIN
@@ -55,6 +56,7 @@ type alias Model =
     , sets : List Set
     , votes : List Vote
     , msg : String
+    , authd : Bool
     }
 
 type alias NewSet =
@@ -87,7 +89,7 @@ init _ =
 
 initModel : Model
 initModel =
-    Model initNewSet False [] [] ""
+    Model initNewSet False [] [] "" False
 
 initNewSet : NewSet
 initNewSet =
@@ -136,6 +138,7 @@ type Msg
     | DeleteSet String
     | AllSets D.Value
     | AllVotes D.Value
+    | Authd D.Value
 
 type NewSetMsg
     = Name String
@@ -212,6 +215,18 @@ update msg model =
                     ( { model | msg = "Error in parsing all votes" }
                     , Cmd.none )
 
+        Authd value ->
+            case D.decodeValue D.bool value of
+                Ok authd_ ->
+                    ( { model | authd = authd_ }
+                    , Cmd.none )
+
+                Err e ->
+                    ( { model
+                        | msg = "Error in parsing authd"
+                        , authd = False }
+                    , Cmd.none )
+
 showMsgInNewSet : String -> NewSet -> NewSet
 showMsgInNewSet msg newSet =
     { newSet | msg = msg }
@@ -259,7 +274,17 @@ updateNewSet msg newSet =
 view : Model -> Html Msg
 view model =
     Grid.container [ Spacing.my3 ] (
-        if model.showNewSet then
+        if not model.authd then
+            [ Grid.row []
+                [ Grid.col []
+                    [ Alert.simpleWarning [] [ text "Who are you?" ]
+                    , Button.linkButton
+                        [ Button.primary, Button.block, Button.attrs [ href "/login.html" ] ]
+                        [ text "Go To Login Page" ]
+                    ]
+                ]
+            ]
+        else if model.showNewSet then
             [ Grid.row []
                 [ Grid.col []
                     [ Html.map UpdateNewSet (viewNewSet model.newSet)
@@ -443,4 +468,5 @@ subscriptions model =
     Sub.batch
         [ allSets AllSets
         , allVotes AllVotes
+        , authd Authd
         ]

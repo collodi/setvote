@@ -58,3 +58,8 @@ db.collection('votes')
 
 		app.ports.allVotes.send(votes);
 	});
+
+firebase.auth()
+	.onAuthStateChanged(user => {
+		app.ports.authd.send(!!user);
+	});
