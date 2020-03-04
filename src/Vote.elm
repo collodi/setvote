@@ -75,10 +75,7 @@ newModel =
 
 newRoute : String -> String -> Route
 newRoute category color =
-    if category == "boulder" then
-        Route color "V0"
-    else
-        Route color "5.6"
+    Route color "Not climbed"
 
 newSet : Set
 newSet =
@@ -229,10 +226,10 @@ gradeChoices : String -> List (Select.Item Msg)
 gradeChoices category =
     if category == "boulder" then
         List.map gradeChoice
-            [ "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
+            [ "Not climbed", "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
     else
         List.map gradeChoice
-            [ "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
+            [ "Not climbed", "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
 
 gradeChoice : String -> Select.Item Msg
 gradeChoice grade =

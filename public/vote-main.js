@@ -5185,7 +5185,7 @@ var $author$project$Vote$Route = F2(
 	});
 var $author$project$Vote$newRoute = F2(
 	function (category, color) {
-		return (category === 'boulder') ? A2($author$project$Vote$Route, color, 'V0') : A2($author$project$Vote$Route, color, '5.6');
+		return A2($author$project$Vote$Route, color, 'Not climbed');
 	});
 var $author$project$Vote$routesFromColors = F2(
 	function (category, colors) {
@@ -6803,11 +6803,11 @@ var $author$project$Vote$gradeChoices = function (category) {
 		$elm$core$List$map,
 		$author$project$Vote$gradeChoice,
 		_List_fromArray(
-			['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])) : A2(
+			['Not climbed', 'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])) : A2(
 		$elm$core$List$map,
 		$author$project$Vote$gradeChoice,
 		_List_fromArray(
-			['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']));
+			['Not climbed', '5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']));
 };
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
 var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item = function (a) {
