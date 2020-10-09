@@ -4,7 +4,7 @@ import Debug
 
 import Browser
 import Html exposing (Html, text, div, h3, h5, hr)
-import Html.Attributes exposing (type_, value, for, selected)
+import Html.Attributes exposing (type_, value, for, selected, disabled)
 import Html.Events exposing (onInput, onClick)
 
 import Bootstrap.Grid as Grid
@@ -50,8 +50,8 @@ main =
 type alias Model =
     { set : Set
     , notVoted: List String
-    , route : String
-    , grade : String
+    , route : Maybe String
+    , grade : Maybe String
     , msg : String
     }
 
@@ -69,7 +69,7 @@ init _ =
 
 newModel : Model
 newModel =
-    Model newSet [] "" "" ""
+    Model newSet [] Nothing Nothing ""
 
 newSet : Set
 newSet =
@@ -84,12 +84,12 @@ setFromJson =
         (D.field "category" D.string)
         (D.field "colors" (D.list D.string))
 
-voteToJson : Model -> E.Value
-voteToJson model =
+voteToJson : String -> String -> String -> E.Value
+voteToJson setId route grade =
     E.object
-        [ ("set_id", E.string model.set.id)
-        , ("route", E.string model.route)
-        , ("grade", E.string model.grade)
+        [ ("set_id", E.string setId)
+        , ("route", E.string route)
+        , ("grade", E.string grade)
         ]
 
 votedRoutesFromJson : D.Decoder (List String)
@@ -130,22 +130,34 @@ update msg model =
                     , Cmd.none )
 
         SelectRoute route ->
-            ( { model | route = route }
+            ( { model | route = Just route }
             , Cmd.none )
 
         SelectGrade grade ->
-            ( { model | grade = grade }
+            ( { model | grade = Just grade }
             , Cmd.none )
 
         CastVote ->
-            ( { model | msg = "Thanks for your vote!" }
-            , castVote (voteToJson model)
-            )
+            case ( model.route, model.grade ) of
+                ( Nothing, _ ) ->
+                    ( { model | msg = "Choose a route!" }
+                    , Cmd.none )
+                ( _, Nothing ) ->
+                    ( { model | msg = "Choose a grade!" }
+                    , Cmd.none )
+                ( Just route, Just grade ) ->
+                    (
+                        { model
+                            | msg = "Thanks for your vote!"
+                            , route = Nothing
+                            , grade = Nothing
+                        }
+                    , castVote (voteToJson model.set.id route grade)
+                    )
 
 unvotedRoutes : List String -> List String -> List String
 unvotedRoutes routes voted =
     List.filter (not << isVoted voted) routes
-        |> (::) ""
 
 
 -- VIEW
@@ -169,7 +181,7 @@ view model =
                     ]
             )
         , Grid.row [] (
-            if List.length model.notVoted == 1 then
+            if List.isEmpty model.notVoted then
                 [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
                     [ Alert.simplePrimary [] [ text "You voted for every route!" ] ]
                 ]
@@ -179,15 +191,18 @@ view model =
                         [ Select.onChange SelectRoute
                         , Select.attrs [ Spacing.mt3 ]
                         ]
-                        ( List.map selectChoice model.notVoted )
+                        ( buildOptions model.route model.notVoted )
                     , Select.select
                         [ Select.onChange SelectGrade
                         , Select.attrs [ Spacing.mt3 ]
                         ]
                         ( gradeChoices model.set.category
-                            |> List.map selectChoice
+                            |> buildOptions model.grade
                         )
-                    , Button.button
+                    ]
+                , Grid.colBreak []
+                , Grid.col []
+                    [ Button.button
                         [ Button.primary, Button.block
                         , Button.attrs [ Spacing.mt4, onClick CastVote ]
                         ]
@@ -205,6 +220,18 @@ view model =
             )
         ]
 
+buildOptions: Maybe String -> List String -> List (Select.Item Msg)
+buildOptions val choices =
+    let
+        tail =
+            List.map selectChoice choices
+        head =
+            Select.item
+                [ value "", disabled True, selected (val == Nothing) ]
+                [ text "Select something" ]
+    in
+        head :: tail
+
 
 isVoted : List String -> String -> Bool
 isVoted routes rt =
@@ -213,13 +240,13 @@ isVoted routes rt =
 gradeChoices : String -> List String
 gradeChoices category =
     if category == "boulder" then
-        [ "", "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
+        [ "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
     else
-        [ "", "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
+        [ "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
 
 selectChoice : String -> Select.Item Msg
 selectChoice val =
-    Select.item [ value val, selected (val == "") ] [ text val ]
+    Select.item [ value val ] [ text val ]
 
 
 -- SUBSCRIPTIONS

@@ -5153,7 +5153,7 @@ var $author$project$Vote$Set = F5(
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
-var $author$project$Vote$newModel = A5($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, '', '', '');
+var $author$project$Vote$newModel = A5($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Vote$init = function (_v0) {
@@ -5248,15 +5248,12 @@ var $elm$core$Basics$not = _Basics_not;
 var $author$project$Vote$unvotedRoutes = F2(
 	function (routes, voted) {
 		return A2(
-			$elm$core$List$cons,
-			'',
+			$elm$core$List$filter,
 			A2(
-				$elm$core$List$filter,
-				A2(
-					$elm$core$Basics$composeL,
-					$elm$core$Basics$not,
-					$author$project$Vote$isVoted(voted)),
-				routes));
+				$elm$core$Basics$composeL,
+				$elm$core$Basics$not,
+				$author$project$Vote$isVoted(voted)),
+			routes);
 	});
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
@@ -5272,21 +5269,22 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Vote$voteToJson = function (model) {
-	return $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'set_id',
-				$elm$json$Json$Encode$string(model.set.id)),
-				_Utils_Tuple2(
-				'route',
-				$elm$json$Json$Encode$string(model.route)),
-				_Utils_Tuple2(
-				'grade',
-				$elm$json$Json$Encode$string(model.grade))
-			]));
-};
+var $author$project$Vote$voteToJson = F3(
+	function (setId, route, grade) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'set_id',
+					$elm$json$Json$Encode$string(setId)),
+					_Utils_Tuple2(
+					'route',
+					$elm$json$Json$Encode$string(route)),
+					_Utils_Tuple2(
+					'grade',
+					$elm$json$Json$Encode$string(grade))
+				]));
+	});
 var $author$project$Vote$votedRoutesFromJson = $elm$json$Json$Decode$list($elm$json$Json$Decode$string);
 var $author$project$Vote$update = F2(
 	function (msg, model) {
@@ -5334,22 +5332,47 @@ var $author$project$Vote$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{route: route}),
+						{
+							route: $elm$core$Maybe$Just(route)
+						}),
 					$elm$core$Platform$Cmd$none);
 			case 'SelectGrade':
 				var grade = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{grade: grade}),
+						{
+							grade: $elm$core$Maybe$Just(grade)
+						}),
 					$elm$core$Platform$Cmd$none);
 			default:
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{msg: 'Thanks for your vote!'}),
-					$author$project$Vote$castVote(
-						$author$project$Vote$voteToJson(model)));
+				var _v3 = _Utils_Tuple2(model.route, model.grade);
+				if (_v3.a.$ === 'Nothing') {
+					var _v4 = _v3.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Choose a route!'}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					if (_v3.b.$ === 'Nothing') {
+						var _v5 = _v3.b;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{msg: 'Choose a grade!'}),
+							$elm$core$Platform$Cmd$none);
+					} else {
+						var route = _v3.a.a;
+						var grade = _v3.b.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{grade: $elm$core$Maybe$Nothing, msg: 'Thanks for your vote!', route: $elm$core$Maybe$Nothing}),
+							$author$project$Vote$castVote(
+								A3($author$project$Vote$voteToJson, model.set.id, route, grade)));
+					}
+				}
 		}
 	});
 var $author$project$Vote$CastVote = {$: 'CastVote'};
@@ -5385,6 +5408,65 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$Row$attrs = function (attrs_) {
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block = {$: 'Block'};
 var $rundis$elm_bootstrap$Bootstrap$Button$block = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block;
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$Item = function (a) {
+	return {$: 'Item', a: a};
+};
+var $elm$html$Html$option = _VirtualDom_node('option');
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Item(
+			A2($elm$html$Html$option, attributes, children));
+	});
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $author$project$Vote$selectChoice = function (val) {
+	return A2(
+		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$value(val)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(val)
+			]));
+};
+var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
+var $author$project$Vote$buildOptions = F2(
+	function (val, choices) {
+		var tail = A2($elm$core$List$map, $author$project$Vote$selectChoice, choices);
+		var head = A2(
+			$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$value(''),
+					$elm$html$Html$Attributes$disabled(true),
+					$elm$html$Html$Attributes$selected(
+					_Utils_eq(val, $elm$core$Maybe$Nothing))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Select something')
+				]));
+		return A2($elm$core$List$cons, head, tail);
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
@@ -5430,13 +5512,6 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$Button$applyModifier = F2(
 					});
 		}
 	});
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
@@ -5453,15 +5528,6 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$defaultOptions = {attributes: _List_Nil, block: false, coloring: $elm$core$Maybe$Nothing, disabled: false, size: $elm$core$Maybe$Nothing};
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass = function (role) {
 	switch (role.$) {
 		case 'Primary':
@@ -5595,11 +5661,18 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 	});
 var $author$project$Vote$gradeChoices = function (category) {
 	return (category === 'boulder') ? _List_fromArray(
-		['', 'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']) : _List_fromArray(
-		['', '5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']);
+		['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']) : _List_fromArray(
+		['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']);
 };
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
@@ -6610,32 +6683,6 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Select$select = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Select$view(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Select$create, options, items));
 	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$Item = function (a) {
-	return {$: 'Item', a: a};
-};
-var $elm$html$Html$option = _VirtualDom_node('option');
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
-	function (attributes, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Item(
-			A2($elm$html$Html$option, attributes, children));
-	});
-var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Vote$selectChoice = function (val) {
-	return A2(
-		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$value(val),
-				$elm$html$Html$Attributes$selected(val === '')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(val)
-			]));
-};
 var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary = {$: 'Primary'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$Shown = {$: 'Shown'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$Config = function (a) {
@@ -6913,7 +6960,7 @@ var $author$project$Vote$view = function (model) {
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
 				_List_Nil,
-				($elm$core$List$length(model.notVoted) === 1) ? _List_fromArray(
+				$elm$core$List$isEmpty(model.notVoted) ? _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -6949,7 +6996,7 @@ var $author$project$Vote$view = function (model) {
 										_List_fromArray(
 											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
 									]),
-								A2($elm$core$List$map, $author$project$Vote$selectChoice, model.notVoted)),
+								A2($author$project$Vote$buildOptions, model.route, model.notVoted)),
 								A2(
 								$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
 								_List_fromArray(
@@ -6960,9 +7007,16 @@ var $author$project$Vote$view = function (model) {
 											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
 									]),
 								A2(
-									$elm$core$List$map,
-									$author$project$Vote$selectChoice,
-									$author$project$Vote$gradeChoices(model.set.category))),
+									$author$project$Vote$buildOptions,
+									model.grade,
+									$author$project$Vote$gradeChoices(model.set.category)))
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
 								A2(
 								$rundis$elm_bootstrap$Bootstrap$Button$button,
 								_List_fromArray(
