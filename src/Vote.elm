@@ -4,7 +4,7 @@ import Debug
 
 import Browser
 import Html exposing (Html, text, div, h3, h5, hr)
-import Html.Attributes exposing (type_, value, for)
+import Html.Attributes exposing (type_, value, for, selected)
 import Html.Events exposing (onInput, onClick)
 
 import Bootstrap.Grid as Grid
@@ -169,7 +169,7 @@ view model =
                     ]
             )
         , Grid.row [] (
-            if List.isEmpty model.notVoted then
+            if List.length model.notVoted == 1 then
                 [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
                     [ Alert.simplePrimary [] [ text "You voted for every route!" ] ]
                 ]
@@ -219,7 +219,7 @@ gradeChoices category =
 
 selectChoice : String -> Select.Item Msg
 selectChoice val =
-    Select.item [ value val ] [ text val ]
+    Select.item [ value val, selected (val == "") ] [ text val ]
 
 
 -- SUBSCRIPTIONS

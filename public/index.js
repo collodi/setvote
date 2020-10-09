@@ -25,7 +25,9 @@ var app = Elm.Vote.init({
 
 app.ports.castVote.subscribe(data => {
 	data.user_key = user_key;
-	db.collection('votes').add(data);
+
+	const doc_id = [data.user_key, data.set_id, data.route].join('-');
+	db.collection('votes').doc(doc_id).set(data);
 });
 
 function subscribeToVotes(set_id) {

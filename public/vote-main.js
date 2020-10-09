@@ -5600,13 +5600,6 @@ var $author$project$Vote$gradeChoices = function (category) {
 };
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
@@ -6626,6 +6619,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Item(
 			A2($elm$html$Html$option, attributes, children));
 	});
+var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
@@ -6634,7 +6628,8 @@ var $author$project$Vote$selectChoice = function (val) {
 		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$value(val)
+				$elm$html$Html$Attributes$value(val),
+				$elm$html$Html$Attributes$selected(val === '')
 			]),
 		_List_fromArray(
 			[
@@ -6918,7 +6913,7 @@ var $author$project$Vote$view = function (model) {
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
 				_List_Nil,
-				$elm$core$List$isEmpty(model.notVoted) ? _List_fromArray(
+				($elm$core$List$length(model.notVoted) === 1) ? _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
