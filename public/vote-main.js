@@ -5144,16 +5144,16 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Vote$Model = F4(
-	function (set, voted, routes, msg) {
-		return {msg: msg, routes: routes, set: set, voted: voted};
+var $author$project$Vote$Model = F5(
+	function (set, notVoted, route, grade, msg) {
+		return {grade: grade, msg: msg, notVoted: notVoted, route: route, set: set};
 	});
 var $author$project$Vote$Set = F5(
 	function (id, name, expires, category, colors) {
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
-var $author$project$Vote$newModel = A4($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, _List_Nil, '');
+var $author$project$Vote$newModel = A5($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, '', '', '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Vote$init = function (_v0) {
@@ -5162,49 +5162,23 @@ var $author$project$Vote$init = function (_v0) {
 var $author$project$Vote$ShowSet = function (a) {
 	return {$: 'ShowSet', a: a};
 };
-var $author$project$Vote$VotedSets = function (a) {
-	return {$: 'VotedSets', a: a};
+var $author$project$Vote$VotedRoutes = function (a) {
+	return {$: 'VotedRoutes', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Vote$openSet = _Platform_incomingPort('openSet', $elm$json$Json$Decode$value);
-var $author$project$Vote$votedSets = _Platform_incomingPort('votedSets', $elm$json$Json$Decode$value);
+var $author$project$Vote$votedRoutes = _Platform_incomingPort('votedRoutes', $elm$json$Json$Decode$value);
 var $author$project$Vote$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
 				$author$project$Vote$openSet($author$project$Vote$ShowSet),
-				$author$project$Vote$votedSets($author$project$Vote$VotedSets)
+				$author$project$Vote$votedRoutes($author$project$Vote$VotedRoutes)
 			]));
 };
 var $author$project$Vote$castVote = _Platform_outgoingPort('castVote', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $author$project$Vote$Route = F2(
-	function (color, grade) {
-		return {color: color, grade: grade};
-	});
-var $author$project$Vote$newRoute = F2(
-	function (category, color) {
-		return A2($author$project$Vote$Route, color, 'Not climbed');
-	});
-var $author$project$Vote$routesFromColors = F2(
-	function (category, colors) {
-		return A2(
-			$elm$core$List$map,
-			$author$project$Vote$newRoute(category),
-			colors);
-	});
-var $author$project$Vote$replaceGradeIfMatch = F3(
-	function (color, grade, route) {
-		return _Utils_eq(route.color, color) ? A2($author$project$Vote$Route, route.color, grade) : route;
-	});
-var $author$project$Vote$selectGrade = F3(
-	function (routes, color, grade) {
-		return A2(
-			$elm$core$List$map,
-			A2($author$project$Vote$replaceGradeIfMatch, color, grade),
-			routes);
-	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$map5 = _Json_map5;
@@ -5220,14 +5194,69 @@ var $author$project$Vote$setFromJson = A6(
 		$elm$json$Json$Decode$field,
 		'colors',
 		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $author$project$Vote$isVoted = F2(
+	function (routes, rt) {
+		return A2($elm$core$List$member, rt, routes);
+	});
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Vote$unvotedRoutes = F2(
+	function (routes, voted) {
+		return A2(
+			$elm$core$List$cons,
+			'',
+			A2(
+				$elm$core$List$filter,
+				A2(
+					$elm$core$Basics$composeL,
+					$elm$core$Basics$not,
+					$author$project$Vote$isVoted(voted)),
+				routes));
 	});
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
@@ -5243,18 +5272,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Vote$routeToJson = function (route) {
-	return $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'color',
-				$elm$json$Json$Encode$string(route.color)),
-				_Utils_Tuple2(
-				'grade',
-				$elm$json$Json$Encode$string(route.grade))
-			]));
-};
 var $author$project$Vote$voteToJson = function (model) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -5263,11 +5280,14 @@ var $author$project$Vote$voteToJson = function (model) {
 				'set_id',
 				$elm$json$Json$Encode$string(model.set.id)),
 				_Utils_Tuple2(
-				'routes',
-				A2($elm$json$Json$Encode$list, $author$project$Vote$routeToJson, model.routes))
+				'route',
+				$elm$json$Json$Encode$string(model.route)),
+				_Utils_Tuple2(
+				'grade',
+				$elm$json$Json$Encode$string(model.grade))
 			]));
 };
-var $author$project$Vote$votedSetsFromJson = $elm$json$Json$Decode$list($elm$json$Json$Decode$string);
+var $author$project$Vote$votedRoutesFromJson = $elm$json$Json$Decode$list($elm$json$Json$Decode$string);
 var $author$project$Vote$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5279,10 +5299,7 @@ var $author$project$Vote$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{
-								routes: A2($author$project$Vote$routesFromColors, set.category, set.colors),
-								set: set
-							}),
+							{set: set}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var e = _v1.a;
@@ -5292,33 +5309,39 @@ var $author$project$Vote$update = F2(
 							{msg: 'All voting closed.'}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 'VotedSets':
-				var maybeVotedSets = msg.a;
-				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Vote$votedSetsFromJson, maybeVotedSets);
+			case 'VotedRoutes':
+				var maybeVotedRoutes = msg.a;
+				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Vote$votedRoutesFromJson, maybeVotedRoutes);
 				if (_v2.$ === 'Ok') {
 					var voted = _v2.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{voted: voted}),
+							{
+								notVoted: A2($author$project$Vote$unvotedRoutes, model.set.colors, voted)
+							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var e = _v2.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{msg: 'Error parsing voted sets.'}),
+							{msg: 'Error parsing voted routes.'}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 'SelectGrade':
-				var color = msg.a;
-				var grade = msg.b;
+			case 'SelectRoute':
+				var route = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							routes: A3($author$project$Vote$selectGrade, model.routes, color, grade)
-						}),
+						{route: route}),
+					$elm$core$Platform$Cmd$none);
+			case 'SelectGrade':
+				var grade = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{grade: grade}),
 					$elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(
@@ -5330,11 +5353,23 @@ var $author$project$Vote$update = F2(
 		}
 	});
 var $author$project$Vote$CastVote = {$: 'CastVote'};
+var $author$project$Vote$SelectGrade = function (a) {
+	return {$: 'SelectGrade', a: a};
+};
+var $author$project$Vote$SelectRoute = function (a) {
+	return {$: 'SelectRoute', a: a};
+};
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
 	return {$: 'Attrs', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Button$attrs = function (attrs_) {
 	return $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Select$Attrs(attrs_);
 };
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs = function (a) {
 	return {$: 'ColAttrs', a: a};
@@ -5403,17 +5438,6 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -5569,43 +5593,31 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 				attributes),
 			children);
 	});
+var $author$project$Vote$gradeChoices = function (category) {
+	return (category === 'boulder') ? _List_fromArray(
+		['', 'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']) : _List_fromArray(
+		['', '5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']);
+};
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = $elm$html$Html$Attributes$class('mt-4');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange = function (a) {
+	return {$: 'OnChange', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$onChange = function (toMsg) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange(toMsg);
+};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6460,6 +6472,175 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$row = F2(
 			$rundis$elm_bootstrap$Bootstrap$Grid$Internal$rowAttributes(options),
 			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Grid$renderCol, cols));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$Select = function (a) {
+	return {$: 'Select', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$create = F2(
+	function (options, items) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Select(
+			{items: items, options: options});
+	});
+var $elm$html$Html$select = _VirtualDom_node('select');
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Size':
+				var size_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						size: $elm$core$Maybe$Just(size_)
+					});
+			case 'Id':
+				var id_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						id: $elm$core$Maybe$Just(id_)
+					});
+			case 'Custom':
+				return _Utils_update(
+					options,
+					{custom: true});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
+			case 'OnChange':
+				var onChange_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						onChange: $elm$core$Maybe$Just(onChange_)
+					});
+			case 'Validation':
+				var validation_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						validation: $elm$core$Maybe$Just(validation_)
+					});
+			default:
+				var attrs_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs_)
+					});
+		}
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$customEventOnChange = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'change',
+		A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$defaultOptions = {attributes: _List_Nil, custom: false, disabled: false, id: $elm$core$Maybe$Nothing, onChange: $elm$core$Maybe$Nothing, size: $elm$core$Maybe$Nothing, validation: $elm$core$Maybe$Nothing};
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$sizeAttribute = F2(
+	function (isCustom, size_) {
+		var prefix = isCustom ? 'custom-select-' : 'form-control-';
+		return A2(
+			$elm$core$Maybe$map,
+			function (s) {
+				return $elm$html$Html$Attributes$class(
+					_Utils_ap(prefix, s));
+			},
+			$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size_));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString = function (validation) {
+	if (validation.$ === 'Success') {
+		return 'is-valid';
+	} else {
+		return 'is-invalid';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$validationAttribute = function (validation_) {
+	return $elm$html$Html$Attributes$class(
+		$rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString(validation_));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$toAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Select$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Select$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('form-control', !options.custom),
+						_Utils_Tuple2('custom-select', options.custom)
+					])),
+				$elm$html$Html$Attributes$disabled(options.disabled)
+			]),
+		_Utils_ap(
+			A2(
+				$elm$core$List$filterMap,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id),
+						A2(
+						$elm$core$Maybe$andThen,
+						$rundis$elm_bootstrap$Bootstrap$Form$Select$sizeAttribute(options.custom),
+						options.size),
+						A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Form$Select$customEventOnChange, options.onChange),
+						A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Form$Select$validationAttribute, options.validation)
+					])),
+			options.attributes));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$view = function (_v0) {
+	var options = _v0.a.options;
+	var items = _v0.a.items;
+	return A2(
+		$elm$html$Html$select,
+		$rundis$elm_bootstrap$Bootstrap$Form$Select$toAttributes(options),
+		A2(
+			$elm$core$List$map,
+			function (_v1) {
+				var e = _v1.a;
+				return e;
+			},
+			items));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$select = F2(
+	function (options, items) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Select$view(
+			A2($rundis$elm_bootstrap$Bootstrap$Form$Select$create, options, items));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$Item = function (a) {
+	return {$: 'Item', a: a};
+};
+var $elm$html$Html$option = _VirtualDom_node('option');
+var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Item(
+			A2($elm$html$Html$option, attributes, children));
+	});
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $author$project$Vote$selectChoice = function (val) {
+	return A2(
+		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$value(val)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(val)
+			]));
+};
 var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary = {$: 'Primary'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$Shown = {$: 'Shown'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$Config = function (a) {
@@ -6543,8 +6724,6 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$isDismissable = function (configRec) {
 	}
 };
 var $elm$html$Html$span = _VirtualDom_node('span');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton = F3(
 	function (visibilty, configRec, children_) {
@@ -6681,328 +6860,6 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$simple = F3(
 					A2($rundis$elm_bootstrap$Bootstrap$Alert$role, role_, $rundis$elm_bootstrap$Bootstrap$Alert$config))));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary);
-var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier = F2(
-	function (modifier, options) {
-		switch (modifier.$) {
-			case 'Roled':
-				var role = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						role: $elm$core$Maybe$Just(role)
-					});
-			case 'Action':
-				return _Utils_update(
-					options,
-					{action: true});
-			case 'Disabled':
-				return _Utils_update(
-					options,
-					{disabled: true});
-			case 'Active':
-				return _Utils_update(
-					options,
-					{active: true});
-			default:
-				var attrs = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						attributes: _Utils_ap(options.attributes, attrs)
-					});
-		}
-	});
-var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions = {action: false, active: false, attributes: _List_Nil, disabled: false, role: $elm$core$Maybe$Nothing};
-var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes = function (options) {
-	return _Utils_ap(
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$classList(
-				_List_fromArray(
-					[
-						_Utils_Tuple2('list-group-item', true),
-						_Utils_Tuple2('disabled', options.disabled),
-						_Utils_Tuple2('active', options.active),
-						_Utils_Tuple2('list-group-item-action', options.action)
-					]))
-			]),
-		_Utils_ap(
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$disabled(options.disabled)
-				]),
-			_Utils_ap(
-				A2(
-					$elm$core$Maybe$withDefault,
-					_List_Nil,
-					A2(
-						$elm$core$Maybe$map,
-						function (r) {
-							return _List_fromArray(
-								[
-									A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'list-group-item', r)
-								]);
-						},
-						options.role)),
-				options.attributes)));
-};
-var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem = function (_v0) {
-	var itemFn = _v0.a.itemFn;
-	var options = _v0.a.options;
-	var children = _v0.a.children;
-	return A2(
-		itemFn,
-		$rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes(
-			A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions, options)),
-		children);
-};
-var $elm$html$Html$ul = _VirtualDom_node('ul');
-var $rundis$elm_bootstrap$Bootstrap$ListGroup$ul = function (items) {
-	return A2(
-		$elm$html$Html$ul,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('list-group')
-			]),
-		A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem, items));
-};
-var $author$project$Vote$SelectGrade = F2(
-	function (a, b) {
-		return {$: 'SelectGrade', a: a, b: b};
-	});
-var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs = function (a) {
-	return {$: 'Attrs', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$ListGroup$attrs = function (attrs_) {
-	return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs(attrs_);
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$Item = function (a) {
-	return {$: 'Item', a: a};
-};
-var $elm$html$Html$option = _VirtualDom_node('option');
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$item = F2(
-	function (attributes, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Item(
-			A2($elm$html$Html$option, attributes, children));
-	});
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Vote$gradeChoice = function (grade) {
-	return A2(
-		$rundis$elm_bootstrap$Bootstrap$Form$Select$item,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$value(grade)
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(grade)
-			]));
-};
-var $author$project$Vote$gradeChoices = function (category) {
-	return (category === 'boulder') ? A2(
-		$elm$core$List$map,
-		$author$project$Vote$gradeChoice,
-		_List_fromArray(
-			['Not climbed', 'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'])) : A2(
-		$elm$core$List$map,
-		$author$project$Vote$gradeChoice,
-		_List_fromArray(
-			['Not climbed', '5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13']));
-};
-var $elm$html$Html$h5 = _VirtualDom_node('h5');
-var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item = function (a) {
-	return {$: 'Item', a: a};
-};
-var $elm$html$Html$li = _VirtualDom_node('li');
-var $rundis$elm_bootstrap$Bootstrap$ListGroup$li = F2(
-	function (options, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item(
-			{children: children, itemFn: $elm$html$Html$li, options: options});
-	});
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb2 = $elm$html$Html$Attributes$class('mb-2');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange = function (a) {
-	return {$: 'OnChange', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$onChange = function (toMsg) {
-	return $rundis$elm_bootstrap$Bootstrap$Form$Select$OnChange(toMsg);
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$Select = function (a) {
-	return {$: 'Select', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$create = F2(
-	function (options, items) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Select$Select(
-			{items: items, options: options});
-	});
-var $elm$html$Html$select = _VirtualDom_node('select');
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$applyModifier = F2(
-	function (modifier, options) {
-		switch (modifier.$) {
-			case 'Size':
-				var size_ = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						size: $elm$core$Maybe$Just(size_)
-					});
-			case 'Id':
-				var id_ = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						id: $elm$core$Maybe$Just(id_)
-					});
-			case 'Custom':
-				return _Utils_update(
-					options,
-					{custom: true});
-			case 'Disabled':
-				var val = modifier.a;
-				return _Utils_update(
-					options,
-					{disabled: val});
-			case 'OnChange':
-				var onChange_ = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						onChange: $elm$core$Maybe$Just(onChange_)
-					});
-			case 'Validation':
-				var validation_ = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						validation: $elm$core$Maybe$Just(validation_)
-					});
-			default:
-				var attrs_ = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						attributes: _Utils_ap(options.attributes, attrs_)
-					});
-		}
-	});
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$customEventOnChange = function (tagger) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'change',
-		A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue));
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$defaultOptions = {attributes: _List_Nil, custom: false, disabled: false, id: $elm$core$Maybe$Nothing, onChange: $elm$core$Maybe$Nothing, size: $elm$core$Maybe$Nothing, validation: $elm$core$Maybe$Nothing};
-var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
-var $elm$core$Basics$not = _Basics_not;
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$sizeAttribute = F2(
-	function (isCustom, size_) {
-		var prefix = isCustom ? 'custom-select-' : 'form-control-';
-		return A2(
-			$elm$core$Maybe$map,
-			function (s) {
-				return $elm$html$Html$Attributes$class(
-					_Utils_ap(prefix, s));
-			},
-			$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size_));
-	});
-var $rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString = function (validation) {
-	if (validation.$ === 'Success') {
-		return 'is-valid';
-	} else {
-		return 'is-invalid';
-	}
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$validationAttribute = function (validation_) {
-	return $elm$html$Html$Attributes$class(
-		$rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString(validation_));
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$toAttributes = function (modifiers) {
-	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Select$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Select$defaultOptions, modifiers);
-	return _Utils_ap(
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$classList(
-				_List_fromArray(
-					[
-						_Utils_Tuple2('form-control', !options.custom),
-						_Utils_Tuple2('custom-select', options.custom)
-					])),
-				$elm$html$Html$Attributes$disabled(options.disabled)
-			]),
-		_Utils_ap(
-			A2(
-				$elm$core$List$filterMap,
-				$elm$core$Basics$identity,
-				_List_fromArray(
-					[
-						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id),
-						A2(
-						$elm$core$Maybe$andThen,
-						$rundis$elm_bootstrap$Bootstrap$Form$Select$sizeAttribute(options.custom),
-						options.size),
-						A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Form$Select$customEventOnChange, options.onChange),
-						A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Form$Select$validationAttribute, options.validation)
-					])),
-			options.attributes));
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$view = function (_v0) {
-	var options = _v0.a.options;
-	var items = _v0.a.items;
-	return A2(
-		$elm$html$Html$select,
-		$rundis$elm_bootstrap$Bootstrap$Form$Select$toAttributes(options),
-		A2(
-			$elm$core$List$map,
-			function (_v1) {
-				var e = _v1.a;
-				return e;
-			},
-			items));
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Select$select = F2(
-	function (options, items) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Select$view(
-			A2($rundis$elm_bootstrap$Bootstrap$Form$Select$create, options, items));
-	});
-var $author$project$Vote$viewRoute = F2(
-	function (category, route) {
-		return A2(
-			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
-			_List_fromArray(
-				[
-					$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
-					_List_fromArray(
-						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$none]))
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$h5,
-					_List_fromArray(
-						[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb2]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text(route.color)
-						])),
-					A2(
-					$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
-					_List_fromArray(
-						[
-							$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange(
-							$author$project$Vote$SelectGrade(route.color))
-						]),
-					$author$project$Vote$gradeChoices(category))
-				]));
-	});
 var $author$project$Vote$view = function (model) {
 	return A2(
 		$rundis$elm_bootstrap$Bootstrap$Grid$container,
@@ -7061,7 +6918,7 @@ var $author$project$Vote$view = function (model) {
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
 				_List_Nil,
-				A2($elm$core$List$member, model.set.id, model.voted) ? _List_fromArray(
+				$elm$core$List$isEmpty(model.notVoted) ? _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -7078,21 +6935,39 @@ var $author$project$Vote$view = function (model) {
 								_List_Nil,
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Thanks for your vote!')
+										$elm$html$Html$text('You voted for every route!')
 									]))
 							]))
-					]) : ($elm$core$String$isEmpty(model.msg) ? _List_fromArray(
+					]) : _List_fromArray(
 					[
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectRoute),
+										$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
+										_List_fromArray(
+											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+									]),
+								A2($elm$core$List$map, $author$project$Vote$selectChoice, model.notVoted)),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectGrade),
+										$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
+										_List_fromArray(
+											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+									]),
 								A2(
 									$elm$core$List$map,
-									$author$project$Vote$viewRoute(model.set.category),
-									model.routes)),
+									$author$project$Vote$selectChoice,
+									$author$project$Vote$gradeChoices(model.set.category))),
 								A2(
 								$rundis$elm_bootstrap$Bootstrap$Button$button,
 								_List_fromArray(
@@ -7110,9 +6985,8 @@ var $author$project$Vote$view = function (model) {
 									[
 										$elm$html$Html$text('Cast vote')
 									]))
-							]))
-					]) : _List_fromArray(
-					[
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
 						A2(
 						$rundis$elm_bootstrap$Bootstrap$Grid$col,
 						_List_fromArray(
@@ -7121,7 +6995,7 @@ var $author$project$Vote$view = function (model) {
 								_List_fromArray(
 									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
 							]),
-						_List_fromArray(
+						$elm$core$String$isEmpty(model.msg) ? _List_Nil : _List_fromArray(
 							[
 								A2(
 								$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
@@ -7131,7 +7005,7 @@ var $author$project$Vote$view = function (model) {
 										$elm$html$Html$text(model.msg)
 									]))
 							]))
-					])))
+					]))
 			]));
 };
 var $author$project$Vote$main = $elm$browser$Browser$element(

@@ -1,5 +1,7 @@
 port module Vote exposing (..)
 
+import Debug
+
 import Browser
 import Html exposing (Html, text, div, h3, h5, hr)
 import Html.Attributes exposing (type_, value, for)
@@ -29,7 +31,7 @@ import Json.Decode as D
 port openSet : (D.Value -> msg) -> Sub msg
 port castVote : E.Value -> Cmd msg
 
-port votedSets : (D.Value -> msg) -> Sub msg
+port votedRoutes : (D.Value -> msg) -> Sub msg
 
 -- MAIN
 
@@ -47,14 +49,10 @@ main =
 
 type alias Model =
     { set : Set
-    , voted: List String
-    , routes : List Route
-    , msg : String
-    }
-
-type alias Route =
-    { color : String
+    , notVoted: List String
+    , route : String
     , grade : String
+    , msg : String
     }
 
 type alias Set =
@@ -71,11 +69,7 @@ init _ =
 
 newModel : Model
 newModel =
-    Model newSet [] [] ""
-
-newRoute : String -> String -> Route
-newRoute category color =
-    Route color "Not climbed"
+    Model newSet [] "" "" ""
 
 newSet : Set
 newSet =
@@ -94,18 +88,12 @@ voteToJson : Model -> E.Value
 voteToJson model =
     E.object
         [ ("set_id", E.string model.set.id)
-        , ("routes", E.list routeToJson model.routes)
+        , ("route", E.string model.route)
+        , ("grade", E.string model.grade)
         ]
 
-routeToJson : Route -> E.Value
-routeToJson route =
-    E.object
-        [ ("color", E.string route.color)
-        , ("grade", E.string route.grade)
-        ]
-
-votedSetsFromJson : D.Decoder (List String)
-votedSetsFromJson =
+votedRoutesFromJson : D.Decoder (List String)
+votedRoutesFromJson =
     D.list D.string
 
 
@@ -113,8 +101,9 @@ votedSetsFromJson =
 
 type Msg
     = ShowSet D.Value
-    | VotedSets D.Value
-    | SelectGrade String String
+    | VotedRoutes D.Value
+    | SelectRoute String
+    | SelectGrade String
     | CastVote
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -123,28 +112,29 @@ update msg model =
         ShowSet maybeSet ->
             case D.decodeValue setFromJson maybeSet of
                 Ok set ->
-                    (
-                        { model
-                            | set = set
-                            , routes = routesFromColors set.category set.colors }
+                    ( { model | set = set }
                     , Cmd.none )
 
                 Err e ->
                     ( { model | msg = "All voting closed." }
                     , Cmd.none )
 
-        VotedSets maybeVotedSets ->
-            case D.decodeValue votedSetsFromJson maybeVotedSets of
+        VotedRoutes maybeVotedRoutes ->
+            case D.decodeValue votedRoutesFromJson maybeVotedRoutes of
                 Ok voted ->
-                    ( { model | voted = voted }
+                    ( { model | notVoted = unvotedRoutes model.set.colors voted }
                     , Cmd.none )
 
                 Err e ->
-                    ( { model | msg = "Error parsing voted sets." }
+                    ( { model | msg = "Error parsing voted routes." }
                     , Cmd.none )
 
-        SelectGrade color grade ->
-            ( { model | routes = selectGrade model.routes color grade }
+        SelectRoute route ->
+            ( { model | route = route }
+            , Cmd.none )
+
+        SelectGrade grade ->
+            ( { model | grade = grade }
             , Cmd.none )
 
         CastVote ->
@@ -152,21 +142,11 @@ update msg model =
             , castVote (voteToJson model)
             )
 
+unvotedRoutes : List String -> List String -> List String
+unvotedRoutes routes voted =
+    List.filter (not << isVoted voted) routes
+        |> (::) ""
 
-routesFromColors : String -> List String -> List Route
-routesFromColors category colors =
-    List.map (newRoute category) colors
-
-selectGrade : List Route -> String -> String -> List Route
-selectGrade routes color grade =
-    List.map (replaceGradeIfMatch color grade) routes
-
-replaceGradeIfMatch : String -> String -> Route -> Route
-replaceGradeIfMatch color grade route =
-    if route.color == color then
-        Route route.color grade
-    else
-        route
 
 -- VIEW
 
@@ -189,51 +169,57 @@ view model =
                     ]
             )
         , Grid.row [] (
-            if List.member model.set.id model.voted then
+            if List.isEmpty model.notVoted then
                 [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
-                    [ Alert.simplePrimary [] [ text "Thanks for your vote!" ] ]
+                    [ Alert.simplePrimary [] [ text "You voted for every route!" ] ]
                 ]
-            else if String.isEmpty model.msg then
+            else
                 [ Grid.col []
-                    [ ListGroup.ul
-                        (List.map (viewRoute model.set.category) model.routes)
+                    [ Select.select
+                        [ Select.onChange SelectRoute
+                        , Select.attrs [ Spacing.mt3 ]
+                        ]
+                        ( List.map selectChoice model.notVoted )
+                    , Select.select
+                        [ Select.onChange SelectGrade
+                        , Select.attrs [ Spacing.mt3 ]
+                        ]
+                        ( gradeChoices model.set.category
+                            |> List.map selectChoice
+                        )
                     , Button.button
                         [ Button.primary, Button.block
                         , Button.attrs [ Spacing.mt4, onClick CastVote ]
                         ]
                         [ text "Cast vote" ]
                     ]
-                ]
-            else
-                [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
-                    [ Alert.simplePrimary [] [ text model.msg ] ]
+                , Grid.colBreak []
+                , Grid.col [ Col.attrs [ Spacing.mt3 ] ]
+                    (
+                        if String.isEmpty model.msg then
+                            []
+                        else
+                            [ Alert.simplePrimary [] [ text model.msg ] ]
+                    )
                 ]
             )
         ]
 
 
-viewRoute : String -> Route -> ListGroup.Item Msg
-viewRoute category route =
-    ListGroup.li
-        [ ListGroup.attrs [ Border.none ] ]
-        [ h5 [ Spacing.mb2 ] [ text route.color ]
-        , Select.select
-            [ Select.onChange (SelectGrade route.color) ]
-            ( gradeChoices category )
-        ]
+isVoted : List String -> String -> Bool
+isVoted routes rt =
+    List.member rt routes
 
-gradeChoices : String -> List (Select.Item Msg)
+gradeChoices : String -> List String
 gradeChoices category =
     if category == "boulder" then
-        List.map gradeChoice
-            [ "Not climbed", "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
+        [ "", "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" ]
     else
-        List.map gradeChoice
-            [ "Not climbed", "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
+        [ "", "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
 
-gradeChoice : String -> Select.Item Msg
-gradeChoice grade =
-    Select.item [ value grade ] [ text grade ]
+selectChoice : String -> Select.Item Msg
+selectChoice val =
+    Select.item [ value val ] [ text val ]
 
 
 -- SUBSCRIPTIONS
@@ -242,5 +228,5 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ openSet ShowSet
-        , votedSets VotedSets
+        , votedRoutes VotedRoutes
         ]

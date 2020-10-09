@@ -16,7 +16,6 @@ function getUserKey() {
 const user_key = getUserKey();
 
 firebase.initializeApp(firebaseConfig);
-firebase.analytics();
 
 var db = firebase.firestore();
 
@@ -29,15 +28,19 @@ app.ports.castVote.subscribe(data => {
 	db.collection('votes').add(data);
 });
 
-db.collection('votes')
-	.where('user_key', '==', user_key)
-	.onSnapshot(snap => {
-		let arr = [];
-		for (let i = 0; i < snap.size; i++)
-			arr.push(snap.docs[i].data().set_id);
+function subscribeToVotes(set_id) {
+	db.collection('votes')
+		.where('set_id', '==', set_id)
+		.where('user_key', '==', user_key)
+		.onSnapshot(snap => {
+			let arr = [];
+			for (let i = 0; i < snap.size; i++)
+				arr.push(snap.docs[i].data().route);
 
-		app.ports.votedSets.send(arr);
-	});
+			console.log(arr);
+			app.ports.votedRoutes.send(arr);
+		});
+}
 
 db.collection('sets')
 	.orderBy('expires')
@@ -53,6 +56,8 @@ db.collection('sets')
 		let data = snap.docs[0].data();
 		data.id = snap.docs[0].id;
 		data.expires = new Date(data.expires).toISOString().slice(0, 10);
+
+		subscribeToVotes(data.id);
 
 		app.ports.openSet.send(data);
 	});
