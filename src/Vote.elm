@@ -4,7 +4,7 @@ import Debug
 
 import Browser
 import Html exposing (Html, text, div, h3, h5, hr)
-import Html.Attributes exposing (type_, value, for, selected, disabled)
+import Html.Attributes exposing (type_, value, for, selected, disabled, hidden)
 import Html.Events exposing (onInput, onClick)
 
 import Bootstrap.Grid as Grid
@@ -49,7 +49,7 @@ main =
 
 type alias Model =
     { set : Set
-    , notVoted: List String
+    , notVoted: Maybe (List String)
     , route : Maybe String
     , grade : Maybe String
     , msg : String
@@ -69,7 +69,7 @@ init _ =
 
 newModel : Model
 newModel =
-    Model newSet [] Nothing Nothing ""
+    Model newSet Nothing Nothing Nothing ""
 
 newSet : Set
 newSet =
@@ -122,7 +122,7 @@ update msg model =
         VotedRoutes maybeVotedRoutes ->
             case D.decodeValue votedRoutesFromJson maybeVotedRoutes of
                 Ok voted ->
-                    ( { model | notVoted = unvotedRoutes model.set.colors voted }
+                    ( { model | notVoted = Just (unvotedRoutes model.set.colors voted) }
                     , Cmd.none )
 
                 Err e ->
@@ -181,44 +181,48 @@ view model =
                     ]
             )
         , Grid.row [] (
-            if List.isEmpty model.notVoted then
-                [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
-                    [ Alert.simplePrimary [] [ text "You voted for every route!" ] ]
-                ]
-            else
-                [ Grid.col []
-                    [ Select.select
-                        [ Select.onChange SelectRoute
-                        , Select.attrs [ Spacing.mt3 ]
+            case model.notVoted of
+                Nothing ->
+                    []
+                Just [] ->
+                    [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
+                        [ Alert.simplePrimary [] [ text "You voted for every route!" ] ]
+                    ]
+                Just notVoted ->
+                    [ Grid.col []
+                        [ Select.select
+                            [ Select.onChange SelectRoute
+                            , Select.attrs [ Spacing.mt3 ]
+                            ]
+                            ( buildOptions model.route notVoted )
+                        , Select.select
+                            [ Select.onChange SelectGrade
+                            , Select.attrs [ Spacing.mt3 ]
+                            ]
+                            ( gradeChoices model.set.category
+                                |> buildOptions model.grade
+                            )
                         ]
-                        ( buildOptions model.route model.notVoted )
-                    , Select.select
-                        [ Select.onChange SelectGrade
-                        , Select.attrs [ Spacing.mt3 ]
+                    , Grid.colBreak []
+                    , Grid.col []
+                        [ Button.button
+                            [ Button.primary, Button.block
+                            , Button.attrs [ Spacing.mt4, onClick CastVote ]
+                            ]
+                            [ text "Cast vote" ]
                         ]
-                        ( gradeChoices model.set.category
-                            |> buildOptions model.grade
+                    , Grid.colBreak []
+                    , Grid.col [ Col.attrs [ Spacing.mt3 ] ]
+                        (
+                            if String.isEmpty model.msg then
+                                []
+                            else
+                                [ Alert.simplePrimary [] [ text model.msg ] ]
                         )
                     ]
-                , Grid.colBreak []
-                , Grid.col []
-                    [ Button.button
-                        [ Button.primary, Button.block
-                        , Button.attrs [ Spacing.mt4, onClick CastVote ]
-                        ]
-                        [ text "Cast vote" ]
-                    ]
-                , Grid.colBreak []
-                , Grid.col [ Col.attrs [ Spacing.mt3 ] ]
-                    (
-                        if String.isEmpty model.msg then
-                            []
-                        else
-                            [ Alert.simplePrimary [] [ text model.msg ] ]
-                    )
-                ]
             )
         ]
+
 
 buildOptions: Maybe String -> List String -> List (Select.Item Msg)
 buildOptions val choices =
@@ -227,11 +231,10 @@ buildOptions val choices =
             List.map selectChoice choices
         head =
             Select.item
-                [ value "", disabled True, selected (val == Nothing) ]
-                [ text "Select something" ]
+                [ value "", disabled True, selected (val == Nothing), hidden True ]
+                [ text "" ]
     in
         head :: tail
-
 
 isVoted : List String -> String -> Bool
 isVoted routes rt =

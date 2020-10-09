@@ -5153,7 +5153,7 @@ var $author$project$Vote$Set = F5(
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
-var $author$project$Vote$newModel = A5($author$project$Vote$Model, $author$project$Vote$newSet, _List_Nil, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, '');
+var $author$project$Vote$newModel = A5($author$project$Vote$Model, $author$project$Vote$newSet, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Vote$init = function (_v0) {
@@ -5316,7 +5316,8 @@ var $author$project$Vote$update = F2(
 						_Utils_update(
 							model,
 							{
-								notVoted: A2($author$project$Vote$unvotedRoutes, model.set.colors, voted)
+								notVoted: $elm$core$Maybe$Just(
+									A2($author$project$Vote$unvotedRoutes, model.set.colors, voted))
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
@@ -5417,6 +5418,7 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $elm$html$Html$Attributes$hidden = $elm$html$Html$Attributes$boolProperty('hidden');
 var $rundis$elm_bootstrap$Bootstrap$Form$Select$Item = function (a) {
 	return {$: 'Item', a: a};
 };
@@ -5459,11 +5461,12 @@ var $author$project$Vote$buildOptions = F2(
 					$elm$html$Html$Attributes$value(''),
 					$elm$html$Html$Attributes$disabled(true),
 					$elm$html$Html$Attributes$selected(
-					_Utils_eq(val, $elm$core$Maybe$Nothing))
+					_Utils_eq(val, $elm$core$Maybe$Nothing)),
+					$elm$html$Html$Attributes$hidden(true)
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text('Select something')
+					$elm$html$Html$text('')
 				]));
 		return A2($elm$core$List$cons, head, tail);
 	});
@@ -5666,13 +5669,6 @@ var $author$project$Vote$gradeChoices = function (category) {
 };
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
@@ -6960,101 +6956,113 @@ var $author$project$Vote$view = function (model) {
 				A2(
 				$rundis$elm_bootstrap$Bootstrap$Grid$row,
 				_List_Nil,
-				$elm$core$List$isEmpty(model.notVoted) ? _List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
-								_List_fromArray(
-									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
-								_List_Nil,
-								_List_fromArray(
-									[
-										$elm$html$Html$text('You voted for every route!')
-									]))
-							]))
-					]) : _List_fromArray(
-					[
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
-								_List_fromArray(
-									[
-										$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectRoute),
-										$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
-										_List_fromArray(
-											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
-									]),
-								A2($author$project$Vote$buildOptions, model.route, model.notVoted)),
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
-								_List_fromArray(
-									[
-										$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectGrade),
-										$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
-										_List_fromArray(
-											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
-									]),
-								A2(
-									$author$project$Vote$buildOptions,
-									model.grade,
-									$author$project$Vote$gradeChoices(model.set.category)))
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Button$button,
-								_List_fromArray(
-									[
-										$rundis$elm_bootstrap$Bootstrap$Button$primary,
-										$rundis$elm_bootstrap$Bootstrap$Button$block,
-										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-										_List_fromArray(
-											[
-												$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4,
-												$elm$html$Html$Events$onClick($author$project$Vote$CastVote)
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Cast vote')
-									]))
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
-								_List_fromArray(
-									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
-							]),
-						$elm$core$String$isEmpty(model.msg) ? _List_Nil : _List_fromArray(
-							[
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
-								_List_Nil,
-								_List_fromArray(
-									[
-										$elm$html$Html$text(model.msg)
-									]))
-							]))
-					]))
+				function () {
+					var _v0 = model.notVoted;
+					if (_v0.$ === 'Nothing') {
+						return _List_Nil;
+					} else {
+						if (!_v0.a.b) {
+							return _List_fromArray(
+								[
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Grid$col,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
+											_List_Nil,
+											_List_fromArray(
+												[
+													$elm$html$Html$text('You voted for every route!')
+												]))
+										]))
+								]);
+						} else {
+							var notVoted = _v0.a;
+							return _List_fromArray(
+								[
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Grid$col,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+											_List_fromArray(
+												[
+													$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectRoute),
+													$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
+													_List_fromArray(
+														[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+												]),
+											A2($author$project$Vote$buildOptions, model.route, notVoted)),
+											A2(
+											$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+											_List_fromArray(
+												[
+													$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectGrade),
+													$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
+													_List_fromArray(
+														[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+												]),
+											A2(
+												$author$project$Vote$buildOptions,
+												model.grade,
+												$author$project$Vote$gradeChoices(model.set.category)))
+										])),
+									$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Grid$col,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$rundis$elm_bootstrap$Bootstrap$Button$button,
+											_List_fromArray(
+												[
+													$rundis$elm_bootstrap$Bootstrap$Button$primary,
+													$rundis$elm_bootstrap$Bootstrap$Button$block,
+													$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+													_List_fromArray(
+														[
+															$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4,
+															$elm$html$Html$Events$onClick($author$project$Vote$CastVote)
+														]))
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Cast vote')
+												]))
+										])),
+									$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Grid$col,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+										]),
+									$elm$core$String$isEmpty(model.msg) ? _List_Nil : _List_fromArray(
+										[
+											A2(
+											$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
+											_List_Nil,
+											_List_fromArray(
+												[
+													$elm$html$Html$text(model.msg)
+												]))
+										]))
+								]);
+						}
+					}
+				}())
 			]));
 };
 var $author$project$Vote$main = $elm$browser$Browser$element(
