@@ -46,16 +46,30 @@ db.collection('sets')
 		app.ports.allSets.send(Object.values(sets));
 	});
 
-db.collection('votes')
+function pollToList(poll) {
+	const keys = Object.keys(poll);
+	let vals = Array.from(keys).fill(0);
+
+	for (const k in poll) {
+		const i = keys.indexOf(k);
+		vals[i] += 1;
+	}
+
+	return { grades: keys, counts: vals };
+}
+
+db.collection('polls')
 	.onSnapshot(snap => {
-		let votes = [];
+		let polls = [];
 		for (let i = 0; i < snap.size; i++) {
+			const id = snap.docs[i].id;
+			const [set_id, route] = id.split('-');
+
 			const data = snap.docs[i].data();
-			for (const vote of data.routes)
-				votes.push({ set_id: data.set_id, ...vote });
+			polls.push({ set_id, route, ...pollToList(data) });
 		}
 
-		app.ports.allVotes.send(votes);
+		app.ports.allPolls.send(polls);
 	});
 
 firebase.auth()

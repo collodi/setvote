@@ -39,7 +39,6 @@ function subscribeToVotes(set_id) {
 			for (let i = 0; i < snap.size; i++)
 				arr.push(snap.docs[i].data().route);
 
-			console.log(arr);
 			app.ports.votedRoutes.send(arr);
 		});
 }

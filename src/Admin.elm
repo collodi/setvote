@@ -22,6 +22,7 @@ import Bootstrap.Form.Radio as Radio
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 
+import Bootstrap.Utilities.Display as Display
 import Bootstrap.Utilities.Size as Size
 import Bootstrap.Utilities.Border as Border
 import Bootstrap.Utilities.Spacing as Spacing
@@ -33,7 +34,7 @@ port addSet : E.Value -> Cmd msg
 port deleteSet : E.Value -> Cmd msg
 
 port allSets : (D.Value -> msg) -> Sub msg
-port allVotes : (D.Value -> msg) -> Sub msg
+port allPolls : (D.Value -> msg) -> Sub msg
 port authd : (D.Value -> msg) -> Sub msg
 
 
@@ -54,7 +55,7 @@ type alias Model =
     { newSet : NewSet
     , showNewSet : Bool
     , sets : List Set
-    , votes : List Vote
+    , polls : List Poll
     , msg : String
     , authd : Bool
     }
@@ -77,10 +78,11 @@ type alias Set =
     , showDelete : Bool
     }
 
-type alias Vote =
+type alias Poll =
     { set_id : String
-    , color : String
-    , grade : String
+    , route : String
+    , grades : List String
+    , counts : List Int
     }
 
 init : () -> (Model, Cmd Msg)
@@ -118,16 +120,17 @@ setFromJson =
         (D.field "colors" (D.list D.string))
         (D.field "showDelete" D.bool)
 
-allVotesFromJson : D.Decoder (List Vote)
-allVotesFromJson =
-    D.list voteFromJson
+pollsFromJson : D.Decoder (List Poll)
+pollsFromJson =
+    D.list pollFromJson
 
-voteFromJson : D.Decoder Vote
-voteFromJson =
-    D.map3 Vote
+pollFromJson : D.Decoder Poll
+pollFromJson =
+    D.map4 Poll
         (D.field "set_id" D.string)
-        (D.field "color" D.string)
-        (D.field "grade" D.string)
+        (D.field "route" D.string)
+        (D.field "grades" (D.list D.string))
+        (D.field "counts" (D.list D.int))
 
 -- UPDATE
 
@@ -137,7 +140,7 @@ type Msg
     | ToggleDelete Set
     | DeleteSet String
     | AllSets D.Value
-    | AllVotes D.Value
+    | Polls D.Value
     | Authd D.Value
 
 type NewSetMsg
@@ -205,14 +208,14 @@ update msg model =
                     ( { model | msg = "Error in parsing all sets" }
                     , Cmd.none )
 
-        AllVotes votesValue ->
-            case D.decodeValue allVotesFromJson votesValue of
-                Ok votes ->
-                    ( { model | votes = votes }
+        Polls maybePolls ->
+            case D.decodeValue pollsFromJson maybePolls of
+                Ok polls ->
+                    ( { model | polls = polls }
                     , Cmd.none )
 
                 Err e ->
-                    ( { model | msg = "Error in parsing all votes" }
+                    ( { model | msg = "Error in parsing polls" }
                     , Cmd.none )
 
         Authd value ->
@@ -305,14 +308,14 @@ view model =
                         [ text "Add A Set" ]
                     ]
                 , Grid.colBreak []
-                , Grid.col [] (List.map (viewSet model.votes) model.sets)
+                , Grid.col [] (List.map (viewSet model.polls) model.sets)
                 ]
             ]
         )
 
 
-viewSet : List Vote -> Set -> Html Msg
-viewSet votes set =
+viewSet : List Poll -> Set -> Html Msg
+viewSet polls set =
     Card.config [ Card.attrs [ Spacing.my3 ] ]
         |> Card.block []
             [ Block.titleH3 [ Spacing.mb1 ]
@@ -320,7 +323,7 @@ viewSet votes set =
             , Block.text [ Spacing.mb3, Spacing.ml1 ]
                 [ text ("expires " ++ set.expires) ]
             , Block.custom <|
-                ListGroup.ul (List.map (viewRoute set votes) set.colors)
+                ListGroup.ul (List.map (viewRoute set polls) set.colors)
             ]
         |> Card.footer []
             [
@@ -349,44 +352,43 @@ viewSet votes set =
         |> Card.view
 
 
-viewRoute : Set -> List Vote -> String -> ListGroup.Item Msg
-viewRoute set votes color =
-    ListGroup.li [ ListGroup.attrs [ Border.none ] ]
-        [ Grid.row []
-            [ Grid.col []
-                [ h5 [] [ text color ] ]
-            ]
-        , Grid.row []
-            (List.map
-                (viewGrade set.id color votes)
+viewRoute : Set -> List Poll -> String -> ListGroup.Item Msg
+viewRoute set polls route =
+    let
+        poll = findPoll set route polls
+    in
+        ListGroup.li [ ListGroup.attrs [ Border.none ] ]
+            [ h5 [] [ text route ]
+            , ListGroup.ul
                 (
-                    if set.category == "boulder" then
-                        ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
-                    else
-                        [ "5.6", "5.7", "5.8", "5.9", "5.10a/b", "5.10b/c", "5.10c/d", "5.11", "5.12", "5.13" ]
+                    case poll of
+                        Just p ->
+                            List.map2 viewGrade p.grades p.counts
+
+                        Nothing ->
+                            [ ListGroup.li
+                                [ ListGroup.disabled, ListGroup.attrs [ Border.none ] ]
+                                [ text "No votes yet" ]
+                            ]
                 )
-            )
+            ]
+
+findPoll : Set -> String -> List Poll -> Maybe Poll
+findPoll set route polls =
+    List.filter
+        (\x -> x.set_id == set.id && x.route == route)
+        polls
+        |> List.head
+
+viewGrade : String -> Int -> ListGroup.Item Msg
+viewGrade grade count =
+    ListGroup.li [ ListGroup.attrs [ Border.none ] ]
+        [ h5
+            [ Display.inlineBlock ]
+            [ Badge.badgeDark [] [ text grade ] ]
+        , span [ Spacing.ml1 ]
+            [ text (String.fromInt count) ]
         ]
-
-viewGrade : String -> String -> List Vote -> String -> Grid.Column Msg
-viewGrade set_id color votes grade =
-    Grid.col
-        [ Col.xsAuto, Col.md ]
-        [ h5 [] [ Badge.badgeDark [] [ text grade ] ]
-        , div [ Spacing.ml1 ]
-            [ text (String.fromInt (countVotes set_id color grade votes)) ]
-        ]
-
-countVotes : String -> String -> String -> List Vote -> Int
-countVotes set_id color grade votes =
-    List.filter (checkVoteMatch set_id color grade) votes
-        |> List.length
-
-checkVoteMatch : String -> String -> String -> Vote -> Bool
-checkVoteMatch set_id color grade vote =
-    vote.set_id == set_id &&
-    vote.color == color &&
-    vote.grade == grade
 
 viewNewSetColor : String -> ListGroup.Item NewSetMsg
 viewNewSetColor color =
@@ -467,6 +469,6 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ allSets AllSets
-        , allVotes AllVotes
+        , allPolls Polls
         , authd Authd
         ]

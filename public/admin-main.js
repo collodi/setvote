@@ -5145,8 +5145,8 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Admin$Model = F6(
-	function (newSet, showNewSet, sets, votes, msg, authd) {
-		return {authd: authd, msg: msg, newSet: newSet, sets: sets, showNewSet: showNewSet, votes: votes};
+	function (newSet, showNewSet, sets, polls, msg, authd) {
+		return {authd: authd, msg: msg, newSet: newSet, polls: polls, sets: sets, showNewSet: showNewSet};
 	});
 var $author$project$Admin$NewSet = F6(
 	function (name, expires, newColor, category, colors, msg) {
@@ -5162,15 +5162,15 @@ var $author$project$Admin$init = function (_v0) {
 var $author$project$Admin$AllSets = function (a) {
 	return {$: 'AllSets', a: a};
 };
-var $author$project$Admin$AllVotes = function (a) {
-	return {$: 'AllVotes', a: a};
-};
 var $author$project$Admin$Authd = function (a) {
 	return {$: 'Authd', a: a};
 };
+var $author$project$Admin$Polls = function (a) {
+	return {$: 'Polls', a: a};
+};
 var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Admin$allPolls = _Platform_incomingPort('allPolls', $elm$json$Json$Decode$value);
 var $author$project$Admin$allSets = _Platform_incomingPort('allSets', $elm$json$Json$Decode$value);
-var $author$project$Admin$allVotes = _Platform_incomingPort('allVotes', $elm$json$Json$Decode$value);
 var $author$project$Admin$authd = _Platform_incomingPort('authd', $elm$json$Json$Decode$value);
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $author$project$Admin$subscriptions = function (model) {
@@ -5178,7 +5178,7 @@ var $author$project$Admin$subscriptions = function (model) {
 		_List_fromArray(
 			[
 				$author$project$Admin$allSets($author$project$Admin$AllSets),
-				$author$project$Admin$allVotes($author$project$Admin$AllVotes),
+				$author$project$Admin$allPolls($author$project$Admin$Polls),
 				$author$project$Admin$authd($author$project$Admin$Authd)
 			]));
 };
@@ -5205,18 +5205,6 @@ var $author$project$Admin$setFromJson = A7(
 		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)),
 	A2($elm$json$Json$Decode$field, 'showDelete', $elm$json$Json$Decode$bool));
 var $author$project$Admin$allSetsFromJson = $elm$json$Json$Decode$list($author$project$Admin$setFromJson);
-var $author$project$Admin$Vote = F3(
-	function (set_id, color, grade) {
-		return {color: color, grade: grade, set_id: set_id};
-	});
-var $elm$json$Json$Decode$map3 = _Json_map3;
-var $author$project$Admin$voteFromJson = A4(
-	$elm$json$Json$Decode$map3,
-	$author$project$Admin$Vote,
-	A2($elm$json$Json$Decode$field, 'set_id', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'color', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'grade', $elm$json$Json$Decode$string));
-var $author$project$Admin$allVotesFromJson = $elm$json$Json$Decode$list($author$project$Admin$voteFromJson);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Admin$deleteSet = _Platform_outgoingPort('deleteSet', $elm$core$Basics$identity);
 var $elm$core$List$isEmpty = function (xs) {
@@ -5268,6 +5256,26 @@ var $author$project$Admin$newSetToJson = function (newSet) {
 			]));
 };
 var $elm$core$Basics$not = _Basics_not;
+var $author$project$Admin$Poll = F4(
+	function (set_id, route, grades, counts) {
+		return {counts: counts, grades: grades, route: route, set_id: set_id};
+	});
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map4 = _Json_map4;
+var $author$project$Admin$pollFromJson = A5(
+	$elm$json$Json$Decode$map4,
+	$author$project$Admin$Poll,
+	A2($elm$json$Json$Decode$field, 'set_id', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'route', $elm$json$Json$Decode$string),
+	A2(
+		$elm$json$Json$Decode$field,
+		'grades',
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)),
+	A2(
+		$elm$json$Json$Decode$field,
+		'counts',
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$int)));
+var $author$project$Admin$pollsFromJson = $elm$json$Json$Decode$list($author$project$Admin$pollFromJson);
 var $author$project$Admin$showMsgInNewSet = F2(
 	function (msg, newSet) {
 		return _Utils_update(
@@ -5423,22 +5431,22 @@ var $author$project$Admin$update = F2(
 							{msg: 'Error in parsing all sets'}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 'AllVotes':
-				var votesValue = msg.a;
-				var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Admin$allVotesFromJson, votesValue);
+			case 'Polls':
+				var maybePolls = msg.a;
+				var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Admin$pollsFromJson, maybePolls);
 				if (_v3.$ === 'Ok') {
-					var votes = _v3.a;
+					var polls = _v3.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{votes: votes}),
+							{polls: polls}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var e = _v3.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{msg: 'Error in parsing all votes'}),
+							{msg: 'Error in parsing polls'}),
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
@@ -7975,6 +7983,27 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs = function (a) {
 var $rundis$elm_bootstrap$Bootstrap$ListGroup$attrs = function (attrs_) {
 	return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs(attrs_);
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Disabled = {$: 'Disabled'};
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$disabled = $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Disabled;
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Admin$findPoll = F3(
+	function (set, route, polls) {
+		return $elm$core$List$head(
+			A2(
+				$elm$core$List$filter,
+				function (x) {
+					return _Utils_eq(x.set_id, set.id) && _Utils_eq(x.route, route);
+				},
+				polls));
+	});
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
 var $rundis$elm_bootstrap$Bootstrap$Badge$Dark = {$: 'Dark'};
@@ -8032,55 +8061,9 @@ var $rundis$elm_bootstrap$Bootstrap$Badge$badgeDark = $rundis$elm_bootstrap$Boot
 		[
 			$rundis$elm_bootstrap$Bootstrap$Badge$Roled($rundis$elm_bootstrap$Bootstrap$Badge$Dark)
 		]));
-var $author$project$Admin$checkVoteMatch = F4(
-	function (set_id, color, grade, vote) {
-		return _Utils_eq(vote.set_id, set_id) && (_Utils_eq(vote.color, color) && _Utils_eq(vote.grade, grade));
-	});
-var $author$project$Admin$countVotes = F4(
-	function (set_id, color, grade, votes) {
-		return $elm$core$List$length(
-			A2(
-				$elm$core$List$filter,
-				A3($author$project$Admin$checkVoteMatch, set_id, color, grade),
-				votes));
-	});
-var $rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
-var $rundis$elm_bootstrap$Bootstrap$Grid$Col$md = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
-var $author$project$Admin$viewGrade = F4(
-	function (set_id, color, votes, grade) {
-		return A2(
-			$rundis$elm_bootstrap$Bootstrap$Grid$col,
-			_List_fromArray(
-				[$rundis$elm_bootstrap$Bootstrap$Grid$Col$xsAuto, $rundis$elm_bootstrap$Bootstrap$Grid$Col$md]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$h5,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							$rundis$elm_bootstrap$Bootstrap$Badge$badgeDark,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text(grade)
-								]))
-						])),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text(
-							$elm$core$String$fromInt(
-								A4($author$project$Admin$countVotes, set_id, color, grade, votes)))
-						]))
-				]));
-	});
-var $author$project$Admin$viewRoute = F3(
-	function (set, votes, color) {
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock = $elm$html$Html$Attributes$class('d-inline-block');
+var $author$project$Admin$viewGrade = F2(
+	function (grade, count) {
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
 			_List_fromArray(
@@ -8092,37 +8075,78 @@ var $author$project$Admin$viewRoute = F3(
 			_List_fromArray(
 				[
 					A2(
-					$rundis$elm_bootstrap$Bootstrap$Grid$row,
-					_List_Nil,
+					$elm$html$Html$h5,
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock]),
 					_List_fromArray(
 						[
 							A2(
-							$rundis$elm_bootstrap$Bootstrap$Grid$col,
+							$rundis$elm_bootstrap$Bootstrap$Badge$badgeDark,
 							_List_Nil,
 							_List_fromArray(
 								[
-									A2(
-									$elm$html$Html$h5,
-									_List_Nil,
-									_List_fromArray(
-										[
-											$elm$html$Html$text(color)
-										]))
+									$elm$html$Html$text(grade)
 								]))
 						])),
 					A2(
-					$rundis$elm_bootstrap$Bootstrap$Grid$row,
-					_List_Nil,
+					$elm$html$Html$span,
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							$elm$core$String$fromInt(count))
+						]))
+				]));
+	});
+var $author$project$Admin$viewRoute = F3(
+	function (set, polls, route) {
+		var poll = A3($author$project$Admin$findPoll, set, route, polls);
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+			_List_fromArray(
+				[
+					$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$none]))
+				]),
+			_List_fromArray(
+				[
 					A2(
-						$elm$core$List$map,
-						A3($author$project$Admin$viewGrade, set.id, color, votes),
-						(set.category === 'boulder') ? _List_fromArray(
-							['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']) : _List_fromArray(
-							['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10b/c', '5.10c/d', '5.11', '5.12', '5.13'])))
+					$elm$html$Html$h5,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(route)
+						])),
+					$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+					function () {
+						if (poll.$ === 'Just') {
+							var p = poll.a;
+							return A3($elm$core$List$map2, $author$project$Admin$viewGrade, p.grades, p.counts);
+						} else {
+							return _List_fromArray(
+								[
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$ListGroup$disabled,
+											$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$none]))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('No votes yet')
+										]))
+								]);
+						}
+					}())
 				]));
 	});
 var $author$project$Admin$viewSet = F2(
-	function (votes, set) {
+	function (polls, set) {
 		return $rundis$elm_bootstrap$Bootstrap$Card$view(
 			A3(
 				$rundis$elm_bootstrap$Bootstrap$Card$footer,
@@ -8217,7 +8241,7 @@ var $author$project$Admin$viewSet = F2(
 							$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
 								A2(
 									$elm$core$List$map,
-									A2($author$project$Admin$viewRoute, set, votes),
+									A2($author$project$Admin$viewRoute, set, polls),
 									set.colors)))
 						]),
 					$rundis$elm_bootstrap$Bootstrap$Card$config(
@@ -8352,7 +8376,7 @@ var $author$project$Admin$view = function (model) {
 						_List_Nil,
 						A2(
 							$elm$core$List$map,
-							$author$project$Admin$viewSet(model.votes),
+							$author$project$Admin$viewSet(model.polls),
 							model.sets))
 					]))
 			])));
