@@ -5,6 +5,10 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
+function escapeGrade(grade) {
+	return grade.replace(/\./g, '!').replace(/\//g, '@');
+}
+
 exports.aggregateVotes = functions.firestore
 	.document('votes/{vote}')
 	.onWrite(async (change, ctx) => {
@@ -12,17 +16,14 @@ exports.aggregateVotes = functions.firestore
 
 		const set_id = data.set_id;
 		const route = data.route;
-		const grade = data.grade;
+		const grade = escapeGrade(data.grade);
 
 		const pollId = set_id + '-' + route;
 		const pollRef = db.collection('polls').doc(pollId);
 
 		await db.runTransaction(async (trans) => {
 			const pollDoc = await trans.get(pollRef);
-
-			let cnt = 0;
-			if (pollDoc.exists)
-				cnt = pollDoc.data()[grade] || 0;
+			const cnt = pollDoc.get(grade) || 0;
 
 			trans.set(pollRef, { [grade]: cnt + 1 }, { merge: true });
 		});

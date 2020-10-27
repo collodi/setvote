@@ -46,6 +46,10 @@ db.collection('sets')
 		app.ports.allSets.send(Object.values(sets));
 	});
 
+function unescapeGrade(grade) {
+	return grade.replaceAll('!', '.').replaceAll('@', '/');
+}
+
 function pollToList(poll) {
 	const keys = Object.keys(poll);
 	let vals = Array.from(keys).fill(0);
@@ -55,7 +59,7 @@ function pollToList(poll) {
 		vals[i] = poll[k];
 	}
 
-	return { grades: keys, counts: vals };
+	return { grades: keys.map(unescapeGrade), counts: vals };
 }
 
 db.collection('polls')
