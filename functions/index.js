@@ -19,7 +19,10 @@ exports.aggregateVotes = functions.firestore
 
 		await db.runTransaction(async (trans) => {
 			const pollDoc = await trans.get(pollRef);
-			const cnt = pollDoc.get(grade) || 0;
+
+			let cnt = 0;
+			if (pollDoc.exists)
+				cnt = pollDoc.data()[grade] || 0;
 
 			trans.set(pollRef, { [grade]: cnt + 1 }, { merge: true });
 		});
