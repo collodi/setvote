@@ -261,15 +261,28 @@ updateNewSet msg newSet =
                 newSet
             else
                 { newSet
-                    | colors = List.sort (newSet.newColor :: newSet.colors)
+                    | colors = newSet.newColor :: newSet.colors
                     , newColor = "" }
 
         DelColor color ->
             { newSet
-                | colors = List.filter ((/=) color) newSet.colors
+                | colors = deleteFirst color newSet.colors
             }
 
         _ -> newSet
+
+deleteFirst : String -> List String -> List String
+deleteFirst target list =
+    case list of
+        [] ->
+            []
+
+        x :: xs ->
+            if x == target then
+                xs
+            else
+                x :: (deleteFirst target xs)
+
 
 
 -- VIEW

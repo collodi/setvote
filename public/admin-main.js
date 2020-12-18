@@ -5288,22 +5288,19 @@ var $author$project$Admin$toggleDeleteIfMatch = F2(
 			set,
 			{showDelete: !set.showDelete}) : set;
 	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
+var $author$project$Admin$deleteFirst = F2(
+	function (target, list) {
+		if (!list.b) {
+			return _List_Nil;
+		} else {
+			var x = list.a;
+			var xs = list.b;
+			return _Utils_eq(x, target) ? xs : A2(
+				$elm$core$List$cons,
+				x,
+				A2($author$project$Admin$deleteFirst, target, xs));
+		}
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$core$List$sortBy = _List_sortBy;
-var $elm$core$List$sort = function (xs) {
-	return A2($elm$core$List$sortBy, $elm$core$Basics$identity, xs);
-};
 var $author$project$Admin$updateNewSet = F2(
 	function (msg, newSet) {
 		switch (msg.$) {
@@ -5331,8 +5328,7 @@ var $author$project$Admin$updateNewSet = F2(
 				return $elm$core$String$isEmpty(newSet.newColor) ? newSet : _Utils_update(
 					newSet,
 					{
-						colors: $elm$core$List$sort(
-							A2($elm$core$List$cons, newSet.newColor, newSet.colors)),
+						colors: A2($elm$core$List$cons, newSet.newColor, newSet.colors),
 						newColor: ''
 					});
 			case 'DelColor':
@@ -5340,10 +5336,7 @@ var $author$project$Admin$updateNewSet = F2(
 				return _Utils_update(
 					newSet,
 					{
-						colors: A2(
-							$elm$core$List$filter,
-							$elm$core$Basics$neq(color),
-							newSet.colors)
+						colors: A2($author$project$Admin$deleteFirst, color, newSet.colors)
 					});
 			default:
 				return newSet;
@@ -5534,6 +5527,17 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
