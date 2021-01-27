@@ -28,3 +28,22 @@ exports.aggregateVotes = functions.firestore
 			trans.set(pollRef, { [grade]: cnt + 1 }, { merge: true });
 		});
 	});
+
+exports.aggregateFavs = functions.firestore
+	.document('favs/{fav}')
+	.onWrite(async (change, ctx) => {
+		const data = change.after.data();
+
+		const set_id = data.set_id;
+		const route = data.route;
+
+		const pollId = set_id + '-' + route;
+		const pollRef = db.collection('polls').doc(pollId);
+
+		await db.runTransaction(async (trans) => {
+			const pollDoc = await trans.get(pollRef);
+			const cnt = pollDoc.get('fav') || 0;
+
+			trans.set(pollRef, { fav: cnt + 1 }, { merge: true });
+		});
+	});
