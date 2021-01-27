@@ -30,6 +30,14 @@ app.ports.castVote.subscribe(data => {
 	db.collection('votes').doc(doc_id).set(data);
 });
 
+app.ports.castFav.subscribe(data => {
+	console.log(data);
+
+	data.user_key = user_key;
+	const doc_id = [data.user_key, data.set_id].join('-');
+	db.collection('favs').doc(doc_id).set(data);
+});
+
 function subscribeToVotes(set_id) {
 	db.collection('votes')
 		.where('set_id', '==', set_id)
@@ -40,6 +48,16 @@ function subscribeToVotes(set_id) {
 				arr.push(snap.docs[i].data().route);
 
 			app.ports.votedRoutes.send(arr);
+		});
+}
+
+function subscribeToFavs(set_id) {
+	const doc_id = [user_key, set_id].join('-');
+
+	db.collection('favs')
+		.doc(doc_id)
+		.onSnapshot(snap => {
+			app.ports.favVoted.send(snap.exists);
 		});
 }
 
@@ -59,6 +77,7 @@ db.collection('sets')
 		data.expires = new Date(data.expires).toISOString().slice(0, 10);
 
 		subscribeToVotes(data.id);
+		subscribeToFavs(data.id);
 
 		app.ports.openSet.send(data);
 	});

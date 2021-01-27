@@ -5144,20 +5144,23 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Vote$Model = F5(
-	function (set, notVoted, route, grade, msg) {
-		return {grade: grade, msg: msg, notVoted: notVoted, route: route, set: set};
+var $author$project$Vote$Model = F7(
+	function (set, notVoted, route, grade, fav, favVoted, msg) {
+		return {fav: fav, favVoted: favVoted, grade: grade, msg: msg, notVoted: notVoted, route: route, set: set};
 	});
 var $author$project$Vote$Set = F5(
 	function (id, name, expires, category, colors) {
 		return {category: category, colors: colors, expires: expires, id: id, name: name};
 	});
 var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
-var $author$project$Vote$newModel = A5($author$project$Vote$Model, $author$project$Vote$newSet, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, '');
+var $author$project$Vote$newModel = A7($author$project$Vote$Model, $author$project$Vote$newSet, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, true, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Vote$init = function (_v0) {
 	return _Utils_Tuple2($author$project$Vote$newModel, $elm$core$Platform$Cmd$none);
+};
+var $author$project$Vote$FavVoted = function (a) {
+	return {$: 'FavVoted', a: a};
 };
 var $author$project$Vote$ShowSet = function (a) {
 	return {$: 'ShowSet', a: a};
@@ -5167,6 +5170,7 @@ var $author$project$Vote$VotedRoutes = function (a) {
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Vote$favVoted = _Platform_incomingPort('favVoted', $elm$json$Json$Decode$value);
 var $author$project$Vote$openSet = _Platform_incomingPort('openSet', $elm$json$Json$Decode$value);
 var $author$project$Vote$votedRoutes = _Platform_incomingPort('votedRoutes', $elm$json$Json$Decode$value);
 var $author$project$Vote$subscriptions = function (model) {
@@ -5174,11 +5178,41 @@ var $author$project$Vote$subscriptions = function (model) {
 		_List_fromArray(
 			[
 				$author$project$Vote$openSet($author$project$Vote$ShowSet),
-				$author$project$Vote$votedRoutes($author$project$Vote$VotedRoutes)
+				$author$project$Vote$votedRoutes($author$project$Vote$VotedRoutes),
+				$author$project$Vote$favVoted($author$project$Vote$FavVoted)
 			]));
 };
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $author$project$Vote$castFav = _Platform_outgoingPort('castFav', $elm$core$Basics$identity);
 var $author$project$Vote$castVote = _Platform_outgoingPort('castVote', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Vote$favToJson = F2(
+	function (setId, route) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'set_id',
+					$elm$json$Json$Encode$string(setId)),
+					_Utils_Tuple2(
+					'route',
+					$elm$json$Json$Encode$string(route))
+				]));
+	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$map5 = _Json_map5;
@@ -5255,20 +5289,6 @@ var $author$project$Vote$unvotedRoutes = F2(
 				$author$project$Vote$isVoted(voted)),
 			routes);
 	});
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Vote$voteToJson = F3(
 	function (setId, route, grade) {
 		return $elm$json$Json$Encode$object(
@@ -5328,6 +5348,24 @@ var $author$project$Vote$update = F2(
 							{msg: 'Error parsing voted routes.'}),
 						$elm$core$Platform$Cmd$none);
 				}
+			case 'FavVoted':
+				var maybeFavVoted = msg.a;
+				var _v3 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$bool, maybeFavVoted);
+				if (_v3.$ === 'Ok') {
+					var voted = _v3.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{favVoted: voted}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v3.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Error parsing favorite votes.'}),
+						$elm$core$Platform$Cmd$none);
+				}
 			case 'SelectRoute':
 				var route = msg.a;
 				return _Utils_Tuple2(
@@ -5346,26 +5384,26 @@ var $author$project$Vote$update = F2(
 							grade: $elm$core$Maybe$Just(grade)
 						}),
 					$elm$core$Platform$Cmd$none);
-			default:
-				var _v3 = _Utils_Tuple2(model.route, model.grade);
-				if (_v3.a.$ === 'Nothing') {
-					var _v4 = _v3.a;
+			case 'CastVote':
+				var _v4 = _Utils_Tuple2(model.route, model.grade);
+				if (_v4.a.$ === 'Nothing') {
+					var _v5 = _v4.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{msg: 'Choose a route!'}),
 						$elm$core$Platform$Cmd$none);
 				} else {
-					if (_v3.b.$ === 'Nothing') {
-						var _v5 = _v3.b;
+					if (_v4.b.$ === 'Nothing') {
+						var _v6 = _v4.b;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
 								{msg: 'Choose a grade!'}),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var route = _v3.a.a;
-						var grade = _v3.b.a;
+						var route = _v4.a.a;
+						var grade = _v4.b.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
@@ -5374,9 +5412,39 @@ var $author$project$Vote$update = F2(
 								A3($author$project$Vote$voteToJson, model.set.id, route, grade)));
 					}
 				}
+			case 'SelectFav':
+				var route = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							fav: $elm$core$Maybe$Just(route)
+						}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var _v7 = model.fav;
+				if (_v7.$ === 'Nothing') {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{msg: 'Choose your favorite route!'}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var fav = _v7.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{fav: $elm$core$Maybe$Nothing, msg: ''}),
+						$author$project$Vote$castFav(
+							A2($author$project$Vote$favToJson, model.set.id, fav)));
+				}
 		}
 	});
+var $author$project$Vote$CastFav = {$: 'CastFav'};
 var $author$project$Vote$CastVote = {$: 'CastVote'};
+var $author$project$Vote$SelectFav = function (a) {
+	return {$: 'SelectFav', a: a};
+};
 var $author$project$Vote$SelectGrade = function (a) {
 	return {$: 'SelectGrade', a: a};
 };
@@ -7062,7 +7130,86 @@ var $author$project$Vote$view = function (model) {
 								]);
 						}
 					}
-				}())
+				}()),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$row,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$hr, _List_Nil, _List_Nil)
+							]))
+					])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$row,
+				_List_Nil,
+				model.favVoted ? _List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Thanks for your favorite vote!')
+									]))
+							]))
+					]) : _List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Form$Select$select,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Form$Select$onChange($author$project$Vote$SelectFav),
+										$rundis$elm_bootstrap$Bootstrap$Form$Select$attrs(
+										_List_fromArray(
+											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+									]),
+								A2($author$project$Vote$buildOptions, model.fav, model.set.colors))
+							])),
+						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$col,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Button$primary,
+										$rundis$elm_bootstrap$Bootstrap$Button$block,
+										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+										_List_fromArray(
+											[
+												$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4,
+												$elm$html$Html$Events$onClick($author$project$Vote$CastFav)
+											]))
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Vote favorite route')
+									]))
+							]))
+					]))
 			]));
 };
 var $author$project$Vote$main = $elm$browser$Browser$element(

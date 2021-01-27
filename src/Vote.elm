@@ -30,8 +30,10 @@ import Json.Decode as D
 
 port openSet : (D.Value -> msg) -> Sub msg
 port castVote : E.Value -> Cmd msg
+port castFav : E.Value -> Cmd msg
 
 port votedRoutes : (D.Value -> msg) -> Sub msg
+port favVoted : (D.Value -> msg) -> Sub msg
 
 -- MAIN
 
@@ -52,6 +54,8 @@ type alias Model =
     , notVoted: Maybe (List String)
     , route : Maybe String
     , grade : Maybe String
+    , fav : Maybe String
+    , favVoted : Bool
     , msg : String
     }
 
@@ -69,7 +73,7 @@ init _ =
 
 newModel : Model
 newModel =
-    Model newSet Nothing Nothing Nothing ""
+    Model newSet Nothing Nothing Nothing Nothing True ""
 
 newSet : Set
 newSet =
@@ -92,6 +96,13 @@ voteToJson setId route grade =
         , ("grade", E.string grade)
         ]
 
+favToJson : String -> String -> E.Value
+favToJson setId route =
+    E.object
+        [ ("set_id", E.string setId)
+        , ("route", E.string route)
+        ]
+
 votedRoutesFromJson : D.Decoder (List String)
 votedRoutesFromJson =
     D.list D.string
@@ -105,6 +116,9 @@ type Msg
     | SelectRoute String
     | SelectGrade String
     | CastVote
+    | SelectFav String
+    | CastFav
+    | FavVoted D.Value
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -127,6 +141,16 @@ update msg model =
 
                 Err e ->
                     ( { model | msg = "Error parsing voted routes." }
+                    , Cmd.none )
+
+        FavVoted maybeFavVoted ->
+            case D.decodeValue D.bool maybeFavVoted of
+                Ok voted ->
+                    ( { model | favVoted = voted }
+                    , Cmd.none )
+
+                Err e ->
+                    ( { model | msg = "Error parsing favorite votes." }
                     , Cmd.none )
 
         SelectRoute route ->
@@ -154,6 +178,25 @@ update msg model =
                         }
                     , castVote (voteToJson model.set.id route grade)
                     )
+
+        SelectFav route ->
+            ( { model | fav = Just route }
+            , Cmd.none )
+
+        CastFav ->
+            case model.fav of
+                Nothing ->
+                    ( { model | msg = "Choose your favorite route!" }
+                    , Cmd.none )
+                Just fav ->
+                    (
+                        { model
+                            | msg = ""
+                            , fav = Nothing
+                        }
+                    , castFav (favToJson model.set.id fav)
+                    )
+
 
 unvotedRoutes : List String -> List String -> List String
 unvotedRoutes routes voted =
@@ -221,6 +264,34 @@ view model =
                         )
                     ]
             )
+        , Grid.row [] [ Grid.col [] [ hr [] [] ] ]
+        , Grid.row []
+            (
+                if model.favVoted then
+                    [ Grid.col
+                        [ Col.attrs [ Spacing.mt3 ] ]
+                        [ Alert.simplePrimary []
+                            [ text "Thanks for your favorite vote!" ]
+                        ]
+                    ]
+                else
+                    [ Grid.col []
+                        [ Select.select
+                            [ Select.onChange SelectFav
+                            , Select.attrs [ Spacing.mt3 ]
+                            ]
+                            ( buildOptions model.fav model.set.colors )
+                        ]
+                    , Grid.colBreak []
+                    , Grid.col []
+                        [ Button.button
+                            [ Button.primary, Button.block
+                            , Button.attrs [ Spacing.mt4, onClick CastFav ]
+                            ]
+                            [ text "Vote favorite route" ]
+                        ]
+                    ]
+            )
         ]
 
 
@@ -259,4 +330,5 @@ subscriptions model =
     Sub.batch
         [ openSet ShowSet
         , votedRoutes VotedRoutes
+        , favVoted FavVoted
         ]
