@@ -270,7 +270,7 @@ view model =
                 if model.favVoted then
                     [ Grid.col
                         [ Col.attrs [ Spacing.mt3 ] ]
-                        [ Alert.simplePrimary []
+                        [ Alert.simpleInfo []
                             [ text "Thanks for your favorite vote!" ]
                         ]
                     ]

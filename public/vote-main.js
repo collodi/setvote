@@ -6750,7 +6750,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Select$select = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Select$view(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Select$create, options, items));
 	});
-var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary = {$: 'Primary'};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Info = {$: 'Info'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$Shown = {$: 'Shown'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$Config = function (a) {
 	return {$: 'Config', a: a};
@@ -6968,6 +6968,8 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$simple = F3(
 					attributes,
 					A2($rundis$elm_bootstrap$Bootstrap$Alert$role, role_, $rundis$elm_bootstrap$Bootstrap$Alert$config))));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$simpleInfo = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Info);
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary = {$: 'Primary'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Primary);
 var $author$project$Vote$view = function (model) {
 	return A2(
@@ -7163,7 +7165,7 @@ var $author$project$Vote$view = function (model) {
 						_List_fromArray(
 							[
 								A2(
-								$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
+								$rundis$elm_bootstrap$Bootstrap$Alert$simpleInfo,
 								_List_Nil,
 								_List_fromArray(
 									[
