@@ -31,8 +31,6 @@ app.ports.castVote.subscribe(data => {
 });
 
 app.ports.castFav.subscribe(data => {
-	console.log(data);
-
 	data.user_key = user_key;
 	const doc_id = [data.user_key, data.set_id].join('-');
 	db.collection('favs').doc(doc_id).set(data);

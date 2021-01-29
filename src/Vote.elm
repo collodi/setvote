@@ -275,7 +275,9 @@ view model =
                         ]
                     ]
                 else
-                    [ Grid.col []
+                    [ Grid.col [] [ text "What is your favorite route?" ]
+                    , Grid.colBreak []
+                    , Grid.col []
                         [ Select.select
                             [ Select.onChange SelectFav
                             , Select.attrs [ Spacing.mt3 ]
@@ -285,7 +287,7 @@ view model =
                     , Grid.colBreak []
                     , Grid.col []
                         [ Button.button
-                            [ Button.primary, Button.block
+                            [ Button.info, Button.block
                             , Button.attrs [ Spacing.mt4, onClick CastFav ]
                             ]
                             [ text "Vote favorite route" ]
