@@ -70,7 +70,10 @@ db.collection('polls')
 			const [set_id, route] = id.split('-');
 
 			const data = snap.docs[i].data();
-			polls.push({ set_id, route, ...pollToList(data) });
+			const fav = data.fav || 0;
+			delete data.fav;
+
+			polls.push({ set_id, route, fav, ...pollToList(data) });
 		}
 
 		app.ports.allPolls.send(polls);

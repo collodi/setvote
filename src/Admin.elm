@@ -81,6 +81,7 @@ type alias Set =
 type alias Poll =
     { set_id : String
     , route : String
+    , fav : Int
     , grades : List String
     , counts : List Int
     }
@@ -126,9 +127,10 @@ pollsFromJson =
 
 pollFromJson : D.Decoder Poll
 pollFromJson =
-    D.map4 Poll
+    D.map5 Poll
         (D.field "set_id" D.string)
         (D.field "route" D.string)
+        (D.field "fav" D.int)
         (D.field "grades" (D.list D.string))
         (D.field "counts" (D.list D.int))
 
@@ -367,24 +369,24 @@ viewSet polls set =
 
 viewRoute : Set -> List Poll -> String -> ListGroup.Item Msg
 viewRoute set polls route =
-    let
-        poll = findPoll set route polls
-    in
-        ListGroup.li [ ListGroup.attrs [ Border.none ] ]
-            [ h5 [] [ text route ]
-            , ListGroup.ul
-                (
-                    case poll of
-                        Just p ->
-                            List.map2 viewGrade p.grades p.counts
+    ListGroup.li [ ListGroup.attrs [ Border.none ] ] (
+        case findPoll set route polls of
+            Just poll ->
+                [ h5 [ Display.inlineBlock ] [ text route ]
+                , Badge.pillSecondary [ Spacing.ml3 ] [ text ("⭐ " ++ (String.fromInt poll.fav)) ]
+                , ListGroup.ul (List.map2 viewGrade poll.grades poll.counts)
+                ]
 
-                        Nothing ->
-                            [ ListGroup.li
-                                [ ListGroup.disabled, ListGroup.attrs [ Border.none ] ]
-                                [ text "No votes yet" ]
-                            ]
-                )
-            ]
+            Nothing ->
+                [ h5 [ style "display" "inline-block" ] [ text route ]
+                , ListGroup.ul
+                    [ ListGroup.li
+                        [ ListGroup.disabled, ListGroup.attrs [ Border.none ] ]
+                        [ text "No votes yet" ]
+                    ]
+                ]
+
+        )
 
 findPoll : Set -> String -> List Poll -> Maybe Poll
 findPoll set route polls =
@@ -396,11 +398,8 @@ findPoll set route polls =
 viewGrade : String -> Int -> ListGroup.Item Msg
 viewGrade grade count =
     ListGroup.li [ ListGroup.attrs [ Border.none ] ]
-        [ h5
-            [ Display.inlineBlock ]
-            [ Badge.badgeDark [] [ text grade ] ]
-        , span [ Spacing.ml1 ]
-            [ text (String.fromInt count) ]
+        [ h5 [ Display.inlineBlock ] [ Badge.badgeDark [] [ text grade ] ]
+        , span [ Spacing.ml1 ] [ text (String.fromInt count) ]
         ]
 
 viewNewSetColor : String -> ListGroup.Item NewSetMsg

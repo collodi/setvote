@@ -5256,17 +5256,18 @@ var $author$project$Admin$newSetToJson = function (newSet) {
 			]));
 };
 var $elm$core$Basics$not = _Basics_not;
-var $author$project$Admin$Poll = F4(
-	function (set_id, route, grades, counts) {
-		return {counts: counts, grades: grades, route: route, set_id: set_id};
+var $author$project$Admin$Poll = F5(
+	function (set_id, route, fav, grades, counts) {
+		return {counts: counts, fav: fav, grades: grades, route: route, set_id: set_id};
 	});
 var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $elm$json$Json$Decode$map4 = _Json_map4;
-var $author$project$Admin$pollFromJson = A5(
-	$elm$json$Json$Decode$map4,
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $author$project$Admin$pollFromJson = A6(
+	$elm$json$Json$Decode$map5,
 	$author$project$Admin$Poll,
 	A2($elm$json$Json$Decode$field, 'set_id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'route', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'fav', $elm$json$Json$Decode$int),
 	A2(
 		$elm$json$Json$Decode$field,
 		'grades',
@@ -8009,11 +8010,14 @@ var $author$project$Admin$findPoll = F3(
 				polls));
 	});
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock = $elm$html$Html$Attributes$class('d-inline-block');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml3 = $elm$html$Html$Attributes$class('ml-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
-var $rundis$elm_bootstrap$Bootstrap$Badge$Dark = {$: 'Dark'};
+var $rundis$elm_bootstrap$Bootstrap$Badge$Pill = {$: 'Pill'};
 var $rundis$elm_bootstrap$Bootstrap$Badge$Roled = function (a) {
 	return {$: 'Roled', a: a};
 };
+var $rundis$elm_bootstrap$Bootstrap$Badge$Secondary = {$: 'Secondary'};
 var $rundis$elm_bootstrap$Bootstrap$Badge$roleOption = function (role) {
 	switch (role.$) {
 		case 'Primary':
@@ -8060,12 +8064,18 @@ var $rundis$elm_bootstrap$Bootstrap$Badge$badgeInternal = F3(
 				attributes),
 			children);
 	});
+var $rundis$elm_bootstrap$Bootstrap$Badge$pillSecondary = $rundis$elm_bootstrap$Bootstrap$Badge$badgeInternal(
+	_List_fromArray(
+		[
+			$rundis$elm_bootstrap$Bootstrap$Badge$Roled($rundis$elm_bootstrap$Bootstrap$Badge$Secondary),
+			$rundis$elm_bootstrap$Bootstrap$Badge$Pill
+		]));
+var $rundis$elm_bootstrap$Bootstrap$Badge$Dark = {$: 'Dark'};
 var $rundis$elm_bootstrap$Bootstrap$Badge$badgeDark = $rundis$elm_bootstrap$Bootstrap$Badge$badgeInternal(
 	_List_fromArray(
 		[
 			$rundis$elm_bootstrap$Bootstrap$Badge$Roled($rundis$elm_bootstrap$Bootstrap$Badge$Dark)
 		]));
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock = $elm$html$Html$Attributes$class('d-inline-block');
 var $author$project$Admin$viewGrade = F2(
 	function (grade, count) {
 		return A2(
@@ -8105,7 +8115,6 @@ var $author$project$Admin$viewGrade = F2(
 	});
 var $author$project$Admin$viewRoute = F3(
 	function (set, polls, route) {
-		var poll = A3($author$project$Admin$findPoll, set, route, polls);
 		return A2(
 			$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
 			_List_fromArray(
@@ -8114,22 +8123,47 @@ var $author$project$Admin$viewRoute = F3(
 					_List_fromArray(
 						[$rundis$elm_bootstrap$Bootstrap$Utilities$Border$none]))
 				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$h5,
-					_List_Nil,
-					_List_fromArray(
+			function () {
+				var _v0 = A3($author$project$Admin$findPoll, set, route, polls);
+				if (_v0.$ === 'Just') {
+					var poll = _v0.a;
+					return _List_fromArray(
 						[
-							$elm$html$Html$text(route)
-						])),
-					$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
-					function () {
-						if (poll.$ === 'Just') {
-							var p = poll.a;
-							return A3($elm$core$List$map2, $author$project$Admin$viewGrade, p.grades, p.counts);
-						} else {
-							return _List_fromArray(
+							A2(
+							$elm$html$Html$h5,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(route)
+								])),
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Badge$pillSecondary,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml3]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									'⭐ ' + $elm$core$String$fromInt(poll.fav))
+								])),
+							$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+							A3($elm$core$List$map2, $author$project$Admin$viewGrade, poll.grades, poll.counts))
+						]);
+				} else {
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$h5,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'display', 'inline-block')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(route)
+								])),
+							$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
+							_List_fromArray(
 								[
 									A2(
 									$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
@@ -8144,10 +8178,10 @@ var $author$project$Admin$viewRoute = F3(
 										[
 											$elm$html$Html$text('No votes yet')
 										]))
-								]);
-						}
-					}())
-				]));
+								]))
+						]);
+				}
+			}());
 	});
 var $author$project$Admin$viewSet = F2(
 	function (polls, set) {
