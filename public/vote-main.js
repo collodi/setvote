@@ -5149,10 +5149,10 @@ var $author$project$Vote$Model = F7(
 		return {fav: fav, favVoted: favVoted, grade: grade, msg: msg, notVoted: notVoted, route: route, set: set};
 	});
 var $author$project$Vote$Set = F5(
-	function (id, name, expires, category, colors) {
-		return {category: category, colors: colors, expires: expires, id: id, name: name};
+	function (id, name, open, category, colors) {
+		return {category: category, colors: colors, id: id, name: name, open: open};
 	});
-var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', '', '', _List_Nil);
+var $author$project$Vote$newSet = A5($author$project$Vote$Set, '', '', false, '', _List_Nil);
 var $author$project$Vote$newModel = A7($author$project$Vote$Model, $author$project$Vote$newSet, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, true, '');
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5222,7 +5222,7 @@ var $author$project$Vote$setFromJson = A6(
 	$author$project$Vote$Set,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'expires', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'open', $elm$json$Json$Decode$bool),
 	A2($elm$json$Json$Decode$field, 'category', $elm$json$Json$Decode$string),
 	A2(
 		$elm$json$Json$Decode$field,
@@ -5746,8 +5746,6 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
 };
 var $rundis$elm_bootstrap$Bootstrap$Button$info = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Info));
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3 = $elm$html$Html$Attributes$class('mt-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = $elm$html$Html$Attributes$class('mt-4');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
@@ -6999,19 +6997,6 @@ var $author$project$Vote$view = function (model) {
 									[
 										$elm$html$Html$text(model.set.name)
 									]))
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
-						A2(
-						$rundis$elm_bootstrap$Bootstrap$Grid$col,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
-								_List_fromArray(
-									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3, $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('expires ' + model.set.expires)
 							])),
 						$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(_List_Nil),
 						A2(

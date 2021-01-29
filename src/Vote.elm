@@ -62,7 +62,7 @@ type alias Model =
 type alias Set =
     { id : String
     , name : String
-    , expires : String
+    , open : Bool
     , category : String
     , colors : List String
     }
@@ -77,14 +77,14 @@ newModel =
 
 newSet : Set
 newSet =
-    Set "" "" "" "" []
+    Set "" "" False "" []
 
 setFromJson : D.Decoder Set
 setFromJson =
     D.map5 Set
         (D.field "id" D.string)
         (D.field "name" D.string)
-        (D.field "expires" D.string)
+        (D.field "open" D.bool)
         (D.field "category" D.string)
         (D.field "colors" (D.list D.string))
 
@@ -216,9 +216,6 @@ view model =
                 else
                     [ Grid.col []
                         [ h3 [] [ text model.set.name ] ]
-                    , Grid.colBreak []
-                    , Grid.col [ Col.attrs [ Spacing.mb3, Spacing.ml1 ] ]
-                        [ text ("expires " ++ model.set.expires) ]
                     , Grid.colBreak []
                     , Grid.col [] [ hr [ Spacing.my1 ] [] ]
                     ]

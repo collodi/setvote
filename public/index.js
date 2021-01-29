@@ -60,8 +60,7 @@ function subscribeToFavs(set_id) {
 }
 
 db.collection('sets')
-	.orderBy('expires')
-	.where('expires', '>', Date.now())
+	.orderBy('created', 'desc')
 	.limit(1)
 	.get()
 	.then(snap => {
@@ -72,10 +71,13 @@ db.collection('sets')
 
 		let data = snap.docs[0].data();
 		data.id = snap.docs[0].id;
-		data.expires = new Date(data.expires).toISOString().slice(0, 10);
 
-		subscribeToVotes(data.id);
-		subscribeToFavs(data.id);
+		if (!data.open) {
+			app.ports.openSet.send({});
+		} else {
+			subscribeToVotes(data.id);
+			subscribeToFavs(data.id);
 
-		app.ports.openSet.send(data);
+			app.ports.openSet.send(data);
+		}
 	});
