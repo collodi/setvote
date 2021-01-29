@@ -223,7 +223,11 @@ view model =
         , Grid.row [] (
             case model.notVoted of
                 Nothing ->
-                    []
+                    [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
+                        [ Alert.simplePrimary
+                            []
+                            [ text "Thanks for voting! There is no open vote at the time." ] ]
+                    ]
                 Just [] ->
                     [ Grid.col [ Col.attrs [ Spacing.mt3 ] ]
                         [ Alert.simplePrimary [] [ text "You voted for every route!" ] ]

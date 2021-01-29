@@ -7017,7 +7017,27 @@ var $author$project$Vote$view = function (model) {
 				function () {
 					var _v0 = model.notVoted;
 					if (_v0.$ === 'Nothing') {
-						return _List_Nil;
+						return _List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Grid$col,
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+										_List_fromArray(
+											[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt3]))
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$rundis$elm_bootstrap$Bootstrap$Alert$simplePrimary,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Thanks for voting! There is no open vote at the time.')
+											]))
+									]))
+							]);
 					} else {
 						if (!_v0.a.b) {
 							return _List_fromArray(
