@@ -8,7 +8,7 @@ var app = Elm.Admin.init({
 
 app.ports.addSet.subscribe(data => {
 	// extra string append makes it local time
-	data.expires = Date.parse(data.expires + 'T00:00:00');
+	data.open = true;
 	data.created = Date.now();
 
 	db.collection('sets').add(data);
@@ -28,6 +28,10 @@ app.ports.deleteSet.subscribe(set_id => {
 		});
 });
 
+app.ports.toggleOpenSet.subscribe(set => {
+	db.collection('sets').doc(set.id).update({ open: set.open });
+});
+
 db.collection('sets')
 	.orderBy('created', 'desc')
 	.onSnapshot(snap => {
@@ -38,7 +42,7 @@ db.collection('sets')
 			let data = doc.data();
 			data.id = doc.id;
 			data.showDelete = false;
-			data.expires = new Date(data.expires).toISOString().slice(0, 10);
+			data.open = data.open || false;
 
 			sets[doc.id] = data;
 		}

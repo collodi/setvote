@@ -32,6 +32,7 @@ import Json.Decode as D
 
 port addSet : E.Value -> Cmd msg
 port deleteSet : E.Value -> Cmd msg
+port toggleOpenSet : E.Value -> Cmd msg
 
 port allSets : (D.Value -> msg) -> Sub msg
 port allPolls : (D.Value -> msg) -> Sub msg
@@ -62,7 +63,6 @@ type alias Model =
 
 type alias NewSet =
     { name : String
-    , expires : String
     , newColor : String
     , category : String
     , colors : List String
@@ -72,7 +72,7 @@ type alias NewSet =
 type alias Set =
     { id : String
     , name : String
-    , expires : String
+    , open : Bool
     , category : String
     , colors : List String
     , showDelete : Bool
@@ -96,15 +96,21 @@ initModel =
 
 initNewSet : NewSet
 initNewSet =
-    NewSet "" "" "" "boulder" [] ""
+    NewSet "" "" "boulder" [] ""
 
 newSetToJson : NewSet -> E.Value
 newSetToJson newSet =
     E.object
         [ ("name", E.string newSet.name)
-        , ("expires", E.string newSet.expires)
         , ("category", E.string newSet.category)
         , ("colors", E.list E.string newSet.colors)
+        ]
+
+toggleOpenSetToJson : Set -> E.Value
+toggleOpenSetToJson set =
+    E.object
+        [ ("id", E.string set.id)
+        , ("open", E.bool (not set.open))
         ]
 
 allSetsFromJson : D.Decoder (List Set)
@@ -116,7 +122,7 @@ setFromJson =
     D.map6 Set
         (D.field "id" D.string)
         (D.field "name" D.string)
-        (D.field "expires" D.string)
+        (D.field "open" D.bool)
         (D.field "category" D.string)
         (D.field "colors" (D.list D.string))
         (D.field "showDelete" D.bool)
@@ -141,6 +147,7 @@ type Msg
     | ToggleNewSet
     | ToggleDelete Set
     | DeleteSet String
+    | ToggleOpenSet Set
     | AllSets D.Value
     | Polls D.Value
     | Authd D.Value
@@ -162,12 +169,6 @@ update msg model =
                 (
                     { model
                         | newSet = showMsgInNewSet "What's the name of this set?" model.newSet
-                    }
-                , Cmd.none )
-            else if String.isEmpty model.newSet.expires then
-                (
-                    { model
-                        | newSet = showMsgInNewSet "When does this set expire?" model.newSet
                     }
                 , Cmd.none )
             else if List.isEmpty model.newSet.colors then
@@ -199,6 +200,10 @@ update msg model =
         DeleteSet id ->
             ( model
             , deleteSet (E.string id) )
+
+        ToggleOpenSet set ->
+            ( model
+            , toggleOpenSet (toggleOpenSetToJson set))
 
         AllSets setsValue ->
             case D.decodeValue allSetsFromJson setsValue of
@@ -248,9 +253,6 @@ updateNewSet msg newSet =
     case msg of
         Name name ->
             { newSet | name = name }
-
-        CloseDate date ->
-            { newSet | expires = date }
 
         Category category ->
             { newSet | category = category }
@@ -335,15 +337,13 @@ viewSet polls set =
         |> Card.block []
             [ Block.titleH3 [ Spacing.mb1 ]
                 [ text set.name ]
-            , Block.text [ Spacing.mb3, Spacing.ml1 ]
-                [ text ("expires " ++ set.expires) ]
             , Block.custom <|
                 ListGroup.ul (List.map (viewRoute set polls) set.colors)
             ]
-        |> Card.footer []
+        |> Card.footer [] (
             [
                 if set.showDelete then
-                    div []
+                    div [ Spacing.mr2, Display.inlineBlock ]
                         [ span [ Spacing.mr2 ] [ text "Really delete?" ]
                         , Button.button
                             [ Button.danger
@@ -360,10 +360,27 @@ viewSet polls set =
                 else
                     Button.button
                         [ Button.danger
-                        , Button.attrs [ onClick (ToggleDelete set) ]
+                        , Button.attrs [ onClick (ToggleDelete set), Spacing.mr2 ]
                         ]
                         [ text "Delete Set" ]
+            ] ++
+            [
+                if set.open then
+                    Button.button
+                        [ Button.warning
+                        , Button.attrs
+                            [ Spacing.mr1, onClick (ToggleOpenSet set) ]
+                        ]
+                        [ text "Close voting" ]
+                else
+                    Button.button
+                        [ Button.secondary
+                        , Button.attrs
+                            [ Spacing.mr1, onClick (ToggleOpenSet set) ]
+                        ]
+                        [ text "Open voting" ]
             ]
+        )
         |> Card.view
 
 
@@ -424,11 +441,6 @@ viewNewSet newSet =
             , Input.text [ Input.id "name", Input.attrs [ value newSet.name, onInput Name ] ]
             ]
         , Grid.colBreak [ Spacing.my1 ]
-        , Grid.col []
-            [ Form.label [ for "close-date" ] [ text "Voting expires on" ]
-            , Input.date [ Input.id "close-date", Input.attrs [ value newSet.expires, onInput CloseDate ] ]
-            ]
-        , Grid.colBreak [ Spacing.my2 ]
         , Grid.col []
             [ Radio.radio
                 [ Radio.id "category"

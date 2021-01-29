@@ -5148,11 +5148,11 @@ var $author$project$Admin$Model = F6(
 	function (newSet, showNewSet, sets, polls, msg, authd) {
 		return {authd: authd, msg: msg, newSet: newSet, polls: polls, sets: sets, showNewSet: showNewSet};
 	});
-var $author$project$Admin$NewSet = F6(
-	function (name, expires, newColor, category, colors, msg) {
-		return {category: category, colors: colors, expires: expires, msg: msg, name: name, newColor: newColor};
+var $author$project$Admin$NewSet = F5(
+	function (name, newColor, category, colors, msg) {
+		return {category: category, colors: colors, msg: msg, name: name, newColor: newColor};
 	});
-var $author$project$Admin$initNewSet = A6($author$project$Admin$NewSet, '', '', '', 'boulder', _List_Nil, '');
+var $author$project$Admin$initNewSet = A5($author$project$Admin$NewSet, '', '', 'boulder', _List_Nil, '');
 var $author$project$Admin$initModel = A6($author$project$Admin$Model, $author$project$Admin$initNewSet, false, _List_Nil, _List_Nil, '', false);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5185,8 +5185,8 @@ var $author$project$Admin$subscriptions = function (model) {
 var $author$project$Admin$addSet = _Platform_outgoingPort('addSet', $elm$core$Basics$identity);
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Admin$Set = F6(
-	function (id, name, expires, category, colors, showDelete) {
-		return {category: category, colors: colors, expires: expires, id: id, name: name, showDelete: showDelete};
+	function (id, name, open, category, colors, showDelete) {
+		return {category: category, colors: colors, id: id, name: name, open: open, showDelete: showDelete};
 	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$field = _Json_decodeField;
@@ -5197,7 +5197,7 @@ var $author$project$Admin$setFromJson = A7(
 	$author$project$Admin$Set,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'expires', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'open', $elm$json$Json$Decode$bool),
 	A2($elm$json$Json$Decode$field, 'category', $elm$json$Json$Decode$string),
 	A2(
 		$elm$json$Json$Decode$field,
@@ -5245,9 +5245,6 @@ var $author$project$Admin$newSetToJson = function (newSet) {
 				'name',
 				$elm$json$Json$Encode$string(newSet.name)),
 				_Utils_Tuple2(
-				'expires',
-				$elm$json$Json$Encode$string(newSet.expires)),
-				_Utils_Tuple2(
 				'category',
 				$elm$json$Json$Encode$string(newSet.category)),
 				_Utils_Tuple2(
@@ -5289,6 +5286,20 @@ var $author$project$Admin$toggleDeleteIfMatch = F2(
 			set,
 			{showDelete: !set.showDelete}) : set;
 	});
+var $author$project$Admin$toggleOpenSet = _Platform_outgoingPort('toggleOpenSet', $elm$core$Basics$identity);
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $author$project$Admin$toggleOpenSetToJson = function (set) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'id',
+				$elm$json$Json$Encode$string(set.id)),
+				_Utils_Tuple2(
+				'open',
+				$elm$json$Json$Encode$bool(!set.open))
+			]));
+};
 var $author$project$Admin$deleteFirst = F2(
 	function (target, list) {
 		if (!list.b) {
@@ -5310,11 +5321,6 @@ var $author$project$Admin$updateNewSet = F2(
 				return _Utils_update(
 					newSet,
 					{name: name});
-			case 'CloseDate':
-				var date = msg.a;
-				return _Utils_update(
-					newSet,
-					{expires: date});
 			case 'Category':
 				var category = msg.a;
 				return _Utils_update(
@@ -5355,12 +5361,6 @@ var $author$project$Admin$update = F2(
 							{
 								newSet: A2($author$project$Admin$showMsgInNewSet, 'What\'s the name of this set?', model.newSet)
 							}),
-						$elm$core$Platform$Cmd$none) : ($elm$core$String$isEmpty(model.newSet.expires) ? _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								newSet: A2($author$project$Admin$showMsgInNewSet, 'When does this set expire?', model.newSet)
-							}),
 						$elm$core$Platform$Cmd$none) : ($elm$core$List$isEmpty(model.newSet.colors) ? _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -5372,7 +5372,7 @@ var $author$project$Admin$update = F2(
 							model,
 							{newSet: $author$project$Admin$initNewSet, showNewSet: false}),
 						$author$project$Admin$addSet(
-							$author$project$Admin$newSetToJson(model.newSet)))));
+							$author$project$Admin$newSetToJson(model.newSet))));
 				} else {
 					var newSetMsg = msg.a;
 					return _Utils_Tuple2(
@@ -5407,6 +5407,12 @@ var $author$project$Admin$update = F2(
 					model,
 					$author$project$Admin$deleteSet(
 						$elm$json$Json$Encode$string(id)));
+			case 'ToggleOpenSet':
+				var set = msg.a;
+				return _Utils_Tuple2(
+					model,
+					$author$project$Admin$toggleOpenSet(
+						$author$project$Admin$toggleOpenSetToJson(set)));
 			case 'AllSets':
 				var setsValue = msg.a;
 				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Admin$allSetsFromJson, setsValue);
@@ -5554,7 +5560,6 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $rundis$elm_bootstrap$Bootstrap$Internal$Button$defaultOptions = {attributes: _List_Nil, block: false, coloring: $elm$core$Maybe$Nothing, disabled: false, size: $elm$core$Maybe$Nothing};
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -6798,9 +6803,6 @@ var $author$project$Admin$AddSet = {$: 'AddSet'};
 var $author$project$Admin$Category = function (a) {
 	return {$: 'Category', a: a};
 };
-var $author$project$Admin$CloseDate = function (a) {
-	return {$: 'CloseDate', a: a};
-};
 var $author$project$Admin$Name = function (a) {
 	return {$: 'Name', a: a};
 };
@@ -6819,7 +6821,250 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Checked = function (a) {
 var $rundis$elm_bootstrap$Bootstrap$Form$Radio$checked = function (isCheck) {
 	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Checked(isCheck);
 };
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$Date = {$: 'Date'};
+var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Id = function (a) {
+	return {$: 'Id', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$id = function (id_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Id(id_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Id = function (a) {
+	return {$: 'Id', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$id = function (theId) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Id(theId);
+};
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
+	function (attributes, children) {
+		return A2(
+			$elm$html$Html$label,
+			A2(
+				$elm$core$List$cons,
+				$elm$html$Html$Attributes$class('form-control-label'),
+				attributes),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1 = $elm$html$Html$Attributes$class('m-1');
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick = function (a) {
+	return {$: 'OnClick', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick = function (toMsg) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick(toMsg);
+};
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio = function (a) {
+	return {$: 'Radio', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$createAdvanced = F2(
+	function (options, label_) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio(
+			{label: label_, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Label = function (a) {
+	return {$: 'Label', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$label = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Label(
+			{attributes: attributes, children: children});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$create = F2(
+	function (options, label_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Form$Radio$createAdvanced,
+			options,
+			A2(
+				$rundis$elm_bootstrap$Bootstrap$Form$Radio$label,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(label_)
+					])));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Id':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						id: $elm$core$Maybe$Just(val)
+					});
+			case 'Checked':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{checked: val});
+			case 'Name':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						name: $elm$core$Maybe$Just(val)
+					});
+			case 'Inline':
+				return _Utils_update(
+					options,
+					{inline: true});
+			case 'OnClick':
+				var toMsg = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						onClick: $elm$core$Maybe$Just(toMsg)
+					});
+			case 'Custom':
+				return _Utils_update(
+					options,
+					{custom: true});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
+			case 'Validation':
+				var validation = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						validation: $elm$core$Maybe$Just(validation)
+					});
+			default:
+				var attrs_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions = {attributes: _List_Nil, checked: false, custom: false, disabled: false, id: $elm$core$Maybe$Nothing, inline: false, name: $elm$core$Maybe$Nothing, onClick: $elm$core$Maybe$Nothing, validation: $elm$core$Maybe$Nothing};
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes = function (options) {
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('form-check-input', !options.custom),
+						_Utils_Tuple2('custom-control-input', options.custom)
+					])),
+				$elm$html$Html$Attributes$type_('radio'),
+				$elm$html$Html$Attributes$disabled(options.disabled),
+				$elm$html$Html$Attributes$checked(options.checked)
+			]),
+		_Utils_ap(
+			A2(
+				$elm$core$List$filterMap,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						A2($elm$core$Maybe$map, $elm$html$Html$Events$onClick, options.onClick),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$name, options.name),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id)
+					])),
+			options.attributes));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$view = function (_v0) {
+	var radio_ = _v0.a;
+	var opts = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions, radio_.options);
+	var _v1 = radio_.label;
+	var label_ = _v1.a;
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('form-check', !opts.custom),
+						_Utils_Tuple2('form-check-inline', (!opts.custom) && opts.inline),
+						_Utils_Tuple2('custom-control', opts.custom),
+						_Utils_Tuple2('custom-radio', opts.custom),
+						_Utils_Tuple2('custom-control-inline', opts.inline && opts.custom)
+					]))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$input,
+				$rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes(opts),
+				_List_Nil),
+				A2(
+				$elm$html$Html$label,
+				_Utils_ap(
+					label_.attributes,
+					_Utils_ap(
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2('form-check-label', !opts.custom),
+										_Utils_Tuple2('custom-control-label', opts.custom)
+									]))
+							]),
+						function () {
+							var _v2 = opts.id;
+							if (_v2.$ === 'Just') {
+								var v = _v2.a;
+								return _List_fromArray(
+									[
+										$elm$html$Html$Attributes$for(v)
+									]);
+							} else {
+								return _List_Nil;
+							}
+						}())),
+				label_.children)
+			]));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Radio$radio = F2(
+	function (options, label_) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$view(
+			A2($rundis$elm_bootstrap$Bootstrap$Form$Radio$create, options, label_));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger = {$: 'Danger'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$simpleDanger = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger);
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Text = {$: 'Text'};
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$Input = function (a) {
 	return {$: 'Input', a: a};
 };
@@ -6836,7 +7081,6 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$create = F2(
 					options)
 			});
 	});
-var $elm$html$Html$input = _VirtualDom_node('input');
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$applyModifier = F2(
 	function (modifier, options) {
 		switch (modifier.$) {
@@ -6911,40 +7155,7 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$applyModifier = F2(
 					});
 		}
 	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$Text = {$: 'Text'};
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$defaultOptions = {attributes: _List_Nil, disabled: false, id: $elm$core$Maybe$Nothing, onInput: $elm$core$Maybe$Nothing, placeholder: $elm$core$Maybe$Nothing, plainText: false, readonly: false, size: $elm$core$Maybe$Nothing, tipe: $rundis$elm_bootstrap$Bootstrap$Form$Input$Text, validation: $elm$core$Maybe$Nothing, value: $elm$core$Maybe$Nothing};
-var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
-var $elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var $elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $elm$html$Html$Events$onInput = function (tagger) {
-	return A2(
-		$elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			$elm$json$Json$Decode$map,
-			$elm$html$Html$Events$alwaysStop,
-			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
-};
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$Attributes$readonly = $elm$html$Html$Attributes$boolProperty('readOnly');
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$sizeAttribute = function (size) {
@@ -7038,217 +7249,6 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$input = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Form$Input$view(
 			A2($rundis$elm_bootstrap$Bootstrap$Form$Input$create, tipe, options));
 	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$date = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Date);
-var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
-var $elm$html$Html$hr = _VirtualDom_node('hr');
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$Id = function (a) {
-	return {$: 'Id', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Input$id = function (id_) {
-	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Id(id_);
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Id = function (a) {
-	return {$: 'Id', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$id = function (theId) {
-	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Id(theId);
-};
-var $elm$html$Html$label = _VirtualDom_node('label');
-var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
-	function (attributes, children) {
-		return A2(
-			$elm$html$Html$label,
-			A2(
-				$elm$core$List$cons,
-				$elm$html$Html$Attributes$class('form-control-label'),
-				attributes),
-			children);
-	});
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1 = $elm$html$Html$Attributes$class('m-1');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my1 = $elm$html$Html$Attributes$class('my-1');
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick = function (a) {
-	return {$: 'OnClick', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$onClick = function (toMsg) {
-	return $rundis$elm_bootstrap$Bootstrap$Form$Radio$OnClick(toMsg);
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio = function (a) {
-	return {$: 'Radio', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$createAdvanced = F2(
-	function (options, label_) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Radio(
-			{label: label_, options: options});
-	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$Label = function (a) {
-	return {$: 'Label', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$label = F2(
-	function (attributes, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$Label(
-			{attributes: attributes, children: children});
-	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$create = F2(
-	function (options, label_) {
-		return A2(
-			$rundis$elm_bootstrap$Bootstrap$Form$Radio$createAdvanced,
-			options,
-			A2(
-				$rundis$elm_bootstrap$Bootstrap$Form$Radio$label,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(label_)
-					])));
-	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier = F2(
-	function (modifier, options) {
-		switch (modifier.$) {
-			case 'Id':
-				var val = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						id: $elm$core$Maybe$Just(val)
-					});
-			case 'Checked':
-				var val = modifier.a;
-				return _Utils_update(
-					options,
-					{checked: val});
-			case 'Name':
-				var val = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						name: $elm$core$Maybe$Just(val)
-					});
-			case 'Inline':
-				return _Utils_update(
-					options,
-					{inline: true});
-			case 'OnClick':
-				var toMsg = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						onClick: $elm$core$Maybe$Just(toMsg)
-					});
-			case 'Custom':
-				return _Utils_update(
-					options,
-					{custom: true});
-			case 'Disabled':
-				var val = modifier.a;
-				return _Utils_update(
-					options,
-					{disabled: val});
-			case 'Validation':
-				var validation = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						validation: $elm$core$Maybe$Just(validation)
-					});
-			default:
-				var attrs_ = modifier.a;
-				return _Utils_update(
-					options,
-					{
-						attributes: _Utils_ap(options.attributes, attrs_)
-					});
-		}
-	});
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions = {attributes: _List_Nil, checked: false, custom: false, disabled: false, id: $elm$core$Maybe$Nothing, inline: false, name: $elm$core$Maybe$Nothing, onClick: $elm$core$Maybe$Nothing, validation: $elm$core$Maybe$Nothing};
-var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
-var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes = function (options) {
-	return _Utils_ap(
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$classList(
-				_List_fromArray(
-					[
-						_Utils_Tuple2('form-check-input', !options.custom),
-						_Utils_Tuple2('custom-control-input', options.custom)
-					])),
-				$elm$html$Html$Attributes$type_('radio'),
-				$elm$html$Html$Attributes$disabled(options.disabled),
-				$elm$html$Html$Attributes$checked(options.checked)
-			]),
-		_Utils_ap(
-			A2(
-				$elm$core$List$filterMap,
-				$elm$core$Basics$identity,
-				_List_fromArray(
-					[
-						A2($elm$core$Maybe$map, $elm$html$Html$Events$onClick, options.onClick),
-						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$name, options.name),
-						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id)
-					])),
-			options.attributes));
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$view = function (_v0) {
-	var radio_ = _v0.a;
-	var opts = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Radio$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Radio$defaultOptions, radio_.options);
-	var _v1 = radio_.label;
-	var label_ = _v1.a;
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$classList(
-				_List_fromArray(
-					[
-						_Utils_Tuple2('form-check', !opts.custom),
-						_Utils_Tuple2('form-check-inline', (!opts.custom) && opts.inline),
-						_Utils_Tuple2('custom-control', opts.custom),
-						_Utils_Tuple2('custom-radio', opts.custom),
-						_Utils_Tuple2('custom-control-inline', opts.inline && opts.custom)
-					]))
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$input,
-				$rundis$elm_bootstrap$Bootstrap$Form$Radio$toAttributes(opts),
-				_List_Nil),
-				A2(
-				$elm$html$Html$label,
-				_Utils_ap(
-					label_.attributes,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$classList(
-								_List_fromArray(
-									[
-										_Utils_Tuple2('form-check-label', !opts.custom),
-										_Utils_Tuple2('custom-control-label', opts.custom)
-									]))
-							]),
-						function () {
-							var _v2 = opts.id;
-							if (_v2.$ === 'Just') {
-								var v = _v2.a;
-								return _List_fromArray(
-									[
-										$elm$html$Html$Attributes$for(v)
-									]);
-							} else {
-								return _List_Nil;
-							}
-						}())),
-				label_.children)
-			]));
-};
-var $rundis$elm_bootstrap$Bootstrap$Form$Radio$radio = F2(
-	function (options, label_) {
-		return $rundis$elm_bootstrap$Bootstrap$Form$Radio$view(
-			A2($rundis$elm_bootstrap$Bootstrap$Form$Radio$create, options, label_));
-	});
-var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger = {$: 'Danger'};
-var $rundis$elm_bootstrap$Bootstrap$Alert$simpleDanger = $rundis$elm_bootstrap$Bootstrap$Alert$simple($rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger);
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
 var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier = F2(
 	function (modifier, options) {
@@ -7458,36 +7458,6 @@ var $author$project$Admin$viewNewSet = function (newSet) {
 				_List_fromArray(
 					[
 						A2(
-						$rundis$elm_bootstrap$Bootstrap$Form$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('close-date')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Voting expires on')
-							])),
-						$rundis$elm_bootstrap$Bootstrap$Form$Input$date(
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$id('close-date'),
-								$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$value(newSet.expires),
-										$elm$html$Html$Events$onInput($author$project$Admin$CloseDate)
-									]))
-							]))
-					])),
-				$rundis$elm_bootstrap$Bootstrap$Grid$colBreak(
-				_List_fromArray(
-					[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$my2])),
-				A2(
-				$rundis$elm_bootstrap$Bootstrap$Grid$col,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
 						$rundis$elm_bootstrap$Bootstrap$Form$Radio$radio,
 						_List_fromArray(
 							[
@@ -7634,6 +7604,9 @@ var $author$project$Admin$DeleteSet = function (a) {
 };
 var $author$project$Admin$ToggleDelete = function (a) {
 	return {$: 'ToggleDelete', a: a};
+};
+var $author$project$Admin$ToggleOpenSet = function (a) {
+	return {$: 'ToggleOpenSet', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Card$Internal$Attrs = function (a) {
 	return {$: 'Attrs', a: a};
@@ -7797,25 +7770,10 @@ var $rundis$elm_bootstrap$Bootstrap$Card$footer = F3(
 								children)))
 				}));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock = $elm$html$Html$Attributes$class('d-inline-block');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb1 = $elm$html$Html$Attributes$class('mb-1');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3 = $elm$html$Html$Attributes$class('mb-3');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1 = $elm$html$Html$Attributes$class('mr-1');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2 = $elm$html$Html$Attributes$class('mr-2');
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $rundis$elm_bootstrap$Bootstrap$Card$Block$text = F2(
-	function (attributes, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(
-			A2(
-				$elm$html$Html$p,
-				_Utils_ap(
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('card-text')
-						]),
-					attributes),
-				children));
-	});
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $rundis$elm_bootstrap$Bootstrap$Card$Block$title = F3(
 	function (elemFn, attributes, children) {
@@ -8010,7 +7968,6 @@ var $author$project$Admin$findPoll = F3(
 				polls));
 	});
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
-var $rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock = $elm$html$Html$Attributes$class('d-inline-block');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml3 = $elm$html$Html$Attributes$class('ml-3');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Border$none = $elm$html$Html$Attributes$class('border-0');
 var $rundis$elm_bootstrap$Bootstrap$Badge$Pill = {$: 'Pill'};
@@ -8076,6 +8033,7 @@ var $rundis$elm_bootstrap$Bootstrap$Badge$badgeDark = $rundis$elm_bootstrap$Boot
 		[
 			$rundis$elm_bootstrap$Bootstrap$Badge$Roled($rundis$elm_bootstrap$Bootstrap$Badge$Dark)
 		]));
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $author$project$Admin$viewGrade = F2(
 	function (grade, count) {
 		return A2(
@@ -8189,71 +8147,110 @@ var $author$project$Admin$viewSet = F2(
 			A3(
 				$rundis$elm_bootstrap$Bootstrap$Card$footer,
 				_List_Nil,
-				_List_fromArray(
-					[
-						set.showDelete ? A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$span,
-								_List_fromArray(
-									[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Really delete?')
-									])),
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Button$button,
-								_List_fromArray(
-									[
-										$rundis$elm_bootstrap$Bootstrap$Button$danger,
-										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-										_List_fromArray(
-											[
-												$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1,
-												$elm$html$Html$Events$onClick(
-												$author$project$Admin$DeleteSet(set.id))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Delete')
-									])),
-								A2(
-								$rundis$elm_bootstrap$Bootstrap$Button$button,
-								_List_fromArray(
-									[
-										$rundis$elm_bootstrap$Bootstrap$Button$secondary,
-										$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick(
-												$author$project$Admin$ToggleDelete(set))
-											]))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Nevermind')
-									]))
-							])) : A2(
-						$rundis$elm_bootstrap$Bootstrap$Button$button,
-						_List_fromArray(
-							[
-								$rundis$elm_bootstrap$Bootstrap$Button$danger,
-								$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick(
-										$author$project$Admin$ToggleDelete(set))
-									]))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Delete Set')
-							]))
-					]),
+				_Utils_ap(
+					_List_fromArray(
+						[
+							set.showDelete ? A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2, $rundis$elm_bootstrap$Bootstrap$Utilities$Display$inlineBlock]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Really delete?')
+										])),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Button$danger,
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_List_fromArray(
+												[
+													$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1,
+													$elm$html$Html$Events$onClick(
+													$author$project$Admin$DeleteSet(set.id))
+												]))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Delete')
+										])),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Button$secondary,
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_List_fromArray(
+												[
+													$elm$html$Html$Events$onClick(
+													$author$project$Admin$ToggleDelete(set))
+												]))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Nevermind')
+										]))
+								])) : A2(
+							$rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Button$danger,
+									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+									_List_fromArray(
+										[
+											$elm$html$Html$Events$onClick(
+											$author$project$Admin$ToggleDelete(set)),
+											$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr2
+										]))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Delete Set')
+								]))
+						]),
+					_List_fromArray(
+						[
+							set.open ? A2(
+							$rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Button$warning,
+									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1,
+											$elm$html$Html$Events$onClick(
+											$author$project$Admin$ToggleOpenSet(set))
+										]))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Close voting')
+								])) : A2(
+							$rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Button$secondary,
+									$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr1,
+											$elm$html$Html$Events$onClick(
+											$author$project$Admin$ToggleOpenSet(set))
+										]))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Open voting')
+								]))
+						])),
 				A3(
 					$rundis$elm_bootstrap$Bootstrap$Card$block,
 					_List_Nil,
@@ -8266,14 +8263,6 @@ var $author$project$Admin$viewSet = F2(
 							_List_fromArray(
 								[
 									$elm$html$Html$text(set.name)
-								])),
-							A2(
-							$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
-							_List_fromArray(
-								[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mb3, $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('expires ' + set.expires)
 								])),
 							$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
 							$rundis$elm_bootstrap$Bootstrap$ListGroup$ul(
