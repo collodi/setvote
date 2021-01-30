@@ -51,7 +51,7 @@ db.collection('sets')
 	});
 
 function unescapeGrade(grade) {
-	return grade.replaceAll('!', '.').replaceAll('@', '/');
+	return grade.replace(/!/g, '.').replace(/@/g, '/');
 }
 
 function pollToList(poll) {
